@@ -1,0 +1,21 @@
+/* override table width restrictions */
+.wy-table-responsive table td, .wy-table-responsive table th {
+    white-space: normal;
+}
+
+.wy-table-responsive {
+    margin-bottom: 24px;
+    max-width: 100%;
+    overflow: visible;
+}
+
+/* Add boxed "keycaps" styling for keyboard combos */
+code.kbd {
+  border-radius: 3px;
+  padding: 3px 4px 1px;
+  border: 1px solid #777;
+}
+code.kbd span.pre { color: black; }
+
+/* Underlining for accelerators in menuselection and guilabel */
+.accelerator { text-decoration: underline; }
