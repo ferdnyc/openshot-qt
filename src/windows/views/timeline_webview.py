@@ -46,6 +46,7 @@ from classes.app import get_app
 from classes.logger import log
 from classes.query import File, Clip, Transition, Track
 from classes.waveform import get_audio_data
+from classes.thumbnail import GenerateThumbnail
 
 try:
     import json
@@ -274,23 +275,13 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
             # Convert path to the correct relative path (based on this folder)
             file_path = file.absolute_path()
 
-            # Reload this reader
-            clip = openshot.Clip(file_path)
-            reader = clip.Reader()
-
-            # Open reader
-            reader.Open()
-
             # Determine if video overlay should be applied to thumbnail
             overlay_path = ""
             if file.data["media_type"] == "video":
                 overlay_path = os.path.join(info.IMAGES_PATH, "overlay.png")
 
-            # Save thumbnail
-            reader.GetFrame(start_frame).Thumbnail(thumb_path, 98, 64, os.path.join(info.IMAGES_PATH, "mask.png"),
-                                         overlay_path, "#000", False)
-            reader.Close()
-            clip.Close()
+            # Create thumbnail image
+            GenerateThumbnail(file_path, thumb_path, start_frame, 98, 64, os.path.join(info.IMAGES_PATH, "mask.png"), overlay_path)
 
             # Update clip_data to point to new thumbnail image
             clip_data["image"] = thumb_path
@@ -469,7 +460,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         clipboard_clip_ids = [k for k, v in self.copy_clipboard.items() if v.get('id')]
         clipboard_tran_ids = [k for k, v in self.copy_transition_clipboard.items() if v.get('id')]
 
-        # Paste Menu (if entire cilps or transitions are copied)
+        # Paste Menu (if entire clips or transitions are copied)
         if self.copy_clipboard or self.copy_transition_clipboard:
             if len(clipboard_clip_ids) + len(clipboard_tran_ids) > 0:
                 menu = QMenu(self)
@@ -840,7 +831,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         Transform_Action.triggered.connect(partial(self.Transform_Triggered, MENU_TRANSFORM, clip_ids))
         menu.addAction(Transform_Action)
 
-        # Add clip display menu (waveform or thunbnail)
+        # Add clip display menu (waveform or thumbnail)
         menu.addSeparator()
         Waveform_Menu = QMenu(_("Display"), self)
         ShowWaveform = Waveform_Menu.addAction(_("Show Waveform"))
@@ -2291,7 +2282,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         clipboard_tran_ids = [k for k, v in self.copy_transition_clipboard.items() if v.get('id')]
         # Determine if the paste menu should be shown
         if self.copy_transition_clipboard and len(clipboard_clip_ids) + len(clipboard_tran_ids) == 0:
-            # Paste Menu (Only show when partial transition clipboard avaialble)
+            # Paste Menu (Only show when partial transition clipboard available)
             Paste_Tran = menu.addAction(_("Paste"))
             Paste_Tran.triggered.connect(partial(self.Paste_Triggered, MENU_PASTE, 0.0, 0, [], tran_ids))
 
