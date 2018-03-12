@@ -162,6 +162,9 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
             # No backup project found
             # Load a blank project (to propagate the default settings)
             get_app().project.load("")
+            self.actionUndo.setEnabled(False)
+            self.actionRedo.setEnabled(False)
+            self.SetWindowTitle()
 
     def create_lock_file(self):
         """Create a lock file"""
@@ -207,7 +210,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
                 # Get top line of stack trace (for metrics)
                 last_log_line = last_stack_trace.split("\n")[0].strip()
 
-                # Send stacktrace for debugging (if send metrics is enalbed)
+                # Send stacktrace for debugging (if send metrics is enabled)
                 track_exception_stacktrace(last_stack_trace, "libopenshot")
 
             # Clear / normalize log line (so we can roll them up in the analytics)
@@ -1722,23 +1725,32 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         if not profile:
             profile = get_app().project.get(["profile"])
 
+        # Determine if the project needs saving (has any unsaved changes)
+        save_indicator = ""
+        if get_app().project.needs_save():
+            save_indicator = "*"
+            self.actionSave.setEnabled(True)
+        else:
+            self.actionSave.setEnabled(False)
+
         # Is this a saved project?
         if not get_app().project.current_filepath:
             # Not saved yet
-            self.setWindowTitle("%s [%s] - %s" % (_("Untitled Project"), profile, "OpenShot Video Editor"))
+            self.setWindowTitle("%s %s [%s] - %s" % (save_indicator, _("Untitled Project"), profile, "OpenShot Video Editor"))
         else:
             # Yes, project is saved
             # Get just the filename
             parent_path, filename = os.path.split(get_app().project.current_filepath)
             filename, ext = os.path.splitext(filename)
             filename = filename.replace("_", " ").replace("-", " ").capitalize()
-            self.setWindowTitle("%s [%s] - %s" % (filename, profile, "OpenShot Video Editor"))
+            self.setWindowTitle("%s %s [%s] - %s" % (save_indicator, filename, profile, "OpenShot Video Editor"))
 
     # Update undo and redo buttons enabled/disabled to available changes
     def updateStatusChanged(self, undo_status, redo_status):
         log.info('updateStatusChanged')
         self.actionUndo.setEnabled(undo_status)
         self.actionRedo.setEnabled(redo_status)
+        self.SetWindowTitle()
 
     # Add to the selected items
     def addSelection(self, item_id, item_type, clear_existing=False):
@@ -2177,9 +2189,6 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         # Setup timeline
         self.timeline = TimelineWebView(self)
         self.frameWeb.layout().addWidget(self.timeline)
-
-        # Set Window title
-        self.SetWindowTitle()
 
         # Setup files tree
         if s.get("file_view") == "details":

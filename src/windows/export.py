@@ -93,7 +93,7 @@ class Export(QDialog):
         # Pause playback (to prevent crash since we are fixing to change the timeline's max size)
         get_app().window.actionPlay_trigger(None, force="pause")
 
-        # Clear timeline preview cache (to get more avaiable memory)
+        # Clear timeline preview cache (to get more available memory)
         get_app().window.timeline_sync.timeline.ClearAllCache()
 
         # Hide audio channels
@@ -185,7 +185,7 @@ class Export(QDialog):
         self.cboChannelLayout.currentIndexChanged.connect(self.updateChannels)
         get_app().window.ExportFrame.connect(self.updateProgressBar)
 
-        # ********* Advaned Profile List **********
+        # ********* Advanced Profile List **********
         # Loop through profiles
         self.profile_names = []
         self.profile_paths = {}
@@ -336,8 +336,6 @@ class Export(QDialog):
         self.timeline_length_int = round(timeline_length * fps) + 1
 
         # Set the min and max frame numbers for this project
-        self.txtStartFrame.setMaximum(self.timeline_length_int)
-        self.txtEndFrame.setMaximum(self.timeline_length_int)
         self.txtStartFrame.setValue(1)
         self.txtEndFrame.setValue(self.timeline_length_int)
 

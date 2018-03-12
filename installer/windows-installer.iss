@@ -4,6 +4,10 @@
 #ifndef VERSION
   #define VERSION "0.0.0"
 #endif
+#ifndef ONLY_64_BIT
+  #define ONLY_64_BIT "x64"
+#endif
+
 
 #define MyAppName "OpenShot Video Editor"
 #define MyAppPublisher "OpenShot Studios, LLC"
@@ -26,9 +30,9 @@ AppCopyright=Copyright (c) 2008-2016 {#MyAppPublisher}
 DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=..\COPYING
-OutputBaseFilename=OpenShot-x86_64
-ArchitecturesInstallIn64BitMode=x64
-ArchitecturesAllowed=x64
+OutputBaseFilename=OpenShot
+ArchitecturesInstallIn64BitMode={#ONLY_64_BIT}
+ArchitecturesAllowed={#ONLY_64_BIT}
 ChangesEnvironment=yes
 Compression=lzma
 SolidCompression=yes
@@ -74,11 +78,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [InstallDelete]
 ; Remove previous installed versions of OpenShot
 Type: filesandordirs; Name: "{app}\*"
-Type: filesandordirs; Name: "{pf32}\OpenShot Video Editor\*"
-Type: filesandordirs; Name: "{pf64}\OpenShot Video Editor\*"
 Type: dirifempty; Name: "{app}\*"
-Type: dirifempty; Name: "{pf32}\OpenShot Video Editor\"
-Type: dirifempty; Name: "{pf64}\OpenShot Video Editor\"
 Type: files; Name: "{group}\OpenShot Video Editor"
 
 [Registry]
@@ -88,7 +88,7 @@ Root: HKLM; Subkey: "System\CurrentControlSet\Control\Session Manager\Environmen
 
 [Files]
 ; Add all frozen files from cx_Freeze build
-Source: "..\build\exe.mingw-3.5\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+Source: "..\build\exe.mingw-3.6\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 
 [Icons]
 Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
