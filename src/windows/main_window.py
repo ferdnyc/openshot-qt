@@ -7,7 +7,7 @@
 
  @section LICENSE
 
- Copyright (c) 2008-2016 OpenShot Studios, LLC
+ Copyright (c) 2008-2018 OpenShot Studios, LLC
  (http://www.openshotstudios.com). This file is part of
  OpenShot Video Editor (http://www.openshot.org), an open-source project
  dedicated to delivering high quality video editing and animation solutions
@@ -48,6 +48,7 @@ from classes.timeline import TimelineSync
 from classes.query import File, Clip, Transition, Marker, Track
 from classes.metrics import *
 from classes.version import *
+from classes.conversion import zoomToSeconds, secondsToZoom
 from images import openshot_rc
 from windows.views.files_treeview import FilesTreeView
 from windows.views.files_listview import FilesListView
@@ -162,6 +163,9 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
             # No backup project found
             # Load a blank project (to propagate the default settings)
             get_app().project.load("")
+            self.actionUndo.setEnabled(False)
+            self.actionRedo.setEnabled(False)
+            self.SetWindowTitle()
 
     def create_lock_file(self):
         """Create a lock file"""
@@ -582,13 +586,14 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
     def actionImportFiles_trigger(self, event):
         app = get_app()
         _ = app._tr
-        recommended_path = app.project.current_filepath
-        if not recommended_path:
+        recommended_path = app.project.get(["import_path"])
+        if not recommended_path or not os.path.exists(recommended_path):
             recommended_path = os.path.join(info.HOME_PATH)
         files = QFileDialog.getOpenFileNames(self, _("Import File..."), recommended_path)[0]
         for file_path in files:
             self.filesTreeView.add_file(file_path)
             self.filesTreeView.refresh_view()
+            app.updates.update(["import_path"], os.path.dirname(file_path))
             log.info("Imported media file {}".format(file_path))
 
     def actionAdd_to_Timeline_trigger(self, event):
@@ -963,7 +968,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         fps_float = float(fps["num"]) / float(fps["den"])
 
         # Calculate position in seconds
-        position = player.Position() / fps_float
+        position = (player.Position() - 1) / fps_float
 
         # Look for existing Marker
         marker = Marker()
@@ -976,7 +981,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         # Calculate current position (in seconds)
         fps = get_app().project.get(["fps"])
         fps_float = float(fps["num"]) / float(fps["den"])
-        current_position = self.preview_thread.current_frame / fps_float
+        current_position = (self.preview_thread.current_frame - 1) / fps_float
         all_marker_positions = []
 
         # Get list of marker and important positions (like selected clip bounds)
@@ -1029,7 +1034,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         # Calculate current position (in seconds)
         fps = get_app().project.get(["fps"])
         fps_float = float(fps["num"]) / float(fps["den"])
-        current_position = self.preview_thread.current_frame / fps_float
+        current_position = (self.preview_thread.current_frame - 1) / fps_float
         all_marker_positions = []
 
         # Get list of marker and important positions (like selected clip bounds)
@@ -1113,7 +1118,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         # Get framerate
         fps = get_app().project.get(["fps"])
         fps_float = float(fps["num"]) / float(fps["den"])
-        playhead_position = float(self.preview_thread.current_frame) / fps_float
+        playhead_position = float(self.preview_thread.current_frame - 1) / fps_float
 
         # Basic shortcuts i.e just a letter
         if key.matches(self.getShortcutByName("seekPreviousFrame")) == QKeySequence.ExactMatch:
@@ -1723,7 +1728,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
 
         # Determine if the project needs saving (has any unsaved changes)
         save_indicator = ""
-        if get_app().project.needs_save() or not get_app().project.current_filepath:
+        if get_app().project.needs_save():
             save_indicator = "*"
             self.actionSave.setEnabled(True)
         else:
@@ -1959,17 +1964,19 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         self.timelineToolbar.addSeparator()
 
         # Get project's initial zoom value
-        initial_scale = get_app().project.get(["scale"]) or 20
+        initial_scale = get_app().project.get(["scale"]) or 16
+        # Round non-exponential scale down to next lowest power of 2
+        initial_zoom = secondsToZoom(initial_scale)
 
         # Setup Zoom slider
         self.sliderZoom = QSlider(Qt.Horizontal, self)
         self.sliderZoom.setPageStep(2)
-        self.sliderZoom.setRange(1, 800)
-        self.sliderZoom.setValue(initial_scale)
+        self.sliderZoom.setRange(0, 13)
+        self.sliderZoom.setValue(initial_zoom)
         self.sliderZoom.setInvertedControls(True)
         self.sliderZoom.resize(100, 16)
 
-        self.zoomScaleLabel = QLabel(_("{} seconds").format(self.sliderZoom.value()))
+        self.zoomScaleLabel = QLabel( _("{} seconds").format(zoomToSeconds(self.sliderZoom.value())) )
 
         # add zoom widgets
         self.timelineToolbar.addAction(self.actionTimelineZoomIn)
@@ -2186,9 +2193,6 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         self.timeline = TimelineWebView(self)
         self.frameWeb.layout().addWidget(self.timeline)
 
-        # Set Window title
-        self.SetWindowTitle()
-
         # Setup files tree
         if s.get("file_view") == "details":
             self.filesTreeView = FilesTreeView(self)
@@ -2260,6 +2264,12 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         self.auto_save_timer.timeout.connect(self.auto_save_project)
         if s.get("enable-auto-save"):
             self.auto_save_timer.start()
+
+        # Set hardware decode environment variable
+        if s.get("hardware_decode"):
+            os.environ['OS2_DECODE_HW'] = "1"
+        else:
+            os.environ['OS2_DECODE_HW'] = "0"
 
         # Create lock file
         self.create_lock_file()
