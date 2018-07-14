@@ -20,49 +20,62 @@
 Titles
 ======
 
-Adding text and titles is an important aspect of video editing, and OpenShot comes with an easy to use Title Editor. Use
-the Title menu (located in the main menu of OpenShot) to launch the Title Editor. You can also use the keyboard shortcut
-**Ctrl+T**.
+Adding text and titles is an important aspect of video editing, and OpenShot comes with an easy to use Title Editor. Select :menuselection:`Title --> Title` from the OpenShot main menu to launch the Title Editor. You can also use the keyboard shortcut :kbd:`Ctrl` + :kbd:`t`.
 
 Overview
 --------
 
 .. image:: images/title-editor.jpg
 
-.. table::
-     :widths: 5 26
-
-     ==  ==================  ============
-     #   Name                Description
-     ==  ==================  ============
-     1   Choose a Template   Choose from any available vector title template
-     2   Preview Title       Preview your title as you make changes
-     3   Title Properties    Change the text, colors, or edit in an advanced SVG image editor (such as Inkscape)
-     4   Save                Save and add the title to your project
-     ==  ==================  ============
+.. list-table::
+   :widths: 5 26 68
+   :header-rows: 1
+   
+   * - #
+     - Name
+     - Description
+   * - 1
+     - Choose a Template
+     - Choose from any available vector title template
+   * - 2
+     - Preview Title
+     - Preview your title as you make changes
+   * - 3
+     - Title Properties
+     - Change the text, colors, or edit in an advanced SVG image editor (such as Inkscape)
+   * - 4
+     - :guilabel:`&Save`
+     - Save and add the title to your project
 
 Custom Titles
 -------------
-OpenShot can use any vector SVG image file as a title template. Just add an SVG image file to your */.openshot_qt/titles/*
-folder, and it will appear in OpenShot's title editor after you restart OpenShot. You can also right click on any SVG
-files in your **Project Files** panel, and choose **Edit Title** or **Duplicate Title**.
+OpenShot can use any vector SVG image file as a title template. Just add an SVG image file to your :file:`/home/{username}/.openshot_qt/titles/` folder, and it will appear in OpenShot's title editor after you restart OpenShot. You can also right click on any SVG files in your Project Files panel, and choose :menuselection:`--> Edit Title` or :menuselection:`--> Duplicate Title`.
 
 3D Animated Titles
 ------------------
-Adding a 3D animated title is just as easy, using our **Animated Title** dialog. Use the Title menu (located
-in the main menu of OpenShot) to launch the Animated Title editor. You can also use the keyboard shortcut **Ctrl+B**.
+Adding a 3D animated title is just as easy, using our Animated Title dialog. Select :menuselection:`Title --> Animated Title` from the OpenShot main menu to launch the Animated Title editor. You can also use the keyboard shortcut :kbd:`Ctrl` + :kbd:`b`.
 
 .. image:: images/animated-title.jpg
 
-==  ==================  ============
-#   Name                Description
-==  ==================  ============
-1   Choose a Template   Choose from any available 3D title templates
-2   Preview Title       Preview your title as you make changes
-3   Title Properties    Change the text, colors, and advanced properties
-4   Render              Render the 3D animation, and add it to your project
-==  ==================  ============
+.. list-table::
+   :widths: 5 26 68
+   :header-rows: 1
 
-This feature requires the latest version of Blender (https://www.blender.org/download/) be installed, and the OpenShot
-**Preferences** updated with the correct path to the Blender executable (for example: */home/USER/blender-2.78/blender*).
+   * - #
+     - Name
+     - Description
+   * - 1
+     - Choose a Template
+     - Choose from any available 3D title templates
+   * - 2
+     - Preview Title
+     - Preview your title as you make changes
+   * - 3
+     - Title Properties
+     - Change the text, colors, and advanced properties
+   * - 4
+     - :guilabel:`Render`
+     - Render the 3D animation, and add it to your project
+
+This feature requires the latest version of Blender (https://www.blender.org/download/) be installed, and the OpenShot :menuselection:`&Preferences` updated with the correct path to the :command:`blender` executable (for example: :file:`/home/{username}/blender-2.78/blender`).
 

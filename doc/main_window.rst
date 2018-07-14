@@ -51,7 +51,7 @@ For step-by-step instructions on the basic usage of OpenShot, be sure to read th
 Built-in Tutorial
 -----------------
 When you first launch OpenShot, you will be presented with a friendly built-in tutorial. It will point out and explain
-the basics. Clicking **Next** will jump to the next topic. You can always view this tutorial again from the **Help\→Tutorial** menu.
+the basics. Clicking :guilabel:`Next` will jump to the next topic. You can always view this tutorial again from the :menuselection:`Help --> Tutorial` menu.
 
 .. image:: images/built-in-tutorial.jpg
 
@@ -86,55 +86,106 @@ Keyboard Shortcuts
 Here is a list of the default keyboard shortcuts supported by OpenShot. You can configure these shortcuts
 in the Preferences dialog. Learning a few of these shortcuts can save you a bunch of time!
 
-==================  ============
-Shortcut            Action
-==================  ============
-Ctrl+H              About OpenShot
-Ctrl+M              Add Marker
-Ctrl+Shift+T        Add Track
-Ctrl+W              Add to Timeline
-Ctrl+B              Animated Title
-Ctrl+P              Choose Profile
-Ctrl+C              Copy
-Delete              Delete Item
-Backspace           Delete Item
-Ctrl+D              Details View
-Ctrl+E              Export Video
-L                   Fast Forward
-F11                 Fullscreen
-Ctrl+F              Import Files
-Ctrl+End            Jump to End
-Ctrl+Home           Jump to Start
-Ctrl+N              New Project
-Right               Next Frame
-Ctrl+Right          Next Marker
-Ctrl+O              Open Project
-Ctrl+V              Paste
-Space               Play/Pause Toggle
-Up                  Play/Pause Toggle
-Down                Play/Pause Toggle
-K                   Play/Pause Toggle
-Ctrl+Shift+P        Preferences
-Left                Previous Frame
-Ctrl+Left           Previous Marker
-Ctrl+I              Properties
-Ctrl+Q              Quit
-Ctrl+Y              Redo
-J                   Rewind
-Ctrl+S              Save Project
-Ctrl+Shift+S        Save Project As...
-Ctrl+A              Select All
-Ctrl+Shift+A        Select None
-Ctrl+K              Slice All: Keep Both Sides
-Ctrl+L              Slice All: Keep Left Side
-Ctrl+J              Slice All: Keep Right Side
-Ctrl+G              Toggle Snapping
-Ctrl+X              Split Clip
-Ctrl+Shift+D        Thumbnail View
-Ctrl+T              Title Editor
-Ctrl+Z              Undo
-=                   Zoom In
---                   Zoom Out
-Ctrl+Scroll         Zoom In/Out
-Ctrl+Middle Button  Scroll Timeline
-==================  ============
+.. list-table::
+   :header-rows: 1
+   :widths: 15 20
+
+   * - Shortcut
+     - Action
+   * - :kbd:`Ctrl` + :kbd:`H`
+     - About OpenShot
+   * - :kbd:`Ctrl` + :kbd:`M`
+     - Add Marker
+   * - :kbd:`Ctrl` + :kbd:`Shift` + :kbd:`T`
+     - Add Track
+   * - :kbd:`Ctrl` + :kbd:`W`
+     - Add to Timeline
+   * - :kbd:`Ctrl` + :kbd:`B`
+     - Animated Title
+   * - :kbd:`Ctrl` + :kbd:`P`
+     - Choose Profile
+   * - :kbd:`Ctrl` + :kbd:`C`
+     - Copy
+   * - :kbd:`Delete`
+     - Delete Item
+   * - :kbd:`Backspace`
+     - Delete Item
+   * - :kbd:`Ctrl` + :kbd:`D`
+     - Details View
+   * - :kbd:`Ctrl` + :kbd:`E`
+     - Export Video
+   * - :kbd:`L`
+     - Fast Forward
+   * - :kbd:`F11`
+     - Fullscreen
+   * - :kbd:`Ctrl` + :kbd:`F`
+     - Import Files
+   * - :kbd:`Ctrl` + :kbd:`End`
+     - Jump to End
+   * - :kbd:`Ctrl` + :kbd:`Home`
+     - Jump to Start
+   * - :kbd:`Ctrl` + :kbd:`N`
+     - New Project
+   * - :kbd:`Right`
+     - Next Frame
+   * - :kbd:`Ctrl` + :kbd:`Right`
+     - Next Marker
+   * - :kbd:`Ctrl` + :kbd:`O`
+     - Open Project
+   * - :kbd:`Ctrl` + :kbd:`V`
+     - Paste
+   * - :kbd:`Space`
+     - Play/Pause Toggle
+   * - :kbd:`Up`
+     - Play/Pause Toggle
+   * - :kbd:`Down`
+     - Play/Pause Toggle
+   * - :kbd:`K`
+     - Play/Pause Toggle
+   * - :kbd:`Ctrl` + :kbd:`Shift` + :kbd:`P`
+     - Preferences
+   * - :kbd:`Left`
+     - Previous Frame
+   * - :kbd:`Ctrl` + :kbd:`Left`
+     - Previous Marker
+   * - :kbd:`Ctrl` + :kbd:`I`
+     - Properties
+   * - :kbd:`Ctrl` + :kbd:`Q`
+     - Quit
+   * - :kbd:`Ctrl` + :kbd:`Y`
+     - Redo
+   * - :kbd:`J`
+     - Rewind
+   * - :kbd:`Ctrl` + :kbd:`S`
+     - Save Project
+   * - :kbd:`Ctrl` + :kbd:`Shift` + :kbd:`S`
+     - Save Project As...
+   * - :kbd:`Ctrl` + :kbd:`A`
+     - Select All
+   * - :kbd:`Ctrl` + :kbd:`Shift` + :kbd:`A`
+     - Select None
+   * - :kbd:`Ctrl` + :kbd:`K`
+     - Slice All: Keep Both Sides
+   * - :kbd:`Ctrl` + :kbd:`L`
+     - Slice All: Keep Left Side
+   * - :kbd:`Ctrl` + :kbd:`J`
+     - Slice All: Keep Right Side
+   * - :kbd:`Ctrl` + :kbd:`G`
+     - Toggle Snapping
+   * - :kbd:`Ctrl` + :kbd:`X`
+     - Split Clip
+   * - :kbd:`Ctrl` + :kbd:`Shift` + :kbd:`D`
+     - Thumbnail View
+   * - :kbd:`Ctrl` + :kbd:`T`
+     - Title Editor
+   * - :kbd:`Ctrl` + :kbd:`Z`
+     - Undo
+   * - :kbd:`=`
+     - Zoom In
+   * - :kbd:`-`
+     - Zoom Out
+   * - :kbd:`Ctrl` + Scroll
+     - Zoom In/Out
+   * - :kbd:`Ctrl` + Middle Button
+     - Scroll Timeline
+
