@@ -26,3 +26,9 @@ kbd {
 
 /* Underlining for accelerators in menuselection and guilabel */
 .accelerator { text-decoration: underline; }
+
+/* Don't color file paths red or render so small */
+.rst-content code.file, .rst-content code.literal {
+    color: black;
+    font-size: 90%;
+}
