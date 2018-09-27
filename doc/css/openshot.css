@@ -2,11 +2,29 @@
 .wy-table-responsive table td, .wy-table-responsive table th {
     white-space: normal;
 }
-
 .wy-table-responsive {
     margin-bottom: 24px;
     max-width: 100%;
     overflow: visible;
+}
+
+/* Format menuselection so it stands out */
+.menuselection {
+  font-weight: bold;
+  white-space: nowrap;
+  font-variant: small-caps;
+}
+
+/* Don't color file paths red or render so small */
+.rst-content code.file, .rst-content code.literal {
+    color: black;
+    font-size: 90%;
+}
+
+/* Space out inline images just a bit */
+p img, td img {
+  margin-left: 3px;
+  margin-right: 3px;
 }
 
 /* Keyboard styling (borrowed from GitHub) */
@@ -26,9 +44,3 @@ kbd {
 
 /* Underlining for accelerators in menuselection and guilabel */
 .accelerator { text-decoration: underline; }
-
-/* Don't color file paths red or render so small */
-.rst-content code.file, .rst-content code.literal {
-    color: black;
-    font-size: 90%;
-}
