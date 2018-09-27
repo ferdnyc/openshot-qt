@@ -30,8 +30,8 @@ Step 1 – Import Photos & Music
 ------------------------------
 Before we can begin making a video, we need to import files into OpenShot. Drag and
 drop a few images (\*.JPG, \*.PNG, etc...) and a music file (most formats will work)
-from your Desktop to OpenShot. Be sure to drop the files where the
-arrow in the illustration is pointing to.
+from your file manager to OpenShot's Project Files area. Be sure to drop the files
+where the arrow in the illustration is pointing to.
 
 .. image:: images/quick-start-drop-files.jpg
 
@@ -48,31 +48,47 @@ as many times as needed by simply dragging and dropping them.
 Step 3 – Add Music to Timeline
 ------------------------------
 To make our photo slide-show more interesting, we need to add some music. You should have
-imported a music file in step 1. Click on the music file, and drag it onto the timeline. If
-the song is too long, grab the right edge of your music clip, and resize it smaller.
+imported a music file in step 1. Click on the music file, and drag it to the track below
+your pictures on the timeline. If the song is too long, grab the right edge of your music
+clip, and resize it smaller.
 
 .. image:: images/quick-start-music.jpg
 
 Step 4 – Preview your Project
 ------------------------------
-To preview what our video looks & sounds like, click the Play button under the preview window.
-You can also pause, rewind, and fast-forward your video project by clicking the corresponding
-buttons.
+To preview what our video looks & sounds like, click the Play (|Play|) button
+under the preview window. You can also Pause (|Pause|), Rewind (|Seek-Back|),
+and Fast-Forward (|Seek-Forward|) your video project by clicking the
+corresponding buttons.
+
+.. |Play| image:: images/media-playback-start.svg
+   :width: 16
+   :height: 16
+.. |Pause| image:: images/media-playback-pause.svg
+  :width: 16
+  :height: 16
+
+.. |Seek-Back| image:: images/media-seek-backward.svg
+  :width: 16
+  :height: 16
+
+.. |Seek-Forward| image:: images/media-seek-forward.svg
+  :width: 16
+  :height: 16
 
 .. image:: images/quick-start-play.jpg
 
 Step 5 – Export your Video
 ---------------------------
-Once you are happy with your photo slide-show video, the next step is to export your video.
+Once you are happy with your photo slide-show, the next step is to export your video.
 This will convert your OpenShot project into a single video file, which will work on most
 media players (such as VLC) or websites (such as YouTube, Vimeo, etc...).
 
-Click on the Export Video icon at the top of the screen (or use the **File > Export Video** menu).
-Choose from one of the many preset export options, and click the *Export Video* button.
+Click on the Export Video icon at the top of the screen (or use the :menuselection:`File --> Export Video` menu).
+Choose from one of the many preset export options, and click the :guilabel:`Export Video` button.
 
 .. image:: images/quick-start-export.jpg
 
-You should now have a basic understanding of how OpenShot works. Importing, Arranging,
-Previewing, and Exporting. Hopefully this tutorial took less than 5 minutes for you to
-complete. Please read the rest of this guide for a more detailed understanding of OpenShot,
-and it's advanced features. Enjoy!
+You should now have a basic understanding of how to create with OpenShot:
+Import, Arrange, Preview, and Export. Please read the rest of this guide
+for a more detailed understanding of OpenShot and its advanced features. Enjoy!
