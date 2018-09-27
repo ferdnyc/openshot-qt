@@ -30,7 +30,7 @@ Overview
 
 .. table::
      :widths: 5 22 73
-     
+
      ==  ==================  ============
      #   Name                Description
      ==  ==================  ============
@@ -59,32 +59,37 @@ the basics. Clicking :guilabel:`Next` will jump to the next topic. You can alway
 Tracks & Layers
 ------------------
 
-OpenShot uses tracks to layer videos and images. The top most track is the top layer, and the bottom track is the bottom layer.
-If you are familiar with layers in a photo editing application, then you should be quite familiar with this concept.
-OpenShot will mix each layer together, just like a photo editing application. You can have an unlimited number of tracks, but
+OpenShot uses tracks to layer videos and images. The top most track is the top
+layer, and the bottom track is the bottom layer. If you are familiar with layers
+in a photo editing application, then you should be quite familiar with this
+concept. OpenShot will stack the layers and mix each one together, just like a
+photo editing application. You can have an unlimited number of tracks, but
 typically a video project will not need more than 10 (or so) tracks.
 
-For example, imagine a 3 track video project
+Here's a typical three-track video project, for example:
 
 .. image:: images/tracks.jpg
 
 .. table::
      :widths: 5 18 77
-     
+
      ==  ==================  ============
-     #   Name                Description
+     #   Track               Description
      ==  ==================  ============
-     1   Top Track           Clips on this track will always be on top and visible
+     1   Top Track           Clips that will always be visible in front of other clips
      2   Middle Track        Clips in the middle (might or might not be visible, depending on what is above them)
-     3   Bottom Track        Clips on this track will always be on the bottom
+     3   Bottom Track        Clips that will always be hidden behind anything on the tracks above
      ==  ==================  ============
 
 .. _keyboard_shortcut_ref:
 
 Keyboard Shortcuts
 ------------------
-Here is a list of the default keyboard shortcuts supported by OpenShot. You can configure these shortcuts
-in the Preferences dialog. Learning a few of these shortcuts can save you a bunch of time!
+Here is a list of the default keyboard shortcuts supported by OpenShot. You can
+configure these shortcuts in the Preferences dialog, which is opened by going
+to the OpenShot main menu and choosing :menuselection:`Edit --> Preferences`.
+(On macOS, choose :menuselection:`OpenShot Video Editor --> Preferences`.)
+Learning a few of these shortcuts can save you a bunch of time!
 
 .. list-table::
    :header-rows: 1
@@ -188,4 +193,3 @@ in the Preferences dialog. Learning a few of these shortcuts can save you a bunc
      - Zoom In/Out
    * - :kbd:`Ctrl` + Middle Button
      - Scroll Timeline
-
