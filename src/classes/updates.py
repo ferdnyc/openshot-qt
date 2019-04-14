@@ -28,7 +28,9 @@
  """
 
 from classes.logger import log
+from classes import info
 import copy
+import os
 
 try:
     import json
@@ -71,13 +73,23 @@ class UpdateAction:
 
         # Build the dictionary to be serialized
         if only_value:
-            data_dict = self.values
+            data_dict = copy.deepcopy(self.values)
         else:
             data_dict = {"type": self.type,
                          "key": self.key,
-                         "value": self.values,
+                         "value": copy.deepcopy(self.values),
                          "partial": self.partial_update,
-                         "old_values": self.old_values}
+                         "old_values": copy.deepcopy(self.old_values)}
+
+        # Always remove 'history' key (if found). This prevents nested "history"
+        # attributes when a project dict is loaded.
+        try:
+            if data_dict.get("value") and "history" in data_dict.get("value"):
+                data_dict.get("value").pop("history", None)
+            if data_dict.get("old_values") and "history" in data_dict.get("old_values"):
+                data_dict.get("old_values").pop("history", None)
+        except Exception:
+            log.info('Warning: failed to clear history attribute from undo/redo data.')
 
         if not is_array:
             # Use a JSON Object as the root object
@@ -93,7 +105,7 @@ class UpdateAction:
         """ Load this UpdateAction from a JSON string """
 
         # Load JSON string
-        update_action_dict = json.loads(value)
+        update_action_dict = json.loads(value, strict=False)
 
         # Set the Update Action properties
         self.type = update_action_dict.get("type")
@@ -101,6 +113,16 @@ class UpdateAction:
         self.values = update_action_dict.get("value")
         self.old_values = update_action_dict.get("old_values")
         self.partial_update = update_action_dict.get("partial")
+
+        # Always remove 'history' key (if found). This prevents nested "history"
+        # attributes when a project dict is loaded.
+        try:
+            if self.values and "history" in self.values:
+                self.values.pop("history", None)
+            if self.old_values and "history" in self.old_values:
+                self.old_values.pop("history", None)
+        except Exception:
+            log.info('Warning: failed to clear history attribute from undo/redo data.')
 
 
 class UpdateManager:
@@ -125,14 +147,21 @@ class UpdateManager:
         history = project.get(["history"])
 
         # Loop through each, and load serialized data into updateAction objects
+        # Ignore any load actions or history update actions
         for actionDict in history.get("redo", []):
             action = UpdateAction()
             action.load_json(json.dumps(actionDict))
-            self.redoHistory.append(action)
+            if action.type != "load" and action.key[0] != "history":
+                self.redoHistory.append(action)
+            else:
+                log.info("Loading redo history, skipped key: %s" % str(action.key))
         for actionDict in history.get("undo", []):
             action = UpdateAction()
             action.load_json(json.dumps(actionDict))
-            self.actionHistory.append(action)
+            if action.type != "load" and action.key[0] != "history":
+                self.actionHistory.append(action)
+            else:
+                log.info("Loading undo history, skipped key: %s" % str(action.key))
 
         # Notify watchers of new status
         self.update_watchers()
@@ -142,12 +171,21 @@ class UpdateManager:
         redo_list = []
         undo_list = []
 
-        # Loop through each, and serialize
+        # Loop through each updateAction object and serialize
+        # Ignore any load actions or history update actions
         history_length_int = int(history_length)
         for action in self.redoHistory[-history_length_int:]:
-            redo_list.append(json.loads(action.json()))
+            if action.type != "load" and action.key[0] != "history":
+                actionDict = json.loads(action.json(), strict=False)
+                redo_list.append(actionDict)
+            else:
+                log.info("Saving redo history, skipped key: %s" % str(action.key))
         for action in self.actionHistory[-history_length_int:]:
-            undo_list.append(json.loads(action.json()))
+            if action.type != "load" and action.key[0] != "history":
+                actionDict = json.loads(action.json(), strict=False)
+                undo_list.append(actionDict)
+            else:
+                log.info("Saving undo, skipped key: %s" % str(action.key))
 
         # Set history data in project
         self.ignore_history = True
@@ -195,8 +233,6 @@ class UpdateManager:
     # caused by actions.
     def get_reverse_action(self, action):
         """ Convert an UpdateAction into the opposite type (i.e. 'insert' becomes an 'delete') """
-
-        # log.info("Reversing action: {}, {}, {}, {}".format(action.type, action.key, action.values, action.partial_update))
         reverse = UpdateAction(action.type, action.key, action.values, action.partial_update)
         # On adds, setup remove
         if action.type == "insert":
@@ -218,7 +254,6 @@ class UpdateManager:
         reverse.old_values = action.values
         reverse.values = action.old_values
 
-        # log.info("Reversed values: {}, {}, {}, {}".format(reverse.type, reverse.key, reverse.values, reverse.partial_update))
         return reverse
 
     def undo(self):
@@ -268,8 +303,7 @@ class UpdateManager:
 
         self.last_action = UpdateAction('load', '', values)
         self.redoHistory.clear()
-        if not self.ignore_history:
-            self.actionHistory.append(self.last_action)
+        self.actionHistory.clear()
         self.dispatch_action(self.last_action)
 
     # Perform new actions, clearing redo history for taking a new path
@@ -286,7 +320,9 @@ class UpdateManager:
         """ Update the UpdateManager with an UpdateAction (this action will then be distributed to all listeners) """
 
         self.last_action = UpdateAction('update', key, values, partial_update)
-        self.redoHistory.clear()
+        if self.last_action.key and self.last_action.key[0] != "history":
+            # Clear redo history for any update except a "history" update
+            self.redoHistory.clear()
         if not self.ignore_history:
             self.actionHistory.append(self.last_action)
         self.dispatch_action(self.last_action)

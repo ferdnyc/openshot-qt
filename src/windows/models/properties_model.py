@@ -27,15 +27,17 @@
 
 import os
 from collections import OrderedDict
+from operator import itemgetter
 
 from PyQt5.QtCore import QMimeData, Qt, QLocale, QTimer
 from PyQt5.QtGui import *
 
 from classes import updates
 from classes import info
-from classes.query import Clip, Transition, Effect
+from classes.query import Clip, Transition, Effect, File
 from classes.logger import log
 from classes.app import get_app
+import openshot
 
 try:
     import json
@@ -433,7 +435,7 @@ class PropertiesModel(updates.UpdateInterface):
                 log.info("value updated: %s" % c.data)
 
                 # Check the type of property (some are keyframe, and some are not)
-                if type(c.data[property_key]) == dict:
+                if property_type != "reader" and type(c.data[property_key]) == dict:
                     # Keyframe
                     # Loop through points, find a matching points on this frame
                     found_point = False
@@ -512,6 +514,19 @@ class PropertiesModel(updates.UpdateInterface):
                     clip_updated = True
                     c.data[property_key] = str(new_value)
 
+                elif property_type == "reader":
+                    # Reader
+                    clip_updated = True
+
+                    # Transition
+                    try:
+                        clip_object = openshot.Clip(value)
+                        clip_object.Open()
+                        c.data[property_key] = json.loads(clip_object.Reader().Json())
+                        clip_object.Close()
+                        clip_object = None
+                    except:
+                        log.info('Failed to load %s into Clip object for reader property' % value)
 
             # Reduce # of clip properties we are saving (performance boost)
             c.data = {property_key: c.data.get(property_key)}
@@ -630,6 +645,24 @@ class PropertiesModel(updates.UpdateInterface):
                     elif type == "color":
                         # Don't output a value for colors
                         col.setText("")
+                    elif type == "reader":
+                        reader_json = json.loads(memo or "{}")
+                        reader_path = reader_json.get("path", "/")
+                        (dirName, fileName) = os.path.split(reader_path)
+                        col.setText(fileName)
+                    elif type == "int" and label == "Track":
+                        # Find track display name
+                        all_tracks = get_app().project.get(["layers"])
+                        display_count = len(all_tracks)
+                        display_label = None
+                        for track in reversed(sorted(all_tracks, key=itemgetter('number'))):
+                            if track.get("number") == value:
+                                display_label = track.get("label")
+                                break
+                            display_count -= 1
+                        track_name = display_label or _("Track %s") % display_count
+                        col.setText(track_name)
+
                     elif type == "int":
                         col.setText("%d" % value)
                     else:
@@ -696,8 +729,25 @@ class PropertiesModel(updates.UpdateInterface):
                     elif type == "color":
                         # Don't output a value for colors
                         col.setText("")
+                    elif type == "int" and label == "Track":
+                        # Find track display name
+                        all_tracks = get_app().project.get(["layers"])
+                        display_count = len(all_tracks)
+                        display_label = None
+                        for track in reversed(sorted(all_tracks, key=itemgetter('number'))):
+                            if track.get("number") == value:
+                                display_label = track.get("label")
+                                break
+                            display_count -= 1
+                        track_name = display_label or _("Track %s") % display_count
+                        col.setText(track_name)
                     elif type == "int":
                         col.setText("%d" % value)
+                    elif type == "reader":
+                        reader_json = json.loads(property[1].get("memo", "{}"))
+                        reader_path = reader_json.get("path", "/")
+                        (dirName, fileName) = os.path.split(reader_path)
+                        col.setText("%s" % fileName)
                     else:
                         # Use numeric value
                         col.setText(QLocale().system().toString(float(value), "f", precision=2))

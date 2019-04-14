@@ -93,7 +93,7 @@ class OpenShotApp(QApplication):
         # Detect minimum libopenshot version
         _ = self._tr
         libopenshot_version = openshot.GetVersion().ToString()
-        if libopenshot_version < info.MINIMUM_LIBOPENSHOT_VERSION:
+        if mode != "unittest" and libopenshot_version < info.MINIMUM_LIBOPENSHOT_VERSION:
             QMessageBox.warning(None, _("Wrong Version of libopenshot Detected"),
                                       _("<b>Version %(minimum_version)s is required</b>, but %(current_version)s was detected. Please update libopenshot or download our latest installer.") %
                                 {"minimum_version": info.MINIMUM_LIBOPENSHOT_VERSION, "current_version": libopenshot_version})
@@ -168,7 +168,7 @@ class OpenShotApp(QApplication):
             path = args[0][1]
             if ".osp" in path:
                 # Auto load project passed as argument
-                self.window.open_project(path)
+                self.window.OpenProjectSignal.emit(path)
             else:
                 # Auto import media file
                 self.window.filesTreeView.add_file(path)

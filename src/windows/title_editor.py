@@ -1,43 +1,44 @@
-""" 
+"""
  @file
  @brief This file loads the title editor dialog (i.e SVG creator)
  @author Jonathan Thomas <jonathan@openshot.org>
  @author Andy Finch <andy@openshot.org>
- 
+
  @section LICENSE
- 
+
  Copyright (c) 2008-2018 OpenShot Studios, LLC
  (http://www.openshotstudios.com). This file is part of
  OpenShot Video Editor (http://www.openshot.org), an open-source project
  dedicated to delivering high quality video editing and animation solutions
  to the world.
- 
+
  OpenShot Video Editor is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  OpenShot Video Editor is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with OpenShot Library.  If not, see <http://www.gnu.org/licenses/>.
  """
 
 import sys
 import os
+import re
 import shutil
 import functools
 import subprocess
+import tempfile
 from xml.dom import minidom
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem, QFont
 from PyQt5.QtWidgets import *
 from PyQt5 import uic, QtSvg, QtGui
-from PyQt5.QtWebKitWidgets import QWebView
 import openshot
 
 from classes import info, ui_util, settings, qt_types, updates
@@ -86,8 +87,8 @@ class TitleEditor(QDialog):
         imp = minidom.getDOMImplementation()
         self.xmldoc = imp.createDocument(None, "any", None)
 
-        self.bg_color_code = ""
-        self.font_color_code = "#ffffff"
+        self.bg_color_code = QtGui.QColor(Qt.black)
+        self.font_color_code = QtGui.QColor(Qt.white)
 
         self.bg_style_string = ""
         self.title_style_string = ""
@@ -107,6 +108,9 @@ class TitleEditor(QDialog):
         # Add titles list view
         self.titlesTreeView = TitlesListView(self)
         self.verticalLayout.addWidget(self.titlesTreeView)
+
+        # Disable Save button on window load
+        self.buttonBox.button(self.buttonBox.Save).setEnabled(False)
 
         # If editing existing title svg file
         if self.edit_file_path:
@@ -146,9 +150,26 @@ class TitleEditor(QDialog):
         self.display_svg()
 
     def display_svg(self):
+        # Create a temp file for this thumbnail image
+        new_file, tmp_filename = tempfile.mkstemp()
+        tmp_filename = "%s.png" % tmp_filename
+
+        # Create a clip object and get the reader
+        clip = openshot.Clip(self.filename)
+        reader = clip.Reader()
+
+        # Open reader
+        reader.Open()
+
+        # Save thumbnail image and close readers
+        reader.GetFrame(1).Thumbnail(tmp_filename, self.graphicsView.width(), self.graphicsView.height(), "", "", "#000", False, "png", 100, 0.0)
+        reader.Close()
+        clip.Close()
+
+        # Display temp image
         scene = QGraphicsScene(self)
         view = self.graphicsView
-        svg = QtGui.QPixmap(self.filename)
+        svg = QtGui.QPixmap(tmp_filename)
         svg_scaled = svg.scaled(self.graphicsView.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
         scene.addPixmap(svg_scaled)
         view.setScene(scene)
@@ -205,11 +226,26 @@ class TitleEditor(QDialog):
             self.txtFileName.setText(os.path.split(self.edit_file_path)[1])
             self.txtFileName.setEnabled(False)
         else:
+            name = _("TitleFileName-%d")
+            offset = 0
+            if self.duplicate and self.edit_file_path:
+                # Re-use current name
+                name = os.path.split(self.edit_file_path)[1]
+                # Splits the filename into (base-part)(optional "-")(number)(.svg)
+                match = re.match(r"^(.*?)(-?)([0-9]*)(\.svg)?$", name)
+                # Make sure the new title ends with "-%d" by default
+                name = match.group(1) + "-%d"
+                if match.group(3):
+                    # Filename already contained a number -> start counting from there
+                    offset = int(match.group(3))
+                    # -> only use "-" if it was there before
+                    name = match.group(1) + match.group(2) + "%d"
             # Find an unused file name
             for i in range(1, 1000):
-                possible_path = os.path.join(info.ASSETS_PATH, "%s.svg" % _("TitleFileName-%d") % i)
+                curname = name % (offset + i)
+                possible_path = os.path.join(info.ASSETS_PATH, "%s.svg" % curname)
                 if not os.path.exists(possible_path):
-                    self.txtFileName.setText(_("TitleFileName-%d") % i)
+                    self.txtFileName.setText(curname)
                     break
         self.txtFileName.setFixedHeight(28)
         self.settingsContainer.layout().addRow(label, self.txtFileName)
@@ -285,6 +321,9 @@ class TitleEditor(QDialog):
             self.btnFont.setEnabled(False)
             self.btnFontColor.setEnabled(False)
 
+        # Enable Save button when a template is selected
+        self.buttonBox.button(self.buttonBox.Save).setEnabled(True)
+
     def writeToFile(self, xmldoc):
         '''writes a new svg file containing the user edited data'''
 
@@ -302,13 +341,14 @@ class TitleEditor(QDialog):
         _ = app._tr
 
         # Get color from user
-        col = QColorDialog.getColor(Qt.white, self, _("Select a Color"),
+        col = QColorDialog.getColor(self.font_color_code, self, _("Select a Color"),
                                     QColorDialog.DontUseNativeDialog | QColorDialog.ShowAlphaChannel)
 
         # Update SVG colors
         if col.isValid():
-            self.btnFontColor.setStyleSheet("background-color: %s" % col.name())
             self.set_font_color_elements(col.name(), col.alphaF())
+            self.update_font_color_button()
+            self.font_color_code = col
 
         # Something changed, so update temp SVG
         self.writeToFile(self.xmldoc)
@@ -321,13 +361,14 @@ class TitleEditor(QDialog):
         _ = app._tr
 
         # Get color from user
-        col = QColorDialog.getColor(Qt.white, self, _("Select a Color"),
+        col = QColorDialog.getColor(self.bg_color_code, self, _("Select a Color"),
                                     QColorDialog.DontUseNativeDialog | QColorDialog.ShowAlphaChannel)
 
         # Update SVG colors
         if col.isValid():
-            self.btnBackgroundColor.setStyleSheet("background-color: %s" % col.name())
             self.set_bg_style(col.name(), col.alphaF())
+            self.update_background_color_button()
+            self.bg_color_code = col
 
         # Something changed, so update temp SVG
         self.writeToFile(self.xmldoc)
@@ -401,9 +442,23 @@ class TitleEditor(QDialog):
                 opacity = 1.0
 
             color = QtGui.QColor(color)
+
+            # Compute perceptive luminance of background color
+            colrgb = color.getRgbF()
+            lum = (0.299 * colrgb[0] + 0.587 * colrgb[1] + 0.114 * colrgb[2])
+            if (lum < 0.5):
+              text_color = QtGui.QColor(Qt.white)
+            else:
+              text_color = QtGui.QColor(Qt.black)
+
             # Convert the opacity into the alpha value
             alpha = int(opacity * 65535.0)
-            self.btnFontColor.setStyleSheet("background-color: %s; opacity %s" % (color.name(), alpha))
+
+            # Set the colors of the button
+            self.btnFontColor.setStyleSheet(
+                "background-color: %s; opacity: %s; color: %s;"
+                % (color.name(), alpha, text_color.name()))
+            self.font_color_code = color
 
     def update_background_color_button(self):
         """Updates the color shown on the background color button"""
@@ -445,10 +500,23 @@ class TitleEditor(QDialog):
                 opacity = 1.0
 
             color = QtGui.QColor(color)
+
+            # Compute perceptive luminance of background color
+            colrgb = color.getRgbF()
+            lum = (0.299 * colrgb[0] + 0.587 * colrgb[1] + 0.114 * colrgb[2])
+            if (lum < 0.5):
+              text_color = QtGui.QColor(Qt.white)
+            else:
+              text_color = QtGui.QColor(Qt.black)
+
             # Convert the opacity into the alpha value
             alpha = int(opacity * 65535.0)
-            # Set the alpha value of the button
-            self.btnBackgroundColor.setStyleSheet("background-color: %s; opacity %s" % (color.name(), alpha))
+
+            # Set the colors of the button
+            self.btnBackgroundColor.setStyleSheet(
+                "background-color: %s; opacity: %s; color: %s;"
+                % (color.name(), alpha, text_color.name()))
+            self.bg_color_code = color
 
     def set_font_style(self):
         '''sets the font properties'''
