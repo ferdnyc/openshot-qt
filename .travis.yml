@@ -12,7 +12,6 @@ addons:
     - libopenshot-dev
     - libssl-dev
     - python3-openshot
-    - python3
     - python3-pip
     - python3-setuptools
     - python3-pyqt5
@@ -31,9 +30,13 @@ matrix:
     - name: "Ubuntu 16.04 Xenial"
       os: linux
       dist: xenial
+      python:
+        - "3.5"
     - name: "Ubuntu 18.04 Bionic"
       os: linux
       dist: bionic
+      python:
+        - "3.6"
 
 #before_install:
 #  - wget https://files.pythonhosted.org/packages/d0/6d/9492644452727094543575de9846af5a2b9c764f760e2d414af7c876618c/cx_Freeze-5.0.1.tar.gz
