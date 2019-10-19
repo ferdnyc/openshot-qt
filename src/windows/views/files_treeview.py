@@ -27,27 +27,22 @@
  along with OpenShot Library.  If not, see <http://www.gnu.org/licenses/>.
  """
 
-import os
 import glob
+import os
 import re
-import sys
-from urllib.parse import urlparse
 
+import openshot  # Python module for libopenshot (required video editing module installed separately)
 from PyQt5.QtCore import QSize, Qt, QPoint
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QTreeView, QMessageBox, QAbstractItemView, QMenu, QSizePolicy, QHeaderView
-import openshot  # Python module for libopenshot (required video editing module installed separately)
 
-from classes.query import File
-from classes.logger import log
 from classes.app import get_app
+from classes.image_types import is_image
+from classes.logger import log
+from classes.query import File
 from windows.models.files_model import FilesModel
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
-
+import json
 
 class FilesTreeView(QTreeView):
     """ A TreeView QWidget used on the main window """
@@ -126,14 +121,6 @@ class FilesTreeView(QTreeView):
     def dragMoveEvent(self, event):
         pass
 
-    def is_image(self, file):
-        path = file["path"].lower()
-
-        if path.endswith((".jpg", ".jpeg", ".png", ".bmp", ".svg", ".thm", ".gif", ".bmp", ".pgm", ".tif", ".tiff")):
-            return True
-        else:
-            return False
-
     def add_file(self, filepath):
         path, filename = os.path.split(filepath)
 
@@ -157,9 +144,9 @@ class FilesTreeView(QTreeView):
             file_data = json.loads(reader.Json())
 
             # Determine media type
-            if file_data["has_video"] and not self.is_image(file_data):
+            if file_data["has_video"] and not is_image(file_data):
                 file_data["media_type"] = "video"
-            elif file_data["has_video"] and self.is_image(file_data):
+            elif file_data["has_video"] and is_image(file_data):
                 file_data["media_type"] = "image"
             elif file_data["has_audio"] and not file_data["has_video"]:
                 file_data["media_type"] = "audio"
@@ -218,7 +205,7 @@ class FilesTreeView(QTreeView):
 
         # Get just the file name
         (dirName, fileName) = os.path.split(file_path)
-        extensions = ["png", "jpg", "jpeg", "gif", "tif"]
+        extensions = ["png", "jpg", "jpeg", "gif", "tif", "svg"]
         match = re.findall(r"(.*[^\d])?(0*)(\d+)\.(%s)" % "|".join(extensions), fileName, re.I)
 
         if not match:
@@ -286,17 +273,8 @@ class FilesTreeView(QTreeView):
                     if self.add_file(filepath):
                         event.accept()
 
-    def clear_filter(self):
-        if self:
-            self.win.filesFilter.setText("")
-
     def filter_changed(self):
-        if self:
-            if self.win.filesFilter.text() == "":
-                self.win.actionFilesClear.setEnabled(False)
-            else:
-                self.win.actionFilesClear.setEnabled(True)
-            self.refresh_view()
+        self.refresh_view()
 
     def refresh_view(self):
         self.files_model.update_model()
@@ -402,5 +380,4 @@ class FilesTreeView(QTreeView):
         # setup filter events
         app = get_app()
         app.window.filesFilter.textChanged.connect(self.filter_changed)
-        app.window.actionFilesClear.triggered.connect(self.clear_filter)
         self.files_model.model.itemChanged.connect(self.value_updated)

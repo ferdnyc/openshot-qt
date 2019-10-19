@@ -26,6 +26,9 @@ video editing and animation solutions to the world.
 * Time-mapping and speed changes on clips (slow/fast, forward/backward, etc...)
 * Audio mixing and editing
 * Digital video effects, including brightness, gamma, hue, greyscale, chroma key, and many more!
+* Experimental hardware encoding and decoding (VA-API, NVDEC, D3D9, D3D11, VTB)
+* Import & Export widely supported formats (EDL, XML)
+* Render videos in many codecs and formats (based on FFmpeg)
 
 ## Getting Started
 
@@ -55,6 +58,8 @@ Beautiful HTML documentation can be generated using Sphinx.
 cd doc
 make html
 ```
+
+The documentation for the most recent release can be viewed online at [openshot.org/user-guide](https://www.openshot.org/user-guide/).
 
 ## Report a bug
 

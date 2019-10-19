@@ -34,9 +34,11 @@ import random
 import shutil
 
 from classes import info, settings
+from classes.image_types import is_image
 from classes.json_data import JsonDataStore
 from classes.logger import log
 from classes.updates import UpdateInterface
+from windows.views.find_file import find_missing_file
 
 
 class ProjectDataStore(JsonDataStore, UpdateInterface):
@@ -64,12 +66,11 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
         """ Get copied value of a given key in data store """
 
         # Verify key is valid type
-        if not isinstance(key, list):
-            log.warning("get() key must be a list. key: {}".format(key))
-            return None
         if not key:
             log.warning("Cannot get empty key.")
             return None
+        if not isinstance(key, list):
+            key = [key]
 
         # Get reference to internal data structure
         obj = self._data
@@ -250,7 +251,21 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
     def new(self):
         """ Try to load default project settings file, will raise error on failure """
         import openshot
-        self._data = self.read_from_file(self.default_project_filepath)
+
+        # Try to load user default project
+        if os.path.exists(info.USER_DEFAULT_PROJECT):
+            try:
+                self._data = self.read_from_file(info.USER_DEFAULT_PROJECT)
+            except (FileNotFoundError, PermissionError) as ex:
+                log.warning("Unable to load user project defaults from {}: {}".format(info.USER_DEFAULT_PROJECT, ex))
+            except Exception:
+                raise
+            else:
+                log.info("Loaded user project defaults from {}".format(info.USER_DEFAULT_PROJECT))
+        else:
+            # Fall back to OpenShot defaults, if user defaults didn't load
+            self._data = self.read_from_file(self.default_project_filepath)
+
         self.current_filepath = None
         self.has_unsaved_changes = False
 
@@ -273,27 +288,29 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
                     self._data["width"] = profile.info.width
                     self._data["height"] = profile.info.height
                     self._data["fps"] = {"num" : profile.info.fps.num, "den" : profile.info.fps.den}
+                    self._data["display_ratio"] = {"num": profile.info.display_ratio.num, "den": profile.info.display_ratio.den}
+                    self._data["pixel_ratio"] = {"num": profile.info.pixel_ratio.num, "den": profile.info.pixel_ratio.den}
                     break
 
         # Get the default audio settings for the timeline (and preview playback)
         default_sample_rate = int(s.get("default-samplerate"))
-        default_channel_ayout = s.get("default-channellayout")
+        default_channel_layout = s.get("default-channellayout")
 
         channels = 2
         channel_layout = openshot.LAYOUT_STEREO
-        if default_channel_ayout == "LAYOUT_MONO":
+        if default_channel_layout == "LAYOUT_MONO":
             channels = 1
             channel_layout = openshot.LAYOUT_MONO
-        elif default_channel_ayout == "LAYOUT_STEREO":
+        elif default_channel_layout == "LAYOUT_STEREO":
             channels = 2
             channel_layout = openshot.LAYOUT_STEREO
-        elif default_channel_ayout == "LAYOUT_SURROUND":
+        elif default_channel_layout == "LAYOUT_SURROUND":
             channels = 3
             channel_layout = openshot.LAYOUT_SURROUND
-        elif default_channel_ayout == "LAYOUT_5POINT1":
+        elif default_channel_layout == "LAYOUT_5POINT1":
             channels = 6
             channel_layout = openshot.LAYOUT_5POINT1
-        elif default_channel_ayout == "LAYOUT_7POINT1":
+        elif default_channel_layout == "LAYOUT_7POINT1":
             channels = 8
             channel_layout = openshot.LAYOUT_7POINT1
 
@@ -302,7 +319,10 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
         self._data["channels"] = channels
         self._data["channel_layout"] = channel_layout
 
-    def load(self, file_path):
+        # Set default project ID
+        self._data["id"] = self.generate_id()
+
+    def load(self, file_path, clear_thumbnails=True):
         """ Load project from file """
 
         self.new()
@@ -316,6 +336,10 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
             try:
                 # Attempt to load v2.X project file
                 project_data = self.read_from_file(file_path, path_mode="absolute")
+
+                # Fix history (if broken)
+                if not project_data.get("history"):
+                    project_data["history"] = {"undo": [], "redo": []}
 
             except Exception as ex:
                 try:
@@ -332,13 +356,16 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
             # On success, save current filepath
             self.current_filepath = file_path
 
+            # Clear needs save flag
+            self.has_unsaved_changes = False
+
             # Check if paths are all valid
             self.check_if_paths_are_valid()
 
             # Copy any project thumbnails to main THUMBNAILS folder
             loaded_project_folder = os.path.dirname(self.current_filepath)
             project_thumbnails_folder = os.path.join(loaded_project_folder, "thumbnail")
-            if os.path.exists(project_thumbnails_folder):
+            if os.path.exists(project_thumbnails_folder) and clear_thumbnails:
                 # Remove thumbnail path
                 shutil.rmtree(info.THUMBNAIL_PATH, True)
 
@@ -354,9 +381,6 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
         # Get app, and distribute all project data through update manager
         from classes.app import get_app
         get_app().updates.load(self._data)
-
-        # Clear needs save flag
-        self.has_unsaved_changes = False
 
     def scale_keyframe_value(self, original_value, scale_factor):
         """Scale keyframe X coordinate by some factor, except for 1 (leave that alone)"""
@@ -420,24 +444,19 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
         from classes.query import File, Track, Clip, Transition
         from classes.app import get_app
         import openshot
-
-        try:
-            import json
-        except ImportError:
-            import simplejson as json
+        import json
 
         # Get translation method
         _ = get_app()._tr
 
         # Append version info
-        v = openshot.GetVersion()
         project_data = {}
-        project_data["version"] = {"openshot-qt" : info.VERSION,
-                                   "libopenshot" : v.ToString()}
+        project_data["version"] = {"openshot-qt": info.VERSION,
+                                   "libopenshot": openshot.OPENSHOT_VERSION_FULL}
 
         # Get FPS from project
         from classes.app import get_app
-        fps = get_app().project.get(["fps"])
+        fps = get_app().project.get("fps")
         fps_float = float(fps["num"]) / float(fps["den"])
 
         # Import legacy openshot classes (from version 1.X)
@@ -482,9 +501,9 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
                             file_data = json.loads(reader.Json(), strict=False)
 
                             # Determine media type
-                            if file_data["has_video"] and not self.is_image(file_data):
+                            if file_data["has_video"] and not is_image(file_data):
                                 file_data["media_type"] = "video"
-                            elif file_data["has_video"] and self.is_image(file_data):
+                            elif file_data["has_video"] and is_image(file_data):
                                 file_data["media_type"] = "image"
                             elif file_data["has_audio"] and not file_data["has_video"]:
                                 file_data["media_type"] = "audio"
@@ -674,21 +693,12 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
         log.info("Successfully loaded legacy project file: %s" % file_path)
         return project_data
 
-    def is_image(self, file):
-        path = file["path"].lower()
-
-        if path.endswith((".jpg", ".jpeg", ".png", ".bmp", ".svg", ".thm", ".gif", ".bmp", ".pgm", ".tif", ".tiff")):
-            return True
-        else:
-            return False
-
     def upgrade_project_data_structures(self):
         """Fix any issues with old project files (if any)"""
         openshot_version = self._data["version"]["openshot-qt"]
         libopenshot_version = self._data["version"]["libopenshot"]
 
-        log.info(openshot_version)
-        log.info(libopenshot_version)
+        log.info("Project data: openshot {}, libopenshot {}".format(openshot_version, libopenshot_version))
 
         if openshot_version == "0.0.0":
             # If version = 0.0.0, this is the beta of OpenShot
@@ -737,6 +747,10 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
                                             point.get("handle_right")["X"] = 0.5
                                             point.get("handle_right")["Y"] = 0.0
 
+        # Fix default project id (if found)
+        if self._data.get("id") == "T0":
+            self._data["id"] = self.generate_id()
+
     def save(self, file_path, move_temp_files=True, make_paths_relative=True):
         """ Save project file to disk """
         import openshot
@@ -748,9 +762,8 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
             self.move_temp_paths_to_project_folder(file_path)
 
         # Append version info
-        v = openshot.GetVersion()
-        self._data["version"] = { "openshot-qt" : info.VERSION,
-                                  "libopenshot" : v.ToString() }
+        self._data["version"] = {"openshot-qt": info.VERSION,
+                                 "libopenshot": openshot.OPENSHOT_VERSION_FULL}
 
         # Try to save project settings file, will raise error on failure
         self.write_to_file(file_path, self._data, path_mode="relative", previous_path=self.current_filepath)
@@ -851,12 +864,15 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
 
     def add_to_recent_files(self, file_path):
         """ Add this project to the recent files list """
-        if "backup.osp" in file_path:
+        if not file_path or "backup.osp" in file_path:
             # Ignore backup recovery project
             return
 
         s = settings.get_settings()
         recent_projects = s.get("recent_projects")
+
+        # Make sure file_path is absolute
+        file_path = os.path.abspath(file_path)
 
         # Remove existing project
         if file_path in recent_projects:
@@ -896,78 +912,57 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
             parent_path, file_name_with_ext = os.path.split(path)
 
             log.info("checking file %s" % path)
-            while not os.path.exists(path) and "%" not in path:
-                # File already exists!
-                # try to find file with previous starting folder:
-                if starting_folder and os.path.exists(os.path.join(starting_folder, file_name_with_ext)):
-                    # Update file path
-                    path = os.path.abspath(os.path.join(starting_folder, file_name_with_ext))
+            if not os.path.exists(path) and "%" not in path:
+                # File is missing
+                path, is_modified, is_skipped = find_missing_file(path)
+                if path and is_modified and not is_skipped:
+                    # Found file, update path
                     file["path"] = path
                     get_app().updates.update(["import_path"], os.path.dirname(path))
                     log.info("Auto-updated missing file: %s" % path)
-                    break
-                else:
-                    # Prompt user to find missing file
-                    QMessageBox.warning(None, _("Missing File (%s)") % file["id"], _("%s cannot be found.") % file_name_with_ext)
-                    starting_folder = QFileDialog.getExistingDirectory(None, _("Find directory that contains: %s" % file_name_with_ext), starting_folder)
-                    log.info("Missing folder chosen by user: %s" % starting_folder)
-                    if starting_folder:
-                        # Update file path and import_path
-                        path = os.path.abspath(os.path.join(starting_folder, file_name_with_ext))
-                        file["path"] = path
-                        get_app().updates.update(["import_path"], os.path.dirname(path))
-                    else:
-                        log.info('Removed missing file: %s' % file_name_with_ext)
-                        self._data["files"].remove(file)
-                        break
+                elif is_skipped:
+                    # Remove missing file
+                    log.info('Removed missing file: %s' % file_name_with_ext)
+                    self._data["files"].remove(file)
 
         # Loop through each clip (in reverse order)
         for clip in reversed(self._data["clips"]):
-            path = clip["reader"]["path"]
+            path, is_modified, is_skipped = find_missing_file(clip["reader"]["path"])
             parent_path, file_name_with_ext = os.path.split(path)
 
-            log.info("checking file %s" % path)
-            while not os.path.exists(path) and "%" not in path:
-                # Clip already exists! Prompt user to find missing file
-                # try to find clip with previous starting folder:
-                if starting_folder and os.path.exists(os.path.join(starting_folder, file_name_with_ext)):
-                    # Update clip path
-                    path = os.path.abspath(os.path.join(starting_folder, file_name_with_ext))
-                    clip["reader"]["path"] = path
-                    log.info("Auto-updated missing file: %s" % clip["reader"]["path"])
-                    break
-                else:
-                    QMessageBox.warning(None, _("Missing File in Clip (%s)") % clip["id"], _("%s cannot be found.") % file_name_with_ext)
-                    starting_folder = QFileDialog.getExistingDirectory(None, _("Find directory that contains: %s" % file_name_with_ext), starting_folder)
-                    log.info("Missing folder chosen by user: %s" % starting_folder)
-                    if starting_folder:
-                        # Update clip path
-                        path = os.path.abspath(os.path.join(starting_folder, file_name_with_ext))
-                        clip["reader"]["path"] = path
-                    else:
-                        log.info('Removed missing clip: %s' % file_name_with_ext)
-                        self._data["clips"].remove(clip)
-                        break
+            # File is missing
+            if path and is_modified and not is_skipped:
+                # Found file, update path
+                clip["reader"]["path"] = path
+                log.info("Auto-updated missing file: %s" % clip["reader"]["path"])
+            elif is_skipped:
+                # Remove missing file
+                log.info('Removed missing clip: %s' % file_name_with_ext)
+                self._data["clips"].remove(clip)
 
     def changed(self, action):
         """ This method is invoked by the UpdateManager each time a change happens (i.e UpdateInterface) """
-        # Track unsaved changes
-        self.has_unsaved_changes = True
-
         if action.type == "insert":
             # Insert new item
             old_vals = self._set(action.key, action.values, add=True)
             action.set_old_values(old_vals)  # Save previous values to reverse this action
+            self.has_unsaved_changes = True
 
         elif action.type == "update":
             # Update existing item
             old_vals = self._set(action.key, action.values, partial_update=action.partial_update)
             action.set_old_values(old_vals)  # Save previous values to reverse this action
+            self.has_unsaved_changes = True
 
         elif action.type == "delete":
             # Delete existing item
             old_vals = self._set(action.key, remove=True)
             action.set_old_values(old_vals)  # Save previous values to reverse this action
+            self.has_unsaved_changes = True
+
+        elif action.type == "load":
+            # Don't track unsaved changes when loading a project
+            pass
 
     # Utility methods
     def generate_id(self, digits=10):

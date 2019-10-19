@@ -48,11 +48,7 @@ from classes.query import File
 from classes.metrics import *
 from windows.views.titles_listview import TitlesListView
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
-
+import json
 
 class TitleEditor(QDialog):
     """ Title Editor Dialog """
@@ -181,7 +177,7 @@ class TitleEditor(QDialog):
         self.filename = os.path.join(info.TITLE_PATH, "temp.svg")
 
         # Copy template to temp file
-        shutil.copy(template_path, self.filename)
+        shutil.copyfile(template_path, self.filename)
 
         # return temp path
         return self.filename

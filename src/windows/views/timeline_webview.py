@@ -50,10 +50,7 @@ from classes.waveform import get_audio_data
 from classes.thumbnail import GenerateThumbnail
 from classes.conversion import zoomToSeconds, secondsToZoom
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import json
 
 # Constants used by this file
 JS_SCOPE_SELECTOR = "$('body').scope()"
@@ -166,12 +163,13 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         """Document.Ready event has fired, and is initialized"""
         self.document_is_ready = True
 
-    def eval_js(self, code):
+    def eval_js(self, code, retries=0):
         # Check if document.Ready has fired in JS
         if not self.document_is_ready:
             # Not ready, try again in a few milliseconds
-            log.error("TimelineWebView::eval_js() called before document ready event. Script queued: %s" % code)
-            QTimer.singleShot(50, partial(self.eval_js, code))
+            if retries > 1:
+                log.warning("TimelineWebView::eval_js() called before document ready event. Script queued: %s" % code)
+            QTimer.singleShot(100, partial(self.eval_js, code, retries+1))
             return None
         else:
             # Execute JS code
@@ -199,7 +197,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         # Reset the scale when loading new JSON
         if action.type == "load":
             # Set the scale again (to project setting)
-            initial_scale = get_app().project.get(["scale"]) or 15
+            initial_scale = get_app().project.get("scale") or 15
             get_app().window.sliderZoom.setValue(secondsToZoom(initial_scale))
 
     # Javascript callable function to update the project data when a clip changes
@@ -299,7 +297,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         transition_details = json.loads(transition_json)
 
         # Get FPS from project
-        fps = get_app().project.get(["fps"])
+        fps = get_app().project.get("fps")
         fps_float = float(fps["num"]) / float(fps["den"])
 
         # Open up QtImageReader for transition Image
@@ -354,7 +352,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         existing_item.data = transition_data
 
         # Get FPS from project
-        fps = get_app().project.get(["fps"])
+        fps = get_app().project.get("fps")
         fps_float = float(fps["num"]) / float(fps["den"])
         duration = existing_item.data["end"] - existing_item.data["start"]
 
@@ -501,7 +499,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         tran_ids = self.window.selected_transitions
 
         # Get framerate
-        fps = get_app().project.get(["fps"])
+        fps = get_app().project.get("fps")
         fps_float = float(fps["num"]) / float(fps["den"])
 
         # Get playhead position
@@ -957,7 +955,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
                 continue
 
             # Get # of tracks
-            all_tracks = get_app().project.get(["layers"])
+            all_tracks = get_app().project.get("layers")
 
             # Clear audio override
             p = openshot.Point(1, -1.0, openshot.CONSTANT) # Override has_audio keyframe to False
@@ -980,9 +978,12 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
                 clip.data["channel_filter"] = { "Points" : [p_object]}
 
                 # Filter out video on the new clip
-                p = openshot.Point(1, 0.0, openshot.CONSTANT) # Override has_audio keyframe to False
+                p = openshot.Point(1, 0.0, openshot.CONSTANT) # Override has_video keyframe to False
                 p_object = json.loads(p.Json())
                 clip.data["has_video"] = { "Points" : [p_object]}
+                # Also set scale to None
+                # Workaround for https://github.com/OpenShot/openshot-qt/issues/2882
+                clip.data["scale"] = openshot.SCALE_NONE
 
                 # Get track below selected track (if any)
                 next_track_number = clip.data['layer']
@@ -1022,9 +1023,12 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
                     clip.data["channel_filter"] = { "Points" : [p_object]}
 
                     # Filter out video on the new clip
-                    p = openshot.Point(1, 0.0, openshot.CONSTANT) # Override has_audio keyframe to False
+                    p = openshot.Point(1, 0.0, openshot.CONSTANT) # Override has_video keyframe to False
                     p_object = json.loads(p.Json())
                     clip.data["has_video"] = { "Points" : [p_object]}
+                    # Also set scale to None
+                    # Workaround for https://github.com/OpenShot/openshot-qt/issues/2882
+                    clip.data["scale"] = openshot.SCALE_NONE
 
                     # Get track below selected track (if any)
                     next_track_number = clip.data['layer']
@@ -1163,7 +1167,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
                 continue
 
             # Get framerate
-            fps = get_app().project.get(["fps"])
+            fps = get_app().project.get("fps")
             fps_float = float(fps["num"]) / float(fps["den"])
 
             # Get existing clip object
@@ -1510,7 +1514,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         right_edge = -1.0
 
         # Determine how far we're going to nudge (1/2 frame or 0.01s, whichever is larger)
-        fps = get_app().project.get(["fps"])
+        fps = get_app().project.get("fps")
         fps_float = float(fps["num"]) / float(fps["den"])
         nudgeDistance = float(action) / float(fps_float)
         nudgeDistance /= 2.0	# 1/2 frame
@@ -1681,7 +1685,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         prop_name = "alpha"
 
         # Get FPS from project
-        fps = get_app().project.get(["fps"])
+        fps = get_app().project.get("fps")
         fps_float = float(fps["num"]) / float(fps["den"])
 
         # Loop through each selected clip
@@ -1773,7 +1777,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
     def Slice_Triggered(self, action, clip_ids, trans_ids, playhead_position=0):
         """Callback for slice context menus"""
         # Get FPS from project
-        fps = get_app().project.get(["fps"])
+        fps = get_app().project.get("fps")
         fps_num = float(fps["num"])
         fps_den = float(fps["den"])
         fps_float = fps_num / fps_den
@@ -1917,7 +1921,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         prop_name = "volume"
 
         # Get FPS from project
-        fps = get_app().project.get(["fps"])
+        fps = get_app().project.get("fps")
         fps_float = float(fps["num"]) / float(fps["den"])
 
         # Loop through each selected clip
@@ -2016,7 +2020,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         prop_name = "rotation"
 
         # Get FPS from project
-        fps = get_app().project.get(["fps"])
+        fps = get_app().project.get("fps")
         fps_float = float(fps["num"]) / float(fps["den"])
 
         # Loop through each selected clip
@@ -2061,7 +2065,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         prop_name = "time"
 
         # Get FPS from project
-        fps = get_app().project.get(["fps"])
+        fps = get_app().project.get("fps")
         fps_float = float(fps["num"]) / float(fps["den"])
 
         # Loop through each selected clip
@@ -2210,13 +2214,6 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
                 p_object = json.loads(p.Json())
                 clip.data[prop_name] = { "Points" : [p_object]}
 
-                # Reset original end & duration (if available)
-                if "original_data" in clip.data.keys():
-                    clip.data["end"] = clip.data["original_data"]["end"]
-                    clip.data["duration"] = clip.data["original_data"]["duration"]
-                    clip.data["reader"]["video_length"] = clip.data["original_data"]["video_length"]
-                    clip.data.pop("original_data")
-
                 # Get the ending frame
                 end_of_clip = round(float(clip.data["end"]) * fps_float) + 1
 
@@ -2252,6 +2249,14 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
                     clip.data["end"] = (start_animation + (duration_animation / speed_factor)) / fps_float
                     clip.data["duration"] = self.round_to_multiple(clip.data["duration"] / speed_factor, even_multiple)
                     clip.data["reader"]["video_length"] = str(self.round_to_multiple(float(clip.data["reader"]["video_length"]) / speed_factor, even_multiple))
+
+                if action == MENU_TIME_NONE:
+                    # Reset original end & duration (if available)
+                    if "original_data" in clip.data.keys():
+                        clip.data["end"] = clip.data["original_data"]["end"]
+                        clip.data["duration"] = clip.data["original_data"]["duration"]
+                        clip.data["reader"]["video_length"] = clip.data["original_data"]["video_length"]
+                        clip.data.pop("original_data")
 
             # Save changes
             self.update_clip_data(clip.data, only_basic_props=False, ignore_reader=True)
@@ -2379,7 +2384,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         clip_ids = self.window.selected_clips
 
         # Get framerate
-        fps = get_app().project.get(["fps"])
+        fps = get_app().project.get("fps")
         fps_float = float(fps["num"]) / float(fps["den"])
 
         # Get playhead position
@@ -2525,8 +2530,8 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         # Seek to frame
         self.window.SeekSignal.emit(frame_number)
 
-    @pyqtSlot(float, int, str)
-    def PlayheadMoved(self, position_seconds, position_frames, time_code):
+    @pyqtSlot(int)
+    def PlayheadMoved(self, position_frames):
 
         # Load the timeline into the Player (ignored if this has already happened)
         self.window.LoadFileSignal.emit('')
@@ -2536,15 +2541,21 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
             self.last_position_frames = position_frames
 
             # Notify main window of current frame
-            self.window.previewFrame(position_seconds, position_frames, time_code)
+            self.window.previewFrame(position_frames)
 
     @pyqtSlot(int)
     def movePlayhead(self, position_frames):
         """ Move the playhead since the position has changed inside OpenShot (probably due to the video player) """
-
         # Get access to timeline scope and set scale to zoom slider value (passed in)
-        code = JS_SCOPE_SELECTOR + ".MovePlayheadToFrame(" + str(position_frames) + ");"
+        code = JS_SCOPE_SELECTOR + ".MovePlayheadToFrame(%s);" % (str(position_frames))
         self.eval_js(code)
+
+    @pyqtSlot()
+    def centerOnPlayhead(self):
+        """ Center the timeline on the current playhead position """
+        # Execute JavaScript to center the timeline
+        cmd = JS_SCOPE_SELECTOR + '.centerOnPlayhead();';
+        self.eval_js(cmd)
 
     @pyqtSlot(int)
     def SetSnappingMode(self, enable_snapping):
@@ -2559,6 +2570,11 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
 
         # Init razor state (1 = razor, 0 = no razor)
         self.eval_js(JS_SCOPE_SELECTOR + ".SetRazorMode(%s);" % int(enable_razor))
+
+    @pyqtSlot(int)
+    def SetPlayheadFollow(self, enable_follow):
+        """ Enable / Disable playhead follow on seek """
+        self.eval_js(JS_SCOPE_SELECTOR + ".SetFollow({});".format(int(enable_follow)))
 
     @pyqtSlot(str, str, bool)
     def addSelection(self, item_id, item_type, clear_existing=False):
@@ -2602,10 +2618,14 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         # Start timer to redraw audio
         self.redraw_audio_timer.start()
 
+        # Only update scale if different
+        current_scale = get_app().project.get("scale")
+
         # Save current zoom
-        get_app().updates.ignore_history = True
-        get_app().updates.update(["scale"], newScale)
-        get_app().updates.ignore_history = False
+        if newScale != current_scale:
+            get_app().updates.ignore_history = True
+            get_app().updates.update(["scale"], newScale)
+            get_app().updates.ignore_history = False
 
     def keyPressEvent(self, event):
         """ Keypress callback for timeline """
@@ -2771,7 +2791,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         js_position = self.eval_js(JS_SCOPE_SELECTOR + ".GetJavaScriptPosition(" + str(position.x()) + ");")
 
         # Get FPS from project
-        fps = get_app().project.get(["fps"])
+        fps = get_app().project.get("fps")
         fps_float = float(fps["num"]) / float(fps["den"])
 
         # Open up QtImageReader for transition Image
@@ -2965,8 +2985,11 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         self.last_position_frames = None
         self.document_is_ready = False
 
+        # Delete the webview when closed
+        self.setAttribute(Qt.WA_DeleteOnClose)
+
         # Disable image caching on timeline
-        self.settings().setObjectCacheCapacities(0, 0, 0);
+        self.settings().setObjectCacheCapacities(0, 0, 0)
 
         # Get settings
         self.settings_obj = settings.get_settings()
