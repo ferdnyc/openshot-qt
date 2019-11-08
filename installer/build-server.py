@@ -64,15 +64,15 @@ version_info = {}
 
 # Create temp log
 log_path = os.path.join(PATH, 'build', 'build-server.log')
-log = open(log_path, 'w+')
+log = open(log_path, 'w+', newline='\n')
 
 
 def output(line):
     """Append output to list and print it"""
-    print(line)
     if isinstance(line, bytes):
         line = line.decode('UTF-8').strip()
 
+    print("%s", line)
     if not line.endswith(os.linesep):
         # Append missing line return (if needed)
         line += "\n"
@@ -91,12 +91,11 @@ def run_command(command, working_dir=None):
 
 def error(line):
     """Append error output to list and print it"""
+    if isinstance(line, bytes):
+        line = line.decode('UTF-8')
     print("Error: %s" % line)
     errors_detected.append(line)
-    if isinstance(line, bytes):
-        log.write(line.decode('UTF-8'))
-    else:
-        log.write(line)
+    log.write(line)
 
 
 def truncate(message, max=256):
@@ -124,7 +123,7 @@ def zulip_upload_log(log, title, comment=None):
     resp = post(zulip_url, data={}, auth=zulip_auth, files={filename: (filename, open(log_path, "rb"))})
     if resp.ok:
         zulip_upload_url = resp.json().get("uri", "")
-    print(resp)
+    output(resp)
 
     # Determine topic
     topic = "Successful Builds"
@@ -141,10 +140,7 @@ def zulip_upload_log(log, title, comment=None):
     }
 
     resp = post(zulip_url, data=zulip_data, auth=zulip_auth)
-
-    # Re-open the log (for append)
-    log = open(log_path, "a")
-    print(resp)
+    output(resp)
 
 def get_release(repo, tag_name):
     """Fetch the GitHub release tagged with the given tag and return it
