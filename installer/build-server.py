@@ -236,7 +236,7 @@ try:
         gh = login(github_user, github_pass)
         repo = gh.repository("OpenShot", "openshot-qt")
 
-    if len(sys.argv) >=9:
+    if len(sys.argv) >= 9:
         windows_32bit = False
         if sys.argv[8] == 'True':
             windows_32bit = True
@@ -372,18 +372,19 @@ try:
 
         # Create AppImage (OpenShot-%s-x86_64.AppImage)
         app_image_success = False
-        for line in run_command('/home/ubuntu/apps/AppImageKit/AppImageAssistant "%s" "%s"' % (app_dir_path, app_build_path)):
+        for line in run_cmd(['/home/ubuntu/apps/AppImageKit/AppImageAssistant',
+                            app_dir_path, app_build_path]):
             output(line)
         app_image_success = os.path.exists(app_build_path)
 
         # Was the AppImage creation successful
-        if not app_image_success or errors_detected:
+        if not app_image_success:
             # AppImage failed
             error("AppImageKit Error: AppImageAssistant did not output the AppImage file")
-            needs_upload = False
-
             # Delete build (since something failed)
             os.remove(app_build_path)
+
+        needs_upload = app_image_success and not errors_detected
 
 
     if platform.system() == "Darwin":
@@ -392,11 +393,13 @@ try:
         app_image_success = False
 
         # Build app.bundle and create DMG
-        for line in run_command("bash installer/build-mac-dmg.sh"):
+        for line in run_cmd(['bash', 'installer/build-mac-dmg.sh']):
             output(line)
-            if "error".encode("UTF-8") in line or "rejected".encode("UTF-8") in line:
+            if isinstance(line, bytes):
+                line = line.decode("UTF-8")
+            if "error" in line or "rejected" in line:
                 error("Build-Mac-DMG Error: %s" % line)
-            if "Your image is ready".encode("UTF-8") in line:
+            if "Your image is ready" in line:
                 app_image_success = True
 
         # Rename DMG (to be consistent with other OS installers)
@@ -405,13 +408,13 @@ try:
                 os.rename(os.path.join(PATH, "build", dmg_path), app_build_path)
 
         # Was the DMG creation successful
-        if not app_image_success or errors_detected:
+        if not app_image_success:
             # DMG failed
             error("Build-Mac-DMG Error: Did not output 'Your image is ready'")
-            needs_upload = False
-
             # Delete build (since key signing might have failed)
             os.remove(app_build_path)
+
+        needs_upload = app_image_success and not errors_detected
 
 
     if platform.system() == "Windows":
@@ -426,7 +429,12 @@ try:
             shutil.rmtree(duplicate_openshot_qt_path, True)
 
         # Remove the following paths. cx_Freeze is including many unneeded files. This prunes them out.
-        paths_to_delete = ['mediaservice', 'imageformats', 'platforms', 'printsupport', 'lib/openshot_qt', 'resvg.dll']
+        paths_to_delete = ['mediaservice',
+                           'imageformats',
+                           'platforms',
+                           'printsupport',
+                           ['lib', 'openshot_qt'],
+                           'resvg.dll']
         for delete_path in paths_to_delete:
             full_delete_path = os.path.join(exe_dir, delete_path)
             output("Delete path: %s" % full_delete_path)
@@ -476,10 +484,16 @@ try:
         # Add version metadata to frozen app launcher
         launcher_exe = os.path.join(exe_dir, "openshot-qt.exe")
         verpatch_success = True
-        verpatch_command = '"verpatch.exe" "{}" /va /high "{}" /pv "{}" /s product "{}" /s company "{}" /s copyright "{}" /s desc "{}"'.format(launcher_exe, info.VERSION, info.VERSION, info.PRODUCT_NAME, info.COMPANY_NAME, info.COPYRIGHT, info.PRODUCT_NAME)
+        verpatch_command = ['verpatch.exe', launcher_exe,
+                            '/va', '/high', info.VERSION,
+                            '/pv', info.VERSION,
+                            '/s', 'product', info.PRODUCT_NAME,
+                            '/s', 'company', info.COMPANY_NAME,
+                            '/s', 'copyright', info.COPYRIGHT,
+                            '/s', 'desc', info.PRODUCT_NAME]
         verpatch_output = ""
         # version-stamp executable
-        for line in run_command(verpatch_command):
+        for line in run_cmd(verpatch_command):
             output(line)
             if line:
                 verpatch_success = False
@@ -496,10 +510,13 @@ try:
 
         # Create Installer (OpenShot-%s-x86_64.exe)
         inno_success = True
-        inno_command = '"iscc.exe" /Q /DVERSION=%s /DONLY_64_BIT=%s "%s"' % (version, only_64_bit, os.path.join(PATH, 'installer', 'windows-installer.iss'))
+        inno_command = ['iscc.exe', '/Q',
+                        '/DVERSION{}'.format(version),
+                        '/DONLY_64_BIT={}'.format(only_64_bit),
+                        os.path.join(PATH, 'installer', 'windows-installer.iss')]
         inno_output = ""
         # Compile Inno installer
-        for line in run_command(inno_command):
+        for line in run_cmd(inno_command):
             output(line)
             if line:
                 inno_success = False
@@ -519,10 +536,14 @@ try:
 
         # Sign the installer
         key_sign_success = True
-        key_sign_command = '"kSignCMD.exe" /f "%s%s" /p "%s" /d "OpenShot Video Editor" /du "http://www.openshot.org" "%s"' % (windows_key, only_64_bit, windows_key_password, app_build_path)
+        key_sign_command = ['kSignCMD.exe', '/f',
+                            '{}{}'.format(windows_key, only_64_bit),
+                            '/p', windows_key_password,
+                            '/d', "OpenShot Video Editor",
+                            '/du' "http://www.openshot.org", app_build_path]
         key_sign_output = ""
         # Sign MSI
-        for line in run_command(key_sign_command):
+        for line in run_cmd(key_sign_command):
             output(line)
             if line:
                 key_sign_success = False
@@ -544,31 +565,41 @@ try:
         output("GitHub: Uploading %s to GitHub Release: %s" % (app_build_path, github_release.tag_name))
         download_url = upload(app_build_path, github_release)
 
-        # Create torrent and upload
-        torrent_path = "%s.torrent" % app_build_path
-        torrent_command = 'mktorrent -a "udp://tracker.openbittorrent.com:80/announce, udp://tracker.publicbt.com:80/announce, udp://tracker.opentrackr.org:1337" -c "OpenShot Video Editor %s" -w "%s" -o "%s" "%s"' % (version, download_url, "%s.torrent" % app_name, app_name)
-        torrent_output = ""
-
         # Remove existing torrents (if any found)
+        torrent_path = "%s.torrent" % app_build_path
         if os.path.exists(torrent_path):
             os.remove(torrent_path)
 
-        # Create torrent
-        for line in run_command(torrent_command, builds_path):
+        # Create torrent and upload
+        torrent_command = ['mktorrent', '-a',
+                           ', '.join('udp://tracker.openbittorrent.com:80/announce',
+                                     'udp://tracker.publicbt.com:80/announce',
+                                     'udp://tracker.opentrackr.org:1337'),
+                           '-c', 'OpenShot Video Editor {}'.format(version),
+                           '-w', download_url,
+                           '-o', '{}.torrent'.format(app_name),
+                           app_name]
+
+        torrent_success = False
+        lastline = None
+        for line in run_cmd(torrent_command, builds_path):
             output(line)
-            if line:
-                torrent_output = line.decode('UTF-8').strip()
+            if isinstance(line, bytes):
+                line = line.decode("UTF-8").strip()
+            if "Writing metainfo file... done." in line:
+                torrent_success = True
+            else:
+                lastline = line
 
-        if not torrent_output.endswith("Writing metainfo file... done."):
-            # Torrent failed
-            error("Torrent Error: Unexpected output (%s)" % torrent_output)
-
-        else:
+        if torrent_success:
             # Torrent succeeded! Upload the torrent to github
             url = upload(torrent_path, github_release)
 
             # Notify Zulip
             zulip_upload_log(log, "%s: Build logs for %s" % (platform.system(), app_name), "Successful *%s* build: %s" % (git_branch_name, download_url))
+        else:
+            # Torrent failed
+            error("Torrent Error: Unexpected output (%s)" % lastline)
 
 except Exception as ex:
     tb = traceback.format_exc()
