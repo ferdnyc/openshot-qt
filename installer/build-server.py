@@ -332,14 +332,9 @@ try:
         # Create AppDir folder
         app_dir_path = os.path.join(PATH, "build", "OpenShot.AppDir")
         os.mkdir(app_dir_path)
-        os.mkdir(os.path.join(app_dir_path, "usr"))
-        os.mkdir(os.path.join(app_dir_path, "usr", "share"))
-        os.mkdir(os.path.join(app_dir_path, "usr", "share", "pixmaps"))
-        os.mkdir(os.path.join(app_dir_path, "usr", "share", "mime"))
-        os.mkdir(os.path.join(app_dir_path, "usr", "share", "mime", "packages"))
-        os.mkdir(os.path.join(app_dir_path, "usr", "lib"))
-        os.mkdir(os.path.join(app_dir_path, "usr", "lib", "mime"))
-        os.mkdir(os.path.join(app_dir_path, "usr", "lib", "mime", "packages"))
+        os.makedirs(os.path.join(app_dir_path, "usr", "share", "pixmaps"), exist_ok=True)
+        os.makedirs(os.path.join(app_dir_path, "usr", "share", "mime", "packages"), exist_ok=True)
+        os.makedirs(os.path.join(app_dir_path, "usr", "lib", "mime", "packages"), exist_ok=True)
 
         # Create AppRun file
         app_run_path = os.path.join(app_dir_path, "AppRun")
