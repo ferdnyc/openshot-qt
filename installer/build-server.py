@@ -28,15 +28,12 @@
 import os
 import sys
 
-PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))  # Primary openshot folder
-
 import datetime
 import platform
 import shutil
 import re
 import stat
 import subprocess
-import sys
 import tinys3
 import time
 import traceback
@@ -45,8 +42,10 @@ from requests.auth import HTTPBasicAuth
 from requests import post
 
 # Access info class (for version info)
-sys.path.append(os.path.join(PATH, 'src', 'classes'))
-import info
+PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))  # Primary openshot folder
+sys.path.append(os.path.join(PATH, 'src'))
+
+from classes import info
 
 freeze_command = None
 errors_detected = []
