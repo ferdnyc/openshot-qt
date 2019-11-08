@@ -81,12 +81,32 @@ def output(line):
 
 def run_command(command, working_dir=None):
     """Utility function to return output from command line"""
-    short_command = command.split('" ')[0] # We don't need to print args
+    short_command = command.split('" ')[0]  # We don't need to print args
     output("Running %s... (%s)" % (short_command, working_dir))
     p = subprocess.Popen(command, shell=True, cwd=working_dir,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT)
     return iter(p.stdout.readline, b"")
+
+
+def run_cmd(args, working_dir=None):
+    """Utility function to return output from command line"""
+    if not isinstance(args, list):
+        args = [args]
+    output("Running {}{cwd}...".format(args[0], cwd=" in " + working_dir if working_dir else ""))
+    try:
+        p = subprocess.Popen(args, cwd=working_dir,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT,
+                             encoding='UTF-8', errors='replace')
+        sentinel = ""
+    except TypeError:
+        # Python 3.5 or lower doesn't support encoding=, fall backt bytes
+        p = subprocess.Popen(args, cwd=working_dir,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+        sentinel = b""
+    return iter(p.stdout.readline, sentinel)
 
 
 def error(line):
