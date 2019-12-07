@@ -155,9 +155,9 @@ class Export(QDialog):
         else:
             # Yes, project is saved
             # Get just the filename
-            parent_path, filename = os.path.split(get_app().project.current_filepath)
-            filename, ext = os.path.splitext(filename)
-            self.txtFileName.setText(filename.replace("_", " ").replace("-", " ").capitalize())
+            filename = os.path.basename(get_app().project.current_filepath)
+            filename = os.path.splitext(filename)[0]
+            self.txtFileName.setText(filename)
 
         # Default image type
         self.txtImageFormat.setText("-%05d.png")
@@ -611,11 +611,11 @@ class Export(QDialog):
 
         # update export folder path
         file_path = QFileDialog.getExistingDirectory(self, _("Choose a Folder..."), self.txtExportFolder.text())
+
         if os.path.exists(file_path):
             self.txtExportFolder.setText(file_path)
-
             # update export folder path in project file
-            get_app().updates.update(["export_path"], file_path)
+            app.updates.update(["export_path"], file_path)
 
     def convert_to_bytes(self, BitRateString):
         bit_rate_bytes = 0
@@ -711,10 +711,15 @@ class Export(QDialog):
         # Determine final exported file path (and replace blank paths with default ones)
         default_filename = "Untitled Project"
         default_folder = os.path.join(info.HOME_PATH)
-        if export_type != _("Image Sequence"):
-            file_name_with_ext = "%s.%s" % (self.txtFileName.text().strip() or default_filename, self.txtVideoFormat.text().strip())
-        else:
+        if export_type == _("Image Sequence"):
             file_name_with_ext = "%s%s" % (self.txtFileName.text().strip() or default_filename, self.txtImageFormat.text().strip())
+        else:
+            file_ext = self.txtVideoFormat.text().strip()
+            file_name_with_ext = self.txtFileName.text().strip() or default_filename
+            # Append extension, if not already present
+            if not file_name_with_ext.endswith(file_ext):
+                file_name_with_ext = '{}.{}'.format(file_name_with_ext, file_ext)
+
         export_file_path = os.path.join(self.txtExportFolder.text().strip() or default_folder, file_name_with_ext)
         log.info("Export path: %s" % export_file_path)
 

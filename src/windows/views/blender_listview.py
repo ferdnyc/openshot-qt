@@ -26,7 +26,6 @@
  """
 
 import os
-import uuid
 import shutil
 import subprocess
 import sys
@@ -46,15 +45,6 @@ from classes.app import get_app
 from windows.models.blender_model import BlenderModel
 
 import json
-
-class QBlenderEvent(QEvent):
-    """ A custom Blender QEvent, which can safely be sent from the Blender thread to the Qt thread (to communicate) """
-
-    def __init__(self, id, data=None, *args):
-        # Invoke parent init
-        QEvent.__init__(self, id)
-        self.data = data
-        self.id = id
 
 
 class BlenderListView(QListView):
@@ -128,8 +118,8 @@ class BlenderListView(QListView):
                 self.params[param["name"]] = _(param["default"])
 
                 # create spinner
-                widget = QTextEdit()
-                widget.setText(_(param["default"]).replace("\\n", "\n"))
+                widget = QPlainTextEdit()
+                widget.setPlainText(_(param["default"]).replace("\\n", "\n"))
                 widget.textChanged.connect(functools.partial(self.text_value_changed, widget, param))
 
             elif param["type"] == "dropdown":
@@ -145,14 +135,20 @@ class BlenderListView(QListView):
                     # override files dropdown
                     param["values"] = {}
                     for file in File.filter():
-                        if file.data["media_type"] in ("image", "video"):
-                            (dirName, fileName) = os.path.split(file.data["path"])
-                            (fileBaseName, fileExtension) = os.path.splitext(fileName)
+                        if file.data["media_type"] not in ("image", "video"):
+                            continue
 
-                            if fileExtension.lower() not in (".svg"):
-                                param["values"][fileName] = "|".join((file.data["path"], str(file.data["height"]),
-                                                                      str(file.data["width"]), file.data["media_type"],
-                                                                      str(file.data["fps"]["num"] / file.data["fps"]["den"])))
+                        fileName = os.path.basename(file.data["path"])
+                        fileExtension = os.path.splitext(fileName)[1]
+
+                        if fileExtension.lower() in (".svg"):
+                            continue
+
+                        param["values"][fileName] = "|".join(
+                            file.data["path"], str(file.data["height"]),
+                            str(file.data["width"]), file.data["media_type"],
+                            str(file.data["fps"]["num"] / file.data["fps"]["den"])
+                        )
 
                 # Add normal values
                 box_index = 0
@@ -200,11 +196,11 @@ class BlenderListView(QListView):
 
     def text_value_changed(self, widget, param, value=None):
         try:
-            # Attempt to load value from QTextEdit (i.e. multi-line)
+            # Attempt to load value from QPlainTextEdit (i.e. multi-line)
             if not value:
                 value = widget.toPlainText()
-        except:
-            pass
+        except Exception:
+            return
         self.params[param["name"]] = value.replace("\n", "\\n")
         # XXX: This will log every individual KEYPRESS in the text field.
         # log.info('Animation param %s set to %s' % (param["name"], value))
@@ -237,7 +233,7 @@ class BlenderListView(QListView):
         """ Generate a new, unique folder name to contain Blender frames """
 
         # Assign a new unique id for each template selected
-        self.unique_folder_name = str(uuid.uuid1())
+        self.unique_folder_name = str(self.app.project.generate_id())
 
         # Create a folder (if it does not exist)
         if not os.path.exists(os.path.join(info.BLENDER_PATH, self.unique_folder_name)):
@@ -534,7 +530,7 @@ class BlenderListView(QListView):
             script_body = f.read()
 
         # modify script variable
-        script_body = script_body.replace("#INJECT_PARAMS_HERE", user_params)
+        script_body = script_body.replace("# INJECT_PARAMS_HERE", user_params)
 
         # Write update script
         with open(path, "w", encoding="UTF-8", errors="strict") as f:
@@ -723,7 +719,7 @@ class Worker(QObject):
             # Shell the blender command to create the image sequence
             command_get_version = [self.blender_exec_path, '-v']
             command_render = [self.blender_exec_path, '-b', self.blend_file_path, '-P', self.target_script]
-            
+
             # debug info
             # NOTE: If the length of the command_render list changes, update to match!
             log.info("Blender command: {} {} '{}' {} '{}'".format(*command_render))
