@@ -30,6 +30,7 @@
 import os
 import sys
 import platform
+import atexit
 import shutil
 import webbrowser
 from time import sleep
@@ -42,7 +43,7 @@ from PyQt5.QtGui import QIcon, QCursor, QKeySequence
 from PyQt5.QtWidgets import *
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 
-from .views.timeline_webview import TimelineWebView
+from openshot_qt.windows.views.timeline_webview import TimelineWebView
 from openshot_qt.classes import info, ui_util, settings, qt_types, updates
 from openshot_qt.classes.app import get_app
 from openshot_qt.classes.logger import log
@@ -2694,3 +2695,19 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
 
         # Main window is initialized
         self.initialized = True
+
+
+# Log the session's end
+@atexit.register
+def onLogTheEnd():
+    """ Log when the primary Qt event loop ends """
+
+    try:
+        from openshot_qt.classes.logger import log
+        import time
+        log.info('OpenShot\'s session ended'.center(48))
+        log.info(time.asctime().center(48))
+        log.info("================================================")
+    except Exception:
+        pass
+

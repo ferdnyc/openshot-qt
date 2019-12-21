@@ -45,13 +45,13 @@ import os.path
 import argparse
 
 try:
-    from classes import info
-    print("Loaded modules from current directory: %s" % info.PATH)
+    from openshot_qt import OPENSHOT_PATH
+    print("openshot_qt found: {}".format(OPENSHOT_PATH))
+    from openshot_qt.classes import info
+    print("Loaded module from: {}".format(info.PATH))
 except ImportError:
-    import openshot_qt
-    sys.path.append(openshot_qt.OPENSHOT_PATH)
-    from classes import info
-    print("Loaded modules from installed directory: %s" % info.PATH)
+    print("openshot_qt Python module not found!")
+    sys.exit()
 
 
 def main():
@@ -80,7 +80,7 @@ def main():
         sys.exit()
 
     if args.list_languages:
-        from classes.language import get_all_languages
+        from openshot_qt.classes.language import get_all_languages
         print("Supported Languages:")
         for lang in get_all_languages():
             print("  {:>12}  {}".format(lang[0],lang[1]))
@@ -106,7 +106,7 @@ def main():
             sys.exit(-1)
 
     # Create Qt application, pass any unprocessed arguments
-    from classes.app import OpenShotApp
+    from openshot_qt.classes.app import OpenShotApp
 
     argv = [sys.argv[0]]
     for arg in args.remain:

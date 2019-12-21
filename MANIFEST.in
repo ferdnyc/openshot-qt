@@ -1,9 +1,15 @@
 include AUTHORS
+include CONTRIBUTING.md
 include COPYING
-include README
-recursive-include bin *
+include README.md
+include freeze.py
+include launch.py
+include query_tests.py
+
 recursive-include doc *
+recursive-include installer *
 recursive-include openshot_qt *
+recursive-include translations *
 recursive-include xdg *
 
 global-exclude *__pycache__*

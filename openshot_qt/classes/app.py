@@ -27,7 +27,6 @@
  along with OpenShot Library.  If not, see <http://www.gnu.org/licenses/>.
  """
 
-import atexit
 import os
 import platform
 import sys
@@ -260,16 +259,3 @@ class OpenShotApp(QApplication):
         return res
 
 
-# Log the session's end
-@atexit.register
-def onLogTheEnd():
-    """ Log when the primary Qt event loop ends """
-
-    try:
-        from openshot_qt.classes.logger import log
-        import time
-        log.info('OpenShot\'s session ended'.center(48))
-        log.info(time.asctime().center(48))
-        log.info("================================================")
-    except Exception:
-        pass
