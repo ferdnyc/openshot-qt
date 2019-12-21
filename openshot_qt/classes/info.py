@@ -88,7 +88,7 @@ CURRENT_LANGUAGE = 'en_US'
 SUPPORTED_LANGUAGES = ['en_US']
 
 try:
-    from language import openshot_lang
+    from openshot_qt.language import openshot_lang
     language_path = ":/locale/"
 except ImportError:
     language_path = os.path.join(PATH, 'language')

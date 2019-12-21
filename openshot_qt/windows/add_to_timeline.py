@@ -33,13 +33,13 @@ from random import shuffle, randint, uniform
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 
-from classes import settings
-from classes import info, ui_util, time_parts
-from classes.logger import log
-from classes.query import Track, Clip, Transition
-from classes.app import get_app
-from classes.metrics import *
-from windows.views.add_to_timeline_treeview import TimelineTreeView
+from openshot_qt.classes import settings
+from openshot_qt.classes import info, ui_util, time_parts
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.query import Track, Clip, Transition
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes.metrics import *
+from openshot_qt.windows.views.add_to_timeline_treeview import TimelineTreeView
 
 import openshot
 import json

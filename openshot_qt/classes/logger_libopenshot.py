@@ -26,9 +26,9 @@
  """
 
 from threading import Thread
-from classes import settings, info
-from classes.logger import log
-import openshot
+from openshot_qt.classes import settings, info
+from openshot_qt.classes.logger import log
+from openshot_qt import openshot
 import os
 import zmq
 

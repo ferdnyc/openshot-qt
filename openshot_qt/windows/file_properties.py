@@ -34,10 +34,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 
-from classes import info, ui_util, settings
-from classes.app import get_app
-from classes.logger import log
-from classes.metrics import *
+from openshot_qt.classes import info, ui_util, settings
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.metrics import *
 
 import json
 

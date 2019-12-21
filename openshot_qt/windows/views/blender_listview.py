@@ -37,12 +37,12 @@ from PyQt5.QtCore import QSize, Qt, QEvent, QObject, QThread, pyqtSlot, pyqtSign
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from classes import info
-from classes.logger import log
-from classes import settings
-from classes.query import File
-from classes.app import get_app
-from windows.models.blender_model import BlenderModel
+from openshot_qt.classes import info
+from openshot_qt.classes.logger import log
+from openshot_qt.classes import settings
+from openshot_qt.classes.query import File
+from openshot_qt.classes.app import get_app
+from openshot_qt.windows.models.blender_model import BlenderModel
 
 import json
 

@@ -33,11 +33,11 @@ import threading
 import time
 import urllib.parse
 from copy import deepcopy
-from classes import info
-from classes import language
-from classes.logger import log
-from classes import settings
-import openshot
+from openshot_qt.classes import info
+from openshot_qt.classes import language
+from openshot_qt.classes.logger import log
+from openshot_qt.classes import settings
+from openshot_qt import openshot
 
 from PyQt5.QtCore import QT_VERSION_STR
 from PyQt5.QtCore import PYQT_VERSION_STR

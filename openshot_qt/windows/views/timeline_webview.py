@@ -42,13 +42,13 @@ from PyQt5.QtGui import QCursor, QKeySequence
 from PyQt5.QtWebKitWidgets import QWebView
 from PyQt5.QtWidgets import QMenu
 
-from classes import info, updates
-from classes import settings
-from classes.app import get_app
-from classes.logger import log
-from classes.query import File, Clip, Transition, Track
-from classes.waveform import get_audio_data
-from classes.conversion import zoomToSeconds, secondsToZoom
+from openshot_qt.classes import info, updates
+from openshot_qt.classes import settings
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.query import File, Clip, Transition, Track
+from openshot_qt.classes.waveform import get_audio_data
+from openshot_qt.classes.conversion import zoomToSeconds, secondsToZoom
 
 import json
 

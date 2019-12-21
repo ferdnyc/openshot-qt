@@ -33,12 +33,12 @@ from functools import partial
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
-from classes import info, ui_util
-from classes.logger import log
-from classes.app import get_app
-from classes.metrics import *
-from windows.views.credits_treeview import CreditsTreeView
-from windows.views.changelog_treeview import ChangelogTreeView
+from openshot_qt.classes import info, ui_util
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes.metrics import *
+from openshot_qt.windows.views.credits_treeview import CreditsTreeView
+from openshot_qt.windows.views.changelog_treeview import ChangelogTreeView
 
 import json
 import datetime

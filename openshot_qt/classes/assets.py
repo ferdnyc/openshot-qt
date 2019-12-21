@@ -26,8 +26,8 @@
  """
 
 import os
-from classes import info
-from classes.logger import log
+from openshot_qt.classes import info, settings
+from openshot_qt.classes.logger import log
 
 
 def get_assets_path(file_path=None, create_paths=True):

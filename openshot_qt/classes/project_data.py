@@ -33,13 +33,13 @@ import os
 import random
 import shutil
 
-from classes import info, settings
-from classes.image_types import is_image
-from classes.json_data import JsonDataStore
-from classes.logger import log
-from classes.updates import UpdateInterface
-from classes.assets import get_assets_path
-from windows.views.find_file import find_missing_file
+from openshot_qt.classes import info, settings
+from openshot_qt.classes.image_types import is_image
+from openshot_qt.classes.json_data import JsonDataStore
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.updates import UpdateInterface
+from openshot_qt.classes.assets import get_assets_path
+from openshot_qt.windows.views.find_file import find_missing_file
 
 
 class ProjectDataStore(JsonDataStore, UpdateInterface):
@@ -249,7 +249,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
     # Load default project data
     def new(self):
         """ Try to load default project settings file, will raise error on failure """
-        import openshot
+        from openshot_qt import openshot
 
         # Try to load user default project
         if os.path.exists(info.USER_DEFAULT_PROJECT):
@@ -386,7 +386,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
             self.upgrade_project_data_structures()
 
         # Get app, and distribute all project data through update manager
-        from classes.app import get_app
+        from openshot_qt.classes.app import get_app
         get_app().updates.load(self._data)
 
     def scale_keyframe_value(self, original_value, scale_factor):
@@ -453,9 +453,9 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
         """Attempt to read a legacy version 1.x openshot project file"""
         import sys
         import pickle
-        from classes.query import File, Track, Clip, Transition
-        from classes.app import get_app
-        import openshot
+        from openshot_qt.classes.query import File, Track, Clip, Transition
+        from openshot_qt.classes.app import get_app
+        from openshot_qt import openshot
         import json
 
         # Get translation method
@@ -467,21 +467,21 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
                                    "libopenshot": openshot.OPENSHOT_VERSION_FULL}
 
         # Get FPS from project
-        from classes.app import get_app
+        from openshot_qt.classes.app import get_app
         fps = get_app().project.get("fps")
         fps_float = float(fps["num"]) / float(fps["den"])
 
         # Import legacy openshot classes (from version 1.X)
-        from classes.legacy.openshot import classes as legacy_classes
-        from classes.legacy.openshot.classes import project as legacy_project
-        from classes.legacy.openshot.classes import sequences as legacy_sequences
-        from classes.legacy.openshot.classes import track as legacy_track
-        from classes.legacy.openshot.classes import clip as legacy_clip
-        from classes.legacy.openshot.classes import keyframe as legacy_keyframe
-        from classes.legacy.openshot.classes import files as legacy_files
-        from classes.legacy.openshot.classes import transition as legacy_transition
-        from classes.legacy.openshot.classes import effect as legacy_effect
-        from classes.legacy.openshot.classes import marker as legacy_marker
+        from openshot_qt.classes.legacy.openshot import classes as legacy_classes
+        from openshot_qt.classes.legacy.openshot.classes import project as legacy_project
+        from openshot_qt.classes.legacy.openshot.classes import sequences as legacy_sequences
+        from openshot_qt.classes.legacy.openshot.classes import track as legacy_track
+        from openshot_qt.classes.legacy.openshot.classes import clip as legacy_clip
+        from openshot_qt.classes.legacy.openshot.classes import keyframe as legacy_keyframe
+        from openshot_qt.classes.legacy.openshot.classes import files as legacy_files
+        from openshot_qt.classes.legacy.openshot.classes import transition as legacy_transition
+        from openshot_qt.classes.legacy.openshot.classes import effect as legacy_effect
+        from openshot_qt.classes.legacy.openshot.classes import marker as legacy_marker
         sys.modules['openshot.classes'] = legacy_classes
         sys.modules['classes.project'] = legacy_project
         sys.modules['classes.sequences'] = legacy_sequences
@@ -763,7 +763,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
 
     def save(self, file_path, move_temp_files=True, make_paths_relative=True):
         """ Save project file to disk """
-        import openshot
+        from openshot_qt import openshot
 
         log.info("Saving project file: {}".format(file_path))
 
@@ -926,7 +926,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
             starting_folder = os.path.dirname(self.current_filepath)
 
         # Get translation method
-        from classes.app import get_app
+        from openshot_qt.classes.app import get_app
         _ = get_app()._tr
 
         log.info("checking project files...")

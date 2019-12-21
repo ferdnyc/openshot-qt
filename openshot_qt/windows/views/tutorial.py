@@ -31,10 +31,10 @@ from PyQt5.QtCore import Qt, QPoint, QRectF, QEvent
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QLabel, QWidget, QDockWidget, QVBoxLayout, QHBoxLayout, QPushButton, QToolButton, QCheckBox
 
-from classes.logger import log
-from classes.settings import get_settings
-from classes.app import get_app
-from classes.metrics import *
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.settings import get_settings
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes.metrics import *
 
 
 class TutorialDialog(QWidget):

@@ -27,9 +27,9 @@
 
 import requests
 import threading
-from classes.app import get_app
-from classes import info
-from classes.logger import log
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes import info
+from openshot_qt.classes.logger import log
 import json
 
 def get_current_Version():

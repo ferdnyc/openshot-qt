@@ -42,31 +42,31 @@ from PyQt5.QtGui import QIcon, QCursor, QKeySequence
 from PyQt5.QtWidgets import *
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 
-from windows.views.timeline_webview import TimelineWebView
-from classes import info, ui_util, settings, qt_types, updates
-from classes.app import get_app
-from classes.logger import log
-from classes.timeline import TimelineSync
-from classes.query import File, Clip, Transition, Marker, Track
-from classes.metrics import *
-from classes.version import *
-from classes.conversion import zoomToSeconds, secondsToZoom
-from classes.thumbnail import httpThumbnailServerThread
-from images import openshot_rc
-from windows.views.files_treeview import FilesTreeView
-from windows.views.files_listview import FilesListView
-from windows.views.transitions_treeview import TransitionsTreeView
-from windows.views.transitions_listview import TransitionsListView
-from windows.views.effects_treeview import EffectsTreeView
-from windows.views.effects_listview import EffectsListView
-from windows.views.properties_tableview import PropertiesTableView, SelectionLabel
-from windows.views.tutorial import TutorialManager
-from windows.video_widget import VideoWidget
-from windows.preview_thread import PreviewParent
-from classes.exporters.edl import export_edl
-from classes.exporters.final_cut_pro import export_xml
-from classes.importers.edl import import_edl
-from classes.importers.final_cut_pro import import_xml
+from .views.timeline_webview import TimelineWebView
+from openshot_qt.classes import info, ui_util, settings, qt_types, updates
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.timeline import TimelineSync
+from openshot_qt.classes.query import File, Clip, Transition, Marker, Track
+from openshot_qt.classes.metrics import *
+from openshot_qt.classes.version import *
+from openshot_qt.classes.conversion import zoomToSeconds, secondsToZoom
+from openshot_qt.classes.thumbnail import httpThumbnailServerThread
+from openshot_qt.images import openshot_rc
+from openshot_qt.windows.views.files_treeview import FilesTreeView
+from openshot_qt.windows.views.files_listview import FilesListView
+from openshot_qt.windows.views.transitions_treeview import TransitionsTreeView
+from openshot_qt.windows.views.transitions_listview import TransitionsListView
+from openshot_qt.windows.views.effects_treeview import EffectsTreeView
+from openshot_qt.windows.views.effects_listview import EffectsListView
+from openshot_qt.windows.views.properties_tableview import PropertiesTableView, SelectionLabel
+from openshot_qt.windows.views.tutorial import TutorialManager
+from openshot_qt.windows.video_widget import VideoWidget
+from openshot_qt.windows.preview_thread import PreviewParent
+from openshot_qt.classes.exporters.edl import export_edl
+from openshot_qt.classes.exporters.final_cut_pro import export_xml
+from openshot_qt.classes.importers.edl import import_edl
+from openshot_qt.classes.importers.final_cut_pro import import_xml
 
 
 class MainWindow(QMainWindow, updates.UpdateWatcher):
@@ -357,7 +357,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
 
     def actionAnimatedTitle_trigger(self, event):
         # show dialog
-        from windows.animated_title import AnimatedTitle
+        from openshot_qt.windows.animated_title import AnimatedTitle
         win = AnimatedTitle()
         # Run the dialog event loop - blocking interaction on this window during that time
         result = win.exec_()
@@ -368,7 +368,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
 
     def actionAnimation_trigger(self, event):
         # show dialog
-        from windows.animation import Animation
+        from openshot_qt.windows.animation import Animation
         win = Animation()
         # Run the dialog event loop - blocking interaction on this window during that time
         result = win.exec_()
@@ -379,7 +379,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
 
     def actionTitle_trigger(self, event):
         # show dialog
-        from windows.title_editor import TitleEditor
+        from openshot_qt.windows.title_editor import TitleEditor
         win = TitleEditor()
         # Run the dialog event loop - blocking interaction on this window during that time
         result = win.exec_()
@@ -403,7 +403,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
             os.remove(thumb_path)
 
         # show dialog for editing title
-        from windows.title_editor import TitleEditor
+        from openshot_qt.windows.title_editor import TitleEditor
         win = TitleEditor(file_path)
         # Run the dialog event loop - blocking interaction on this window during that time
         result = win.exec_()
@@ -429,14 +429,14 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         file_path = file.data.get("path")
 
         # show dialog for editing title
-        from windows.title_editor import TitleEditor
+        from openshot_qt.windows.title_editor import TitleEditor
         win = TitleEditor(file_path, duplicate=True)
         # Run the dialog event loop - blocking interaction on this window during that time
         result = win.exec_()
 
     def actionImportImageSequence_trigger(self, event):
         # show dialog
-        from windows.Import_image_seq import ImportImageSeq
+        from openshot_qt.windows.Import_image_seq import ImportImageSeq
         win = ImportImageSeq()
         # Run the dialog event loop - blocking interaction on this window during that time
         result = win.exec_()
@@ -717,7 +717,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         pos = (self.preview_thread.player.Position() - 1) / fps_float
 
         # show window
-        from windows.add_to_timeline import AddToTimeline
+        from openshot_qt.windows.add_to_timeline import AddToTimeline
         win = AddToTimeline(files, pos)
         # Run the dialog event loop - blocking interaction on this window during this time
         result = win.exec_()
@@ -728,7 +728,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
 
     def actionUploadVideo_trigger(self, event):
         # show window
-        from windows.upload_video import UploadVideo
+        from openshot_qt.windows.upload_video import UploadVideo
         win = UploadVideo()
         # Run the dialog event loop - blocking interaction on this window during this time
         result = win.exec_()
@@ -739,7 +739,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
 
     def actionExportVideo_trigger(self, event):
         # show window
-        from windows.export import Export
+        from openshot_qt.windows.export import Export
         win = Export()
         # Run the dialog event loop - blocking interaction on this window during this time
         result = win.exec_()
@@ -788,7 +788,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         get_app().setOverrideCursor(QCursor(Qt.WaitCursor))
 
         # Show dialog
-        from windows.preferences import Preferences
+        from openshot_qt.windows.preferences import Preferences
         win = Preferences()
         # Run the dialog event loop - blocking interaction on this window during this time
         result = win.exec_()
@@ -831,7 +831,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
 
     def actionAbout_trigger(self, event):
         """Show about dialog"""
-        from windows.about import About
+        from openshot_qt.windows.about import About
         win = About()
         # Run the dialog event loop - blocking interaction on this window during this time
         win.exec_()
@@ -915,7 +915,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
             return
 
         # show dialog
-        from windows.cutting import Cutting
+        from openshot_qt.windows.cutting import Cutting
         win = Cutting(f, preview=True)
         win.show()
 
@@ -1545,7 +1545,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
 
     def actionProfile_trigger(self, event):
         # Show dialog
-        from windows.profile import Profile
+        from openshot_qt.windows.profile import Profile
         win = Profile()
         # Run the dialog event loop - blocking interaction on this window during this time
         result = win.exec_()
@@ -1568,7 +1568,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
             return
 
         # show dialog
-        from windows.cutting import Cutting
+        from openshot_qt.windows.cutting import Cutting
         win = Cutting(f)
         # Run the dialog event loop - blocking interaction on this window during that time
         result = win.exec_()
@@ -1795,7 +1795,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
             f = File.get(id=file_id)
 
         # show dialog
-        from windows.file_properties import FileProperties
+        from openshot_qt.windows.file_properties import FileProperties
         win = FileProperties(f)
         # Run the dialog event loop - blocking interaction on this window during that time
         result = win.exec_()

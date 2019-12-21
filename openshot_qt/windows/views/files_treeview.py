@@ -36,11 +36,11 @@ from PyQt5.QtCore import QSize, Qt, QPoint
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QTreeView, QMessageBox, QAbstractItemView, QMenu, QSizePolicy, QHeaderView
 
-from classes.app import get_app
-from classes.image_types import is_image
-from classes.logger import log
-from classes.query import File
-from windows.models.files_model import FilesModel
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes.image_types import is_image
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.query import File
+from openshot_qt.windows.models.files_model import FilesModel
 
 import json
 

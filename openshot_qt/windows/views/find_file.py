@@ -26,8 +26,8 @@
  """
 
 import os
-from classes import info
-from classes.app import get_app
+from openshot_qt.classes import info
+from openshot_qt.classes.app import get_app
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
 # Keep track of all previously checked paths, and keep checking them

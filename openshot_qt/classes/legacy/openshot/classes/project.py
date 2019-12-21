@@ -26,7 +26,7 @@
  """
 
 import os
-from classes.legacy.openshot.classes import files
+from openshot_qt.classes.legacy.openshot.classes import files
 
 
 class project():

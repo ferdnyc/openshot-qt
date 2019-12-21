@@ -42,12 +42,12 @@ from PyQt5.QtWidgets import *
 from PyQt5 import uic
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 
-from classes import info, ui_util, settings, qt_types, updates
-from classes.app import get_app
-from classes.logger import log
-from classes.query import File
-from classes.metrics import *
-from windows.views.blender_listview import BlenderListView
+from openshot_qt.classes import info, ui_util, settings, qt_types, updates
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.query import File
+from openshot_qt.classes.metrics import *
+from openshot_qt.windows.views.blender_listview import BlenderListView
 
 import json
 

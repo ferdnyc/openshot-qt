@@ -30,10 +30,10 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QSizePolicy, QWidget
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 
-from classes.logger import log
-from classes.app import get_app
-from classes.query import Clip
-from classes import updates
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes.query import Clip
+from openshot_qt.classes import updates
 
 import json
 

@@ -33,10 +33,10 @@ import copy
 import os
 import re
 
-from classes.assets import get_assets_path
-from classes.logger import log
-from classes import info
-from classes.app import get_app
+from openshot_qt.classes.assets import get_assets_path
+from openshot_qt.classes.logger import log
+from openshot_qt.classes import info
+from openshot_qt.classes.app import get_app
 
 # Compiled path regex
 path_regex = re.compile(r'\"(image|path)\":.*?\"(.*?)\"')

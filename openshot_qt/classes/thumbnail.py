@@ -27,13 +27,13 @@
 
 import os
 import re
-import openshot
+from openshot_qt import openshot
 import socket
 import time
 from threading import Thread
-from classes import info
-from classes.query import File
-from classes.logger import log
+from openshot_qt.classes import info
+from openshot_qt.classes.query import File
+from openshot_qt.classes.logger import log
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 

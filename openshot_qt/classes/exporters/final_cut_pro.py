@@ -32,10 +32,10 @@ from xml.dom import minidom
 
 from PyQt5.QtWidgets import QFileDialog
 
-from classes import info
-from classes.app import get_app
-from classes.logger import log
-from classes.query import Clip, Track
+from openshot_qt.classes import info
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.query import Clip, Track
 
 
 def createEffect(xmldoc, name, node, points, scale):

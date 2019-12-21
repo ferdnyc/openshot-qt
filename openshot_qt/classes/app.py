@@ -60,8 +60,8 @@ class OpenShotApp(QApplication):
 
         try:
             # Import modules
-            from classes import info
-            from classes.logger import log, reroute_output
+            from openshot_qt.classes import info
+            from openshot_qt.classes.logger import log, reroute_output
 
             # Log the session's start
             import time
@@ -69,8 +69,8 @@ class OpenShotApp(QApplication):
             log.info(time.asctime().center(48))
             log.info('Starting new session'.center(48))
 
-            from classes import settings, project_data, updates, language, ui_util, logger_libopenshot
-            import openshot
+            from openshot_qt.classes import settings, project_data, updates, language, ui_util, logger_libopenshot
+            from openshot_qt import openshot
 
             # Re-route stdout and stderr to logger
             reroute_output()
@@ -112,7 +112,7 @@ class OpenShotApp(QApplication):
         self.settings.load()
 
         # Init and attach exception handler
-        from classes import exceptions
+        from openshot_qt.classes import exceptions
         sys.excepthook = exceptions.ExceptionHandler
 
         # Init translation system
@@ -220,7 +220,7 @@ class OpenShotApp(QApplication):
             self.setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 0px solid white; }")
 
         # Create main window
-        from windows.main_window import MainWindow
+        from openshot_qt.windows.main_window import MainWindow
         self.window = MainWindow(mode)
 
         # Reset undo/redo history
@@ -251,7 +251,7 @@ class OpenShotApp(QApplication):
         res = self.exec_()
 
         try:
-            from classes.logger import log
+            from openshot_qt.classes.logger import log
             self.settings.save()
         except Exception as ex:
             log.error("Couldn't save user settings on exit.\n{}".format(ex))
@@ -266,7 +266,7 @@ def onLogTheEnd():
     """ Log when the primary Qt event loop ends """
 
     try:
-        from classes.logger import log
+        from openshot_qt.classes.logger import log
         import time
         log.info('OpenShot\'s session ended'.center(48))
         log.info(time.asctime().center(48))

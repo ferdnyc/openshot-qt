@@ -36,11 +36,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 
-from classes import info
-from classes import ui_util
-from classes.app import get_app
-from classes.metrics import *
-from classes.query import File
+from openshot_qt.classes import info
+from openshot_qt.classes import ui_util
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes.metrics import *
+from openshot_qt.classes.query import File
 
 import json
 

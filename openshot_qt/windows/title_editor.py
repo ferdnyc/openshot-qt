@@ -41,12 +41,12 @@ from PyQt5.QtWidgets import *
 from PyQt5 import uic, QtSvg, QtGui
 import openshot
 
-from classes import info, ui_util, settings, qt_types, updates
-from classes.logger import log
-from classes.app import get_app
-from classes.query import File
-from classes.metrics import *
-from windows.views.titles_listview import TitlesListView
+from openshot_qt.classes import info, ui_util, settings, qt_types, updates
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes.query import File
+from openshot_qt.classes.metrics import *
+from openshot_qt.windows.views.titles_listview import TitlesListView
 
 import json
 

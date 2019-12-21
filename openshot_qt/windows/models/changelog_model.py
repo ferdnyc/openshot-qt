@@ -1,4 +1,4 @@
-""" 
+"""
  @file
  @brief This file contains the git changelog model, used by the about window
  @author Jonathan Thomas <jonathan@openshot.org>
@@ -30,9 +30,9 @@ import os
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import *
 
-from classes import info
-from classes.logger import log
-from classes.app import get_app
+from openshot_qt.classes import info
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.app import get_app
 
 import json
 

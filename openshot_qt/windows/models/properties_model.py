@@ -32,11 +32,11 @@ from operator import itemgetter
 from PyQt5.QtCore import QMimeData, Qt, QLocale, QTimer
 from PyQt5.QtGui import *
 
-from classes import updates
-from classes import info
-from classes.query import Clip, Transition, Effect, File
-from classes.logger import log
-from classes.app import get_app
+from openshot_qt.classes import updates
+from openshot_qt.classes import info
+from openshot_qt.classes.query import Clip, Transition, Effect, File
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.app import get_app
 import openshot
 
 import json

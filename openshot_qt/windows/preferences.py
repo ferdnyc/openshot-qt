@@ -35,11 +35,11 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QKeySequence, QIcon
 from PyQt5 import uic
 
-from classes import info, ui_util, settings, qt_types, updates
-from classes.app import get_app
-from classes.language import get_all_languages
-from classes.logger import log
-from classes.metrics import *
+from openshot_qt.classes import info, ui_util, settings, qt_types, updates
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes.language import get_all_languages
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.metrics import *
 import openshot
 
 

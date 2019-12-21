@@ -34,12 +34,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 
-from classes import info, ui_util, time_parts, settings, qt_types, updates
-from classes.app import get_app
-from classes.logger import log
-from classes.metrics import *
-from windows.preview_thread import PreviewParent
-from windows.video_widget import VideoWidget
+from openshot_qt.classes import info, ui_util, time_parts, settings, qt_types, updates
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.metrics import *
+from openshot_qt.windows.preview_thread import PreviewParent
+from openshot_qt.windows.video_widget import VideoWidget
 
 import json
 

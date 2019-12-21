@@ -30,14 +30,14 @@ import os
 from operator import itemgetter
 from xml.dom import minidom
 
-import openshot
+from openshot_qt import openshot
 from PyQt5.QtWidgets import QFileDialog
 
-from classes import info
-from classes.app import get_app
-from classes.image_types import is_image
-from classes.query import Clip, Track, File
-from windows.views.find_file import find_missing_file
+from openshot_qt.classes import info
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes.image_types import is_image
+from openshot_qt.classes.query import Clip, Track, File
+from openshot_qt.windows.views.find_file import find_missing_file
 
 
 def import_xml():

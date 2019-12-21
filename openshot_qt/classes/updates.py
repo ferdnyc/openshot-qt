@@ -27,7 +27,8 @@
  along with OpenShot Library.  If not, see <http://www.gnu.org/licenses/>.
  """
 
-from classes.logger import log
+from openshot_qt.classes.logger import log
+from openshot_qt.classes import info
 import copy
 import json
 

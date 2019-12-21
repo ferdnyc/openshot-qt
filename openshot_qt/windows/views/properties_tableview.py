@@ -32,13 +32,13 @@ from PyQt5.QtCore import Qt, QRectF, QLocale, pyqtSignal, QObject, QTimer
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QTableView, QAbstractItemView, QMenu, QSizePolicy, QHeaderView, QColorDialog, QItemDelegate, QStyle, QLabel, QPushButton, QHBoxLayout, QFrame
 
-from classes.logger import log
-from classes.app import get_app
-from classes import info
-from classes.query import Clip, Effect, Transition
-from windows.models.properties_model import PropertiesModel
-from windows.models.transition_model import TransitionsModel
-from windows.models.files_model import FilesModel
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes import info
+from openshot_qt.classes.query import Clip, Effect, Transition
+from openshot_qt.windows.models.properties_model import PropertiesModel
+from openshot_qt.windows.models.transition_model import TransitionsModel
+from openshot_qt.windows.models.files_model import FilesModel
 
 import openshot
 

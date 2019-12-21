@@ -30,11 +30,11 @@ from operator import itemgetter
 
 from PyQt5.QtWidgets import QFileDialog
 
-from classes import info
-from classes.app import get_app
-from classes.logger import log
-from classes.query import Clip, Track
-from classes.time_parts import secondsToTimecode
+from openshot_qt.classes import info
+from openshot_qt.classes.app import get_app
+from openshot_qt.classes.logger import log
+from openshot_qt.classes.query import Clip, Track
+from openshot_qt.classes.time_parts import secondsToTimecode
 
 
 def export_edl():

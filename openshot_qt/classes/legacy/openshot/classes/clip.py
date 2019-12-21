@@ -26,7 +26,7 @@
  """
 
 import uuid
-from classes.legacy.openshot.classes import keyframe
+from openshot_qt.classes.legacy.openshot.classes import keyframe
 
 
 class clip:
