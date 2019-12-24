@@ -173,8 +173,8 @@ class OpenShotApp(QApplication):
         if self.settings.get("theme") != "No Theme":
             # Load embedded font
             try:
-                log.info("Setting font to %s" % os.path.join(info.IMAGES_PATH, "fonts", "Ubuntu-R.ttf"))
-                font_id = QFontDatabase.addApplicationFont(os.path.join(info.IMAGES_PATH, "fonts", "Ubuntu-R.ttf"))
+                log.info("Setting font to %s" % os.path.join(info.RESOURCES_PATH, "Ubuntu-R.ttf"))
+                font_id = QFontDatabase.addApplicationFont(os.path.join(info.RESOURCES_PATH, "Ubuntu-R.ttf"))
                 font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
                 font = QFont(font_family)
                 font.setPointSizeF(10.5)
