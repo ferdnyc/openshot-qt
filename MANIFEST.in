@@ -3,16 +3,25 @@ include CONTRIBUTING.md
 include COPYING
 include README.md
 include freeze.py
-include launch.py
 include query_tests.py
+include generate_translations.py
 
-recursive-include doc *
-recursive-include installer *
-recursive-include openshot_qt *
-recursive-include translations *
-recursive-include xdg *
+graft openshot_qt
 
-global-exclude *__pycache__*
-global-exclude *pyc
-global-exclude .idea
-global-exclude .git
+graft doc
+graft installer
+graft translations
+graft xdg
+
+prune doc/_build
+
+global-exclude *.py[co]
+global-exclude __pycache__
+global-exclude *.autosave
+global-exclude *~
+global-exclude .gitignore
+
+prune .git
+prune build
+prune dist
+

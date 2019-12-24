@@ -29,7 +29,7 @@ import os
 import sys
 import fnmatch
 import subprocess
-from setuptools import setup
+import setuptools
 from shutil import copytree, rmtree, copy
 
 
@@ -87,14 +87,36 @@ os_files = [
 
 # Call the main Distutils setup command
 # -------------------------------------
-dist = setup(
-    packages=[('openshot_qt')],
-    #package_data=package_data,
+dist = setuptools.setup(
+    packages=setuptools.find_packages(),
+    package_data={
+        'openshot_qt': [
+            'openshot_qt/*.*',
+            'openshot_qt/classes/*.*',
+            'openshot_qt/classes/**/*.*',
+            'openshot_qt/windows/**/*.*',
+            'openshot_qt/timeline/**/*.*',
+            'openshot_qt/language/*',
+            'openshot_qt/effects/icons/*.*',
+            'openshot_qt/blender/**/*.*'
+        ]
+    },
     data_files=os_files,
     include_package_data=True,
-    entry_points = {
-        'console_scripts': ['openshot-qt=openshot_qt:main']
+    zip_safe=False,
+    entry_points={
+        'console_scripts': ['openshot-qt = openshot_qt:main']
     },
+    python_requires=">=3.0",
+    install_requires=[
+        'openshot',
+        'PyQt5',
+        'PyQt5.QtWebkit',
+        'zmq',
+        'httplib2',
+        'requests',
+        'setuptools'
+    ],
     **info.SETUP
 )
 # -------------------------------------
