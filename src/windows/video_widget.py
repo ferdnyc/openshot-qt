@@ -98,6 +98,8 @@ class VideoWidget(QWidget, updates.UpdateInterface):
             center = self.centeredViewport(self.width(), self.height())
             painter.drawImage(center, scaledPix)
 
+            log.info("Transformed {}×{} size into viewport: {}".format(self.width(), self.height(), str(center)))
+
         if self.transforming_clip:
             # Draw transform handles on top of video preview
             # Get framerate
