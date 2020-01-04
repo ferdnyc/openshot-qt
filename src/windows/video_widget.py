@@ -91,6 +91,8 @@ class VideoWidget(QWidget, updates.UpdateInterface):
             pixSize = self.current_image.size()
             pixSize.scale(event.rect().size(), Qt.KeepAspectRatio)
 
+            log.info("Scaling {} image into {} rect: {}".format(str(self.current_image.size()), str(event.rect()), str(pixSize)))
+
             # Scale image
             scaledPix = self.current_image.scaled(pixSize, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
@@ -98,7 +100,7 @@ class VideoWidget(QWidget, updates.UpdateInterface):
             center = self.centeredViewport(self.width(), self.height())
             painter.drawImage(center, scaledPix)
 
-            log.info("Transformed {}×{} size into viewport: {}".format(self.width(), self.height(), str(center)))
+            log.info("Viewport for {}×{}: {}".format(self.width(), self.height(), str(center)))
 
         if self.transforming_clip:
             # Draw transform handles on top of video preview
