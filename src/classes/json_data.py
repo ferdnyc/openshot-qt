@@ -32,14 +32,126 @@ import json
 import copy
 import os
 import re
+from copy import deepcopy
 
 from classes.assets import get_assets_path
 from classes.logger import log
 from classes import info
 
 # Compiled path regex
-path_regex = re.compile(r'\"(image|path)\":.*?\"(.*?)\"')
+#path_regex = re.compile(r'\"(image|path)\":.*?\"(.*?)\"')
+#path_context = {}
+
+# Get project folder
+file_path = "/home/ferd"
 path_context = {}
+
+
+def set_path_context(file_path, previous_path=None):
+    path_context["new_project_folder"] = os.path.dirname(file_path)
+    path_context["new_project_assets"] = get_assets_path(file_path, create_paths=False)
+    path_context["existing_project_folder"] = os.path.dirname(file_path)
+    path_context["existing_project_assets"] = get_assets_path(file_path, create_paths=False)
+    if previous_path and file_path != previous_path:
+        path_context["existing_project_folder"] = os.path.dirname(previous_path)
+        path_context["existing_project_assets"] = get_assets_path(previous_path, create_paths=False)
+
+
+class OpenShotJSONEncoder(json.JSONEncoder):
+    """ Encode to JSON, fixing up path strings"""
+
+    def replace_path_to_relative(self, path):
+        """Replace matched string for converting paths to relative paths"""
+        folder_path, file_path = os.path.split(os.path.abspath(path))
+
+        # Determine if thumbnail path is found
+        if info.THUMBNAIL_PATH in folder_path:
+            # Convert path to relative thumbnail path
+            return os.path.join("thumbnail", file_path).replace("\\", "/")
+
+        # Determine if @transitions path is found
+        elif os.path.join(info.PATH, "transitions") in folder_path:
+            # Yes, this is an OpenShot transitions
+            folder_path, category_path = os.path.split(folder_path)
+
+            # Convert path to @transitions/ path
+            return os.path.join("@transitions", category_path, file_path).replace("\\", "/")
+
+        # Determine if @assets path is found
+        elif path_context["new_project_assets"] in folder_path:
+            # Yes, this is an OpenShot transitions
+            folder_path = folder_path.replace(path_context["new_project_assets"], "@assets")
+
+            # Convert path to @transitions/ path
+            return os.path.join(folder_path, file_path).replace("\\", "/")
+
+        # Find absolute path of file (if needed)
+        else:
+            # Convert path to the correct relative path (based on the existing folder)
+            orig_abs_path = os.path.abspath(path)
+
+            # Remove file from abs path
+            orig_abs_folder = os.path.dirname(orig_abs_path)
+
+            # Calculate new relateive path
+            new_rel_path_folder = os.path.relpath(orig_abs_folder, path_context.get("new_project_folder", ""))
+            return os.path.join(new_rel_path_folder, file_path).replace("\\", "/")
+
+    def fixup(self, o):
+        if isinstance(o, list):
+            print(f"Encoding {len(o)} element list")
+            return [self.fixup(x) for x in o]
+        if isinstance(o, dict):
+            print(f"Encoding dict (keys: {o.keys()})")
+            if "image" in o.keys():
+                o["image"] = self.replace_path_to_relative(o["image"])
+            if "path" in o.keys():
+                o["path"] = self.replace_path_to_relative(o["path"])
+            o["dummy"] = True
+            for key in o.keys():
+                o[key] = self.fixup(o[key])
+        return o
+
+    def encode(self, o):
+        d = deepcopy(o)
+        return self.fixup(d)
+
+
+class OpenShotJSONDecoder(json.JSONDecoder):
+
+    def replace_path_to_absolute(self, path):
+        """Replace matched string for converting paths to relative paths"""
+
+        # Find absolute path of file (if needed)
+        if "@transitions" in path:
+            return path.replace("@transitions", os.path.join(info.PATH, "transitions"))
+
+        elif "@assets" in path:
+            return path.replace("@assets", path_context["new_project_assets"])
+
+        else:
+            # Convert path to the correct relative path
+            return os.path.abspath(os.path.join(path_context.get("new_project_folder", ""), path))
+
+    def fixup(self, k):
+        if isinstance(k, list):
+            print(f"Decoding {len(k)} element list")
+            return [self.fixup(x) for x in k]
+        if isinstance(k, dict):
+            print(f"Decoding dict (keys: {k.keys()})")
+            if "image" in k.keys():
+                k["image"] = self.replace_path_to_absolute(k["image"])
+            if "path" in k.keys():
+                k["path"] = self.replace_path_to_absolute(k["path"])
+            if "dummy" in k.keys():
+                k.pop("dummy")
+            for key in k.keys():
+                k[key] = self.fixup(k[key])
+        return k
+
+    def decode(self, o):
+        d = json.JSONDecoder().decode(o)
+        return self.fixup(d)
 
 
 class JsonDataStore:
@@ -108,7 +220,7 @@ class JsonDataStore:
             # Update default values to match user values
             for item in default:
                 user_value = user_values.get(item["setting"], None)
-                if user_value != None:
+                if user_value is not None:
                     item["value"] = user_value
 
             # Return merged list
@@ -132,7 +244,8 @@ class JsonDataStore:
                 if contents:
                     if path_mode == "absolute":
                         # Convert any paths to absolute
-                        contents = self.convert_paths_to_absolute(file_path, contents)
+                        set_path_context(file_path)
+                        return json.loads(contents, strict=False, cls=OpenShotJSONDecoder)
                     return json.loads(contents, strict=False)
         except Exception as ex:
             msg = ("Couldn't load {} file: {}".format(self.data_type, ex))
@@ -156,24 +269,6 @@ class JsonDataStore:
             log.error(msg)
             raise Exception(msg)
 
-    def replace_string_to_absolute(self, match):
-        """Replace matched string for converting paths to relative paths"""
-        key = match.groups(0)[0]
-        path = match.groups(0)[1]
-
-        # Find absolute path of file (if needed)
-        if "@transitions" in path:
-            new_path = path.replace("@transitions", os.path.join(info.PATH, "transitions"))
-            return '"%s": "%s"' % (key, new_path)
-
-        elif "@assets" in path:
-            new_path = path.replace("@assets", path_context["new_project_assets"])
-            return '"%s": "%s"' % (key, new_path)
-
-        else:
-            # Convert path to the correct relative path
-            new_path = os.path.abspath(os.path.join(path_context.get("new_project_folder", ""), path))
-            return '"%s": "%s"' % (key, new_path)
 
     def convert_paths_to_absolute(self, file_path, data):
         """ Convert all paths to absolute using regex """
@@ -191,49 +286,6 @@ class JsonDataStore:
             log.error("Error while converting relative paths to absolute paths: %s" % str(ex))
 
         return data
-
-    def replace_string_to_relative(self, match):
-        """Replace matched string for converting paths to relative paths"""
-        key = match.groups(0)[0]
-        path = match.groups(0)[1].encode('utf-8').decode('unicode_escape')
-        folder_path, file_path = os.path.split(os.path.abspath(path))
-
-        # Determine if thumbnail path is found
-        if info.THUMBNAIL_PATH in folder_path:
-            # Convert path to relative thumbnail path
-            new_path = os.path.join("thumbnail", file_path).replace("\\", "/")
-            return '"%s": "%s"' % (key, new_path)
-
-        # Determine if @transitions path is found
-        elif os.path.join(info.PATH, "transitions") in folder_path:
-            # Yes, this is an OpenShot transitions
-            folder_path, category_path = os.path.split(folder_path)
-
-            # Convert path to @transitions/ path
-            new_path = os.path.join("@transitions", category_path, file_path).replace("\\", "/")
-            return '"%s": "%s"' % (key, new_path)
-
-        # Determine if @assets path is found
-        elif path_context["new_project_assets"] in folder_path:
-            # Yes, this is an OpenShot transitions
-            folder_path = folder_path.replace(path_context["new_project_assets"], "@assets")
-
-            # Convert path to @transitions/ path
-            new_path = os.path.join(folder_path, file_path).replace("\\", "/")
-            return '"%s": "%s"' % (key, new_path)
-
-        # Find absolute path of file (if needed)
-        else:
-            # Convert path to the correct relative path (based on the existing folder)
-            orig_abs_path = os.path.abspath(path)
-
-            # Remove file from abs path
-            orig_abs_folder = os.path.split(orig_abs_path)[0]
-
-            # Calculate new relateive path
-            new_rel_path_folder = os.path.relpath(orig_abs_folder, path_context.get("new_project_folder", ""))
-            new_rel_path = os.path.join(new_rel_path_folder, file_path).replace("\\", "/")
-            return '"%s": "%s"' % (key, new_rel_path)
 
     def convert_paths_to_relative(self, file_path, previous_path, data):
         """ Convert all paths relative to this filepath """
