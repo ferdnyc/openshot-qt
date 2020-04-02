@@ -256,7 +256,7 @@ App.controller('TimelineCtrl',function($scope) {
   };
 
   // Move the playhead to a specific time
-  $scope.MovePlayhead = function(position_seconds) {
+  $scope.MovePlayhead = function(position_seconds, updateLabel=true) {
 	  // Update internal scope (in seconds)
 	  $scope.project.playhead_position = position_seconds;
 	  $scope.playheadTime = secondsToTime(position_seconds, $scope.project.fps.num, $scope.project.fps.den);
@@ -264,7 +264,13 @@ App.controller('TimelineCtrl',function($scope) {
 	  // Use JQuery to move playhead (for performance reasons) - scope.apply is too expensive here
 	  $(".playhead-top").css("left", (($scope.project.playhead_position * $scope.pixelsPerSecond) + $scope.playheadOffset) + "px");
 	  $(".playhead-line").css("left", (($scope.project.playhead_position * $scope.pixelsPerSecond) + $scope.playheadOffset) + "px");
-	  $("#ruler_time").text($scope.playheadTime.hour + ":" + $scope.playheadTime.min + ":" + $scope.playheadTime.sec + ":" + $scope.playheadTime.frame);
+	  if(updateLabel){ 
+	  	$("#ruler_time").val($scope.playheadTime.hour + ":" + $scope.playheadTime.min + ":" + $scope.playheadTime.sec + ":" + $scope.playheadTime.frame);
+	  }
+	};
+
+  $scope.GetTargetPlayTime = function(){
+	  return $("#ruler_time").val();
   };
 
   // Move the playhead to a specific frame

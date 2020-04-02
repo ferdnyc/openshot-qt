@@ -208,25 +208,37 @@ App.directive('tlRulertime', function () {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
-			//on click of the ruler canvas, jump playhead to the clicked spot
-			element.on('mousedown', function(e){
-				var playhead_seconds = 0.0;
-				// Update playhead
-				scope.MovePlayhead(playhead_seconds);
-				scope.PreviewFrame(playhead_seconds);
-
-			});
-
-			// Move playhead to new position (if it's not currently being animated)
-			element.on('mousemove', function(e){
-				if (e.which == 1 && !scope.playhead_animating) { // left button
-					var playhead_seconds = 0.0;
-					// Update playhead
-					scope.MovePlayhead(playhead_seconds);
-					scope.PreviewFrame(playhead_seconds);
+			element.on('keydown', function(e){
+				//e.preventDefault();
+			})
+			//detect input change and move to entered position
+			element.on('input', function(e){
+				let values = scope.GetTargetPlayTime().split(":");
+				for(var a = 0; a != values.length; ++a){
+					values[a] = parseInt(values[a]);
+					if(values[a] == NaN) return;
 				}
+
+				values = values.reverse();
+				let targetTime = 0;
+				if (values.length >= 1){
+					targetTime += values[0]* 0.01 * scope.project.fps.num;
+				}
+				if (values.length >= 2){
+					targetTime += values[1];
+				}
+				if(values.length >= 3){
+					targetTime += values[2]*60;
+				}
+				if(values.length >= 4){
+					targetTime += values[3]*3600;
+				}
+				scope.MovePlayhead(targetTime, false);
 			});
 
+			element.on("focusout", function(e){
+				scope.MovePlayhead(scope.project.playhead_position);
+			})
 
 		}
 	};
