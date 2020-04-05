@@ -906,5 +906,13 @@
     "setting": "nudgeRight",
     "value": "Shift+Right",
     "type": "text"
+  },
+  {
+    "category": "Keyboard",
+    "title": "Go to time",
+    "restart": true,
+    "setting": "goToTime",
+    "value": "G",
+    "type": "text"
   }
 ]
