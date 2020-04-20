@@ -31,17 +31,20 @@ import os
 import re
 import fnmatch
 import sys
-from PyQt5.QtCore import QLocale, QLibraryInfo, QTranslator, QCoreApplication
+import inspect
+from PyQt5.QtCore import QTranslator, QCoreApplication
 
+sys.path.insert(0, '..')
 
 # Get the absolute path of this project
-language_path = os.path.dirname(os.path.abspath(__file__))
+from openshot_qt.language import openshot_rc
+language_path = os.path.dirname(inspect.getabsfile(openshot_rc))
 
 # Get app instance
 app = QCoreApplication(sys.argv)
 
 # Load POT template (all English strings)
-POT_source = open(os.path.join(language_path, 'OpenShot', 'OpenShot.pot')).read()
+POT_source = open(os.path.join('.', 'OpenShot.pot')).read()
 all_strings = re.findall('^msgid \"(.*)\"', POT_source, re.MULTILINE)
 
 print("Scanning {} strings in all translation files...".format(len(all_strings)))
@@ -55,7 +58,7 @@ for filename in fnmatch.filter(os.listdir(language_path), 'OpenShot.*.qm'):
     # Load translation
     if translator.load(lang_code, language_path):
         app.installTranslator(translator)
-        
+
         print("\n=================================================")
         print("Showing translations for {}".format(filename))
         print("=================================================")
@@ -63,6 +66,6 @@ for filename in fnmatch.filter(os.listdir(language_path), 'OpenShot.*.qm'):
         for source_string in all_strings:
             translated_string = app.translate("", source_string)
             if source_string != translated_string:
-                print('  {} => {}'.format(source_string,translated_string))
+                print('  {} => {}'.format(source_string, translated_string))
         # Remove translator
         app.removeTranslator(translator)
