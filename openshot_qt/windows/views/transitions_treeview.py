@@ -29,7 +29,7 @@ from PyQt5.QtCore import QSize, QPoint
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QTreeView, QAbstractItemView, QMenu, QSizePolicy
 
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.windows.models.transition_model import TransitionsModel
 
 import json

@@ -26,12 +26,12 @@
  """
 
 import os
-from openshot_qt.classes import info
-from openshot_qt.classes.app import get_app
+from openshot_qt.classes import info, paths
+from openshot_qt import get_app
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
 # Keep track of all previously checked paths, and keep checking them
-known_paths = [info.HOME_PATH]
+known_paths = [paths.HOME]
 
 
 def find_missing_file(file_path):
@@ -58,7 +58,7 @@ def find_missing_file(file_path):
     while not os.path.exists(file_path):
         recommended_path = get_app().project.current_filepath or ""
         if not recommended_path:
-            recommended_path = info.HOME_PATH
+            recommended_path = paths.HOME
         else:
             recommended_path = os.path.dirname(recommended_path)
         QMessageBox.warning(None, _("Missing File (%s)") % file_name,

@@ -36,7 +36,7 @@ import re
 from openshot_qt.classes.assets import get_assets_path
 from openshot_qt.classes.logger import log
 from openshot_qt.classes import info
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 
 # Compiled path regex
 path_regex = re.compile(r'\"(image|path)\":.*?\"(.*?)\"')
@@ -221,7 +221,7 @@ class JsonDataStore:
 
         # Find absolute path of file (if needed)
         if "@transitions" in path:
-            new_path = path.replace("@transitions", os.path.join(info.PATH, "transitions"))
+            new_path = path.replace("@transitions", os.path.join(paths.PATH, "transitions"))
             new_path = json.dumps(new_path, ensure_ascii=False)
             return '"%s": %s' % (key, new_path)
 
@@ -260,14 +260,14 @@ class JsonDataStore:
         folder_path, file_path = os.path.split(os.path.abspath(path))
 
         # Determine if thumbnail path is found
-        if info.THUMBNAIL_PATH in folder_path:
+        if paths.THUMBNAIL in folder_path:
             # Convert path to relative thumbnail path
             new_path = os.path.join("thumbnail", file_path).replace("\\", "/")
             new_path = json.dumps(new_path, ensure_ascii=False)
             return '"%s": %s' % (key, new_path)
 
         # Determine if @transitions path is found
-        elif os.path.join(info.PATH, "transitions") in folder_path:
+        elif os.path.join(paths.PATH, "transitions") in folder_path:
             # Yes, this is an OpenShot transitions
             folder_path, category_path = os.path.split(folder_path)
 
@@ -355,6 +355,6 @@ class JsonDataStore:
             if not backup_dir:
                 # Retry in alternate location
                 log.info("Attempting to save backup in user config directory")
-                self.make_repair_backup(file_path, jsondata, backup_dir=info.USER_PATH)
+                self.make_repair_backup(file_path, jsondata, backup_dir=paths.USER)
             else:
                 raise Exception("Aborting recovery, cannot write backup file") from ex

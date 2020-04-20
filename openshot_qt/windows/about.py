@@ -33,9 +33,9 @@ from functools import partial
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
-from openshot_qt.classes import info, ui_util
+from openshot_qt.classes import info, paths, ui_util
 from openshot_qt.classes.logger import log
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.classes.metrics import *
 from openshot_qt.windows.views.credits_treeview import CreditsTreeView
 from openshot_qt.windows.views.changelog_treeview import ChangelogTreeView
@@ -46,7 +46,7 @@ import datetime
 class About(QDialog):
     """ About Dialog """
 
-    ui_path = os.path.join(info.PATH, 'windows', 'ui', 'about.ui')
+    ui_path = os.path.join(paths.PATH, 'windows', 'ui', 'about.ui')
 
     def __init__(self):
         # Create dialog class
@@ -65,7 +65,7 @@ class About(QDialog):
         # Hide chnagelog button by default
         self.btnchangelog.setVisible(False)
         for project in ['openshot-qt', 'libopenshot', 'libopenshot-audio']:
-            changelog_path = os.path.join(info.PATH, 'settings', '%s.log' % project)
+            changelog_path = os.path.join(paths.PATH, 'settings', '%s.log' % project)
             if os.path.exists(changelog_path):
                 # Attempt to open changelog with utf-8, and then utf-16-le (for unix / windows support)
                 for encoding_name in ('utf-8', 'utf_16_le'):
@@ -95,7 +95,7 @@ class About(QDialog):
         self.btnchangelog.clicked.connect(self.load_changelog)
 
         # Init some variables
-        openshot_qt_version = _("Version: %s") % info.VERSION
+        openshot_qt_version = _("Version: %s") % openshot_qt.version
         libopenshot_version = "libopenshot: %s" % openshot.OPENSHOT_VERSION_FULL
         self.txtversion.setText("<b>%s</b><br/>%s" % (openshot_qt_version, libopenshot_version))
         self.txtversion.setAlignment(Qt.AlignCenter)
@@ -125,7 +125,7 @@ class About(QDialog):
 class License(QDialog):
     """ License Dialog """
 
-    ui_path = os.path.join(info.PATH, 'windows', 'ui', 'license.ui')
+    ui_path = os.path.join(paths.PATH, 'windows', 'ui', 'license.ui')
 
     def __init__(self):
         # Create dialog class
@@ -142,7 +142,7 @@ class License(QDialog):
         _ = self.app._tr
 
         # Init license
-        with open(os.path.join(info.RESOURCES_PATH, 'license.txt'), 'r') as my_license:
+        with open(os.path.join(paths.RESOURCES, 'license.txt'), 'r') as my_license:
             text = my_license.read()
             self.textBrowser.append(text)
 
@@ -155,7 +155,7 @@ class License(QDialog):
 class Credits(QDialog):
     """ Credits Dialog """
 
-    ui_path = os.path.join(info.PATH, 'windows', 'ui', 'credits.ui')
+    ui_path = os.path.join(paths.PATH, 'windows', 'ui', 'credits.ui')
 
     def Filter_Triggered(self, textbox, treeview):
         """Callback for filter being changed"""
@@ -184,7 +184,7 @@ class Credits(QDialog):
 
         # Get list of developers
         developer_list = []
-        with codecs.open(os.path.join(info.RESOURCES_PATH, 'contributors.json'), 'r', 'utf-8') as contributors_file:
+        with codecs.open(os.path.join(paths.RESOURCES, 'contributors.json'), 'r', 'utf-8') as contributors_file:
             developer_string = contributors_file.read()
             developer_list = json.loads(developer_string)
 
@@ -215,7 +215,7 @@ class Credits(QDialog):
 
         # Get list of supporters
         supporter_list = []
-        with codecs.open(os.path.join(info.RESOURCES_PATH, 'supporters.json'), 'r', 'utf-8') as supporter_file:
+        with codecs.open(os.path.join(paths.RESOURCES, 'supporters.json'), 'r', 'utf-8') as supporter_file:
             supporter_string = supporter_file.read()
             supporter_list = json.loads(supporter_string)
 
@@ -228,7 +228,7 @@ class Credits(QDialog):
 class Changelog(QDialog):
     """ Changelog Dialog """
 
-    ui_path = os.path.join(info.PATH, 'windows', 'ui', 'changelog.ui')
+    ui_path = os.path.join(paths.PATH, 'windows', 'ui', 'changelog.ui')
 
     def Filter_Triggered(self, textbox, treeview):
         """Callback for filter being changed"""
@@ -257,7 +257,7 @@ class Changelog(QDialog):
 
         # Get changelog for openshot-qt (if any)
         changelog_list = []
-        changelog_path = os.path.join(info.PATH, 'settings', 'openshot-qt.log')
+        changelog_path = os.path.join(paths.PATH, 'settings', 'openshot-qt.log')
         if os.path.exists(changelog_path):
             # Attempt to open changelog with utf-8, and then utf-16-le (for unix / windows support)
             for encoding_name in ('utf-8', 'utf_16_le'):
@@ -278,7 +278,7 @@ class Changelog(QDialog):
 
         # Get changelog for libopenshot (if any)
         changelog_list = []
-        changelog_path = os.path.join(info.PATH, 'settings', 'libopenshot.log')
+        changelog_path = os.path.join(paths.PATH, 'settings', 'libopenshot.log')
         if os.path.exists(changelog_path):
             # Attempt to open changelog with utf-8, and then utf-16-le (for unix / windows support)
             for encoding_name in ('utf-8', 'utf_16_le'):
@@ -299,7 +299,7 @@ class Changelog(QDialog):
 
         # Get changelog for libopenshot-audio (if any)
         changelog_list = []
-        changelog_path = os.path.join(info.PATH, 'settings', 'libopenshot-audio.log')
+        changelog_path = os.path.join(paths.PATH, 'settings', 'libopenshot-audio.log')
         if os.path.exists(changelog_path):
             # Attempt to open changelog with utf-8, and then utf-16-le (for unix / windows support)
             for encoding_name in ('utf-8', 'utf_16_le'):

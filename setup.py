@@ -27,25 +27,22 @@
 
 import os
 import sys
-import fnmatch
-import subprocess
+import logging
 import setuptools
-from shutil import copytree, rmtree, copy
+import cx_Freeze
 
+import openshot_qt
 
-from openshot_qt.classes import info
-from logging import log, INFO
-
-log(INFO, "Execution path: %s" % os.path.abspath(__file__))
+logging.log(logging.INFO, "Execution path: %s" % os.path.dirname(os.path.abspath(__file__)))
 
 # Boolean: running as root?
-ROOT = os.geteuid() == 0
+# ROOT = os.geteuid() == 0
 # For Debian packaging it could be a fakeroot so reset flag to prevent execution of
 # system update services for Mime and Desktop registrations.
 # The debian/openshot.postinst script must do those.
-if not os.getenv("FAKEROOTKEY") == None:
-    log(INFO, "NOTICE: Detected execution in a FakeRoot so disabling calls to system update services.")
-    ROOT = False
+# if not os.getenv("FAKEROOTKEY") == None:
+#     log(INFO, "NOTICE: Detected execution in a FakeRoot so disabling calls to system update services.")
+#     ROOT = False
 
 os_files = [
     # XDG application description
@@ -57,6 +54,7 @@ os_files = [
     # XDG Freedesktop icon paths
     ('share/icons/hicolor/scalable/apps', ['xdg/openshot-qt.svg']),
     ('share/icons/hicolor/64x64/apps', ['xdg/icon/64/openshot-qt.png']),
+    ('share/icons/hicolor/128x128/apps', ['xdg/icon/128/openshot-qt.png']),
     ('share/icons/hicolor/256x256/apps', ['xdg/icon/256/openshot-qt.png']),
     ('share/icons/hicolor/512x512/apps', ['xdg/icon/512/openshot-qt.png']),
     # XDG desktop mime types cache
@@ -66,7 +64,7 @@ os_files = [
 ]
 
 # Find files matching patterns
-#def find_files(directory, patterns):
+# def find_files(directory, patterns):
 #    """ Recursively find all files in a folder tree """
 #    for root, dirs, files in os.walk(directory):
 #        for basename in files:
@@ -85,20 +83,55 @@ os_files = [
 #    src_files.append(filename.replace(os.path.abspath("openshot_qt"), ""))
 #package_data["openshot_qt"] = src_files
 
-# Call the main Distutils setup command
+# Set up classifiers list
+_classifiers = [
+    # see http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: X11 Applications",
+    "Environment :: X11 Applications :: GTK",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "Operating System :: OS Independent",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Topic :: Artistic Software",
+    "Topic :: Multimedia :: Video :: Non-Linear Editor"
+]
+
+# _classifiers.extend(
+#     ["Natural Language :: {}".format(l) for l in old.SUPPORTED_LANGUAGES]
+# )
+
+base = None
+if sys.platform == 'win32':
+    base = 'Win32GUI'
+
+options = {
+    'build_exe': {
+        'includes': 'atexit'
+    }
+}
+
+executables = [
+    cx_Freeze.Executable('openshot_qt.app:main', base=base)
+]
+
+# Call the main Setuptools setup command
 # -------------------------------------
-dist = setuptools.setup(
+try:
+  dist = setuptools.setup(
+    name = 'openshot_qt',
+    version = openshot_qt.version,
+    options = options,
+    executables = executables,
     packages=setuptools.find_packages(),
     package_data={
         'openshot_qt': [
-            'openshot_qt/*.*',
-            'openshot_qt/classes/*.*',
-            'openshot_qt/classes/**/*.*',
-            'openshot_qt/windows/**/*.*',
-            'openshot_qt/timeline/**/*.*',
+            'openshot_qt/windows/ui/*',
+            'openshot_qt/timeline/**/*',
             'openshot_qt/language/*',
-            'openshot_qt/effects/icons/*.*',
-            'openshot_qt/blender/**/*.*'
+            'openshot_qt/effects/icons/*',
+            'openshot_qt/blender/**/*'
         ]
     },
     data_files=os_files,
@@ -107,44 +140,80 @@ dist = setuptools.setup(
     entry_points={
         'console_scripts': ['openshot-qt = openshot_qt:main']
     },
-    python_requires=">=3.0",
+    python_requires=">=3.5",
     install_requires=[
-        'openshot',
+        'libopenshot>0.2.5',
         'PyQt5',
-        'PyQt5.QtWebkit',
-        'zmq',
+        'PyQtWebkit',
+        'PyQtWebEngine',
+        'pyzmq',
         'httplib2',
         'requests',
-        'setuptools'
     ],
-    **info.SETUP
-)
+    url="https://www.openshot.org/",
+    project_urls={
+        "Bug Tracker": "https://github.com/OpenShot/openshot-qt/issues/",
+        "Documentation": "https://openshot.org/user-guide/",
+        "Source Code": "https://github.com/OpenShot/openshot-qt/",
+    },
+    long_description="""
+    OpenShot Video Editor is a free, open-source, non-linear video editor. It
+    can create and edit videos and movies using many popular video, audio,
+    image formats.  Create videos for YouTube, Flickr, Vimeo, Metacafe, iPod,
+    Xbox, and many more common formats!
+
+    Features include:
+     * Multiple tracks (layers)
+     * Compositing, image overlays, and watermarks
+     * Support for image sequences (rotoscoping)
+     * Key-frame animation
+     * Video and audio effects (chroma-key)
+     * Transitions (lumas and masks)
+     * 3D animation (titles and simulations)
+     * Upload videos (YouTube and Vimeo supported)
+    """,
+    classifiers=_classifiers)
+except Exception as ex:
+  logging.critical("Setup failed!", exc_info=1)
+
+# Create distutils setup object
+#try:
+#    cx_Freeze.setup(name=info.PRODUCT_NAME,
+#          version=openshot_qt.version,
+#          description=info.DESCRIPTION,
+#          author=info.COMPANY_NAME,
+#          options=options,
+#          executables=executables)
+#except Exception as ex:
+#    logging.fatal("Failed to create frozen executable", exc_info=1)
+
 # -------------------------------------
 
-FAILED = 'Failed to update.'
+# FAILED = 'Failed to update.'
 
-if ROOT and dist != None:
-    # update the XDG Shared MIME-Info database cache
-    try:
-        log(INFO, 'Updating the Shared MIME-Info database cache.')
-        subprocess.call(["update-mime-database", os.path.join(sys.prefix, "share/mime/")])
-    except:
-        log(ERROR, FAILED)
-
-    # update the mime.types database
-    try:
-        log(INFO, 'Updating the mime.types database.')
-        subprocess.call("update-mime")
-    except:
-        log(ERROR, FAILED)
-
-    # update the XDG .desktop file database
-    try:
-        log(INFO, 'Updating the .desktop file database.')
-        subprocess.call(["update-desktop-database"])
-    except:
-        log(ERROR, FAILED)
-    sys.stdout.write("\n-----------------------------------------------")
-    sys.stdout.write("\nInstallation Finished!")
-    sys.stdout.write("\nRun OpenShot by typing 'openshot-qt' or through the Applications menu.")
-    sys.stdout.write("\n-----------------------------------------------\n")
+# if ROOT and dist != None:
+#     # update the XDG Shared MIME-Info database cache
+#     try:
+#         log(INFO, 'Updating the Shared MIME-Info database cache.')
+#         subprocess.call(["update-mime-database", os.path.join(sys.prefix, "share/mime/")])
+#     except:
+#         log(ERROR, FAILED)
+#
+#     # update the mime.types database
+#     try:
+#         log(INFO, 'Updating the mime.types database.')
+#         subprocess.call("update-mime")
+#     except:
+#         log(ERROR, FAILED)
+#
+#     # update the XDG .desktop file database
+#     try:
+#         log(INFO, 'Updating the .desktop file database.')
+#         subprocess.call(["update-desktop-database"])
+#     except:
+#         log(ERROR, FAILED)
+#
+# sys.stdout.write("\n-----------------------------------------------")
+# sys.stdout.write("\nInstallation Finished!")
+# sys.stdout.write("\nRun OpenShot by typing 'openshot-qt' or through the Applications menu.")
+# sys.stdout.write("\n-----------------------------------------------\n")

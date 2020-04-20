@@ -42,8 +42,8 @@ from PyQt5.QtWidgets import *
 from PyQt5 import uic
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 
-from openshot_qt.classes import info, ui_util, settings, qt_types, updates
-from openshot_qt.classes.app import get_app
+from openshot_qt.classes import info, paths, ui_util, settings, qt_types, updates
+from openshot_qt import get_app
 from openshot_qt.classes.logger import log
 from openshot_qt.classes.query import File
 from openshot_qt.classes.metrics import *
@@ -55,7 +55,7 @@ class AnimatedTitle(QDialog):
     """ Animated Title Dialog """
 
     # Path to ui file
-    ui_path = os.path.join(info.PATH, 'windows', 'ui', 'animated-title.ui')
+    ui_path = os.path.join(paths.PATH, 'windows', 'ui', 'animated-title.ui')
 
     def __init__(self):
 
@@ -85,7 +85,7 @@ class AnimatedTitle(QDialog):
 
         # Init variables
         self.unique_folder_name = str(uuid.uuid1())
-        self.output_dir = os.path.join(info.USER_PATH, "blender")
+        self.output_dir = os.path.join(paths.USER, "blender")
         self.selected_template = ""
         self.is_rendering = False
         self.my_blender = None

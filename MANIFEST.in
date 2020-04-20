@@ -2,7 +2,7 @@ include AUTHORS
 include CONTRIBUTING.md
 include COPYING
 include README.md
-include freeze.py
+include new_freeze.py
 include query_tests.py
 include generate_translations.py
 

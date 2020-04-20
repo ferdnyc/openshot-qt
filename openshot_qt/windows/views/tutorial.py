@@ -33,7 +33,7 @@ from PyQt5.QtWidgets import QLabel, QWidget, QDockWidget, QVBoxLayout, QHBoxLayo
 
 from openshot_qt.classes.logger import log
 from openshot_qt.classes.settings import get_settings
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.classes.metrics import *
 
 

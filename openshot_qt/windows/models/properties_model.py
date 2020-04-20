@@ -33,10 +33,10 @@ from PyQt5.QtCore import QMimeData, Qt, QLocale, QTimer
 from PyQt5.QtGui import *
 
 from openshot_qt.classes import updates
-from openshot_qt.classes import info
+from openshot_qt.classes import info, paths
 from openshot_qt.classes.query import Clip, Transition, Effect, File
 from openshot_qt.classes.logger import log
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 import openshot
 
 import json
@@ -672,7 +672,7 @@ class PropertiesModel(updates.UpdateInterface):
                     col.setData((c.Id(), item_type))
                     if points > 1:
                         # Apply icon to cell
-                        my_icon = QPixmap(os.path.join(info.IMAGES_PATH, "keyframe-%s.png" % interpolation))
+                        my_icon = QPixmap(os.path.join(paths.IMAGES, "keyframe-%s.png" % interpolation))
                         col.setData(my_icon, Qt.DecorationRole)
 
                         # Set the background color of the cell
@@ -755,7 +755,7 @@ class PropertiesModel(updates.UpdateInterface):
 
                     if points > 1:
                         # Apply icon to cell
-                        my_icon = QPixmap(os.path.join(info.IMAGES_PATH, "keyframe-%s.png" % interpolation))
+                        my_icon = QPixmap(os.path.join(paths.IMAGES, "keyframe-%s.png" % interpolation))
                         col.setData(my_icon, Qt.DecorationRole)
 
                         # Set the background color of the cell

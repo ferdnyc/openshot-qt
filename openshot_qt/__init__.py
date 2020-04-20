@@ -26,16 +26,19 @@
  """
 
 import os
+from PyQt5.QtCore import QCoreApplication
 
 # Determine path to this module
 OPENSHOT_PATH = os.path.dirname(os.path.realpath(__file__))
 
-# Import utility classes
-from .classes import *
+version = '2.5.1-dev3.ferd1'
 
 # Import library
 try:
-    from .libopenshot import openshot
+    from libopenshot import openshot
 except ImportError:
     import openshot
 
+def get_app():
+    """ Returns the current QApplication instance of OpenShot """
+    return QCoreApplication.instance()

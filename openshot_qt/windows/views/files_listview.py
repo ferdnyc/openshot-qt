@@ -35,7 +35,7 @@ from PyQt5.QtCore import QSize, Qt, QPoint
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QListView, QMessageBox, QAbstractItemView, QMenu
 
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.classes.image_types import is_image
 from openshot_qt.classes.logger import log
 from openshot_qt.classes.query import File

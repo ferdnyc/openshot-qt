@@ -34,10 +34,10 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 
 from openshot_qt.classes import settings
-from openshot_qt.classes import info, ui_util, time_parts
+from openshot_qt.classes import info, paths, ui_util, time_parts
 from openshot_qt.classes.logger import log
 from openshot_qt.classes.query import Track, Clip, Transition
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.classes.metrics import *
 from openshot_qt.windows.views.add_to_timeline_treeview import TimelineTreeView
 
@@ -47,7 +47,7 @@ import json
 class AddToTimeline(QDialog):
     """ Add To timeline Dialog """
 
-    ui_path = os.path.join(info.PATH, 'windows', 'ui', 'add-to-timeline.ui')
+    ui_path = os.path.join(paths.PATH, 'windows', 'ui', 'add-to-timeline.ui')
 
     def btnMoveUpClicked(self, event):
         """Callback for move up button click"""
@@ -181,10 +181,10 @@ class AddToTimeline(QDialog):
 
             if (file.data["media_type"] == "video" or file.data["media_type"] == "image"):
                 # Determine thumb path
-                thumb_path = os.path.join(info.THUMBNAIL_PATH, "%s.png" % file.data["id"])
+                thumb_path = os.path.join(paths.THUMBNAIL, "%s.png" % file.data["id"])
             else:
                 # Audio file
-                thumb_path = os.path.join(info.PATH, "images", "AudioThumbnail.png")
+                thumb_path = os.path.join(paths.PATH, "images", "AudioThumbnail.png")
 
             # Get file name
             filename = os.path.basename(file.data["path"])
@@ -477,7 +477,7 @@ class AddToTimeline(QDialog):
         self.cmbZoom.addItem(_('Zoom Out'), 'Zoom Out')
 
         # Add all transitions
-        transitions_dir = os.path.join(info.PATH, "transitions")
+        transitions_dir = os.path.join(paths.PATH, "transitions")
         common_dir = os.path.join(transitions_dir, "common")
         extra_dir = os.path.join(transitions_dir, "extra")
         transition_groups = [{"type": "common", "dir": common_dir, "files": os.listdir(common_dir)},
@@ -516,12 +516,12 @@ class AddToTimeline(QDialog):
                     trans_name = _(trans_name)
 
                 # Check for thumbnail path (in build-in cache)
-                thumb_path = os.path.join(info.IMAGES_PATH, "cache",  "{}.png".format(fileBaseName))
+                thumb_path = os.path.join(paths.IMAGES, "cache",  "{}.png".format(fileBaseName))
 
                 # Check built-in cache (if not found)
                 if not os.path.exists(thumb_path):
                     # Check user folder cache
-                    thumb_path = os.path.join(info.CACHE_PATH, "{}.png".format(fileBaseName))
+                    thumb_path = os.path.join(paths.CACHE, "{}.png".format(fileBaseName))
 
                 # Add item
                 self.transitions.append(path)

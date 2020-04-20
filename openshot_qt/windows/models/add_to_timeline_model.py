@@ -30,9 +30,9 @@ import os
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import *
 
-from openshot_qt.classes import info
+from openshot_qt.classes import info, paths
 from openshot_qt.classes.logger import log
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 
 
 class TimelineModel():
@@ -66,10 +66,10 @@ class TimelineModel():
             # Get thumbnail path
             if (file.data["media_type"] == "video" or file.data["media_type"] == "image"):
                 # Determine thumb path
-                thumb_path = os.path.join(info.THUMBNAIL_PATH, "%s.png" % file.data["id"])
+                thumb_path = os.path.join(paths.THUMBNAIL, "%s.png" % file.data["id"])
             else:
                 # Audio file
-                thumb_path = os.path.join(info.PATH, "images", "AudioThumbnail.png")
+                thumb_path = os.path.join(paths.PATH, "images", "AudioThumbnail.png")
 
             row = []
 

@@ -29,7 +29,7 @@ import platform
 import threading
 from copy import deepcopy
 from openshot_qt.classes import info
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.classes.logger import log
 from openshot_qt.classes import settings
 from openshot_qt import openshot

@@ -26,7 +26,7 @@
  """
 
 from threading import Thread
-from openshot_qt.classes import settings, info
+from openshot_qt.classes import settings, paths
 from openshot_qt.classes.logger import log
 from openshot_qt import openshot
 import os
@@ -53,7 +53,7 @@ class LoggerLibOpenShot(Thread):
         openshot.ZmqLogger.Instance().Connection("tcp://*:%s" % port)
 
         # Set filepath for ZmqLogger also
-        openshot.ZmqLogger.Instance().Path(os.path.join(info.USER_PATH, 'libopenshot.log'))
+        openshot.ZmqLogger.Instance().Path(os.path.join(paths.USER, 'libopenshot.log'))
 
         # Enable / Disable logger
         openshot.ZmqLogger.Instance().Enable(debug_enabled)

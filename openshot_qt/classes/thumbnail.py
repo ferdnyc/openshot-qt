@@ -157,13 +157,13 @@ class httpThumbnailHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
         # Locate thumbnail
-        thumb_path = os.path.join(info.THUMBNAIL_PATH, file_id, "%s.png" % file_frame)
+        thumb_path = os.path.join(paths.THUMBNAIL, file_id, "%s.png" % file_frame)
         if not os.path.exists(thumb_path) and file_frame == 1:
             # Try ID with no frame # (for backwards compatibility)
-            thumb_path = os.path.join(info.THUMBNAIL_PATH, "%s.png" % file_id)
+            thumb_path = os.path.join(paths.THUMBNAIL, "%s.png" % file_id)
         if not os.path.exists(thumb_path) and file_frame != 1:
             # Try with ID and frame # in filename (for backwards compatibility)
-            thumb_path = os.path.join(info.THUMBNAIL_PATH, "%s-%s.png" % (file_id, file_frame))
+            thumb_path = os.path.join(paths.THUMBNAIL, "%s-%s.png" % (file_id, file_frame))
 
         if not os.path.exists(thumb_path):
             # Generate thumbnail (since we can't find it)
@@ -171,10 +171,10 @@ class httpThumbnailHandler(BaseHTTPRequestHandler):
             # Determine if video overlay should be applied to thumbnail
             overlay_path = ""
             if file.data["media_type"] == "video":
-                overlay_path = os.path.join(info.IMAGES_PATH, "overlay.png")
+                overlay_path = os.path.join(paths.IMAGES, "overlay.png")
 
             # Create thumbnail image
-            GenerateThumbnail(file_path, thumb_path, file_frame, 98, 64, os.path.join(info.IMAGES_PATH, "mask.png"), overlay_path)
+            GenerateThumbnail(file_path, thumb_path, file_frame, 98, 64, os.path.join(paths.IMAGES, "mask.png"), overlay_path)
 
         # Send message back to client
         if os.path.exists(thumb_path):

@@ -30,7 +30,7 @@ import openshot  # Python module for libopenshot (required video editing module 
 
 from openshot_qt.classes.updates import UpdateInterface
 from openshot_qt.classes.logger import log
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.classes import settings
 
 

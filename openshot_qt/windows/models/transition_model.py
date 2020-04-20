@@ -32,9 +32,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QMessageBox
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 
-from openshot_qt.classes import info
+from openshot_qt.classes import info, paths
 from openshot_qt.classes.logger import log
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 
 import json
 
@@ -76,15 +76,15 @@ class TransitionsModel():
         self.model.setHorizontalHeaderLabels([_("Thumb"), _("Name")])
 
         # get a list of files in the OpenShot /transitions directory
-        transitions_dir = os.path.join(info.PATH, "transitions")
+        transitions_dir = os.path.join(paths.PATH, "transitions")
         common_dir = os.path.join(transitions_dir, "common")
         extra_dir = os.path.join(transitions_dir, "extra")
         transition_groups = [{"type": "common", "dir": common_dir, "files": os.listdir(common_dir)},
                              {"type": "extra", "dir": extra_dir, "files": os.listdir(extra_dir)}]
 
         # Add optional user-defined transitions folder
-        if (os.path.exists(info.TRANSITIONS_PATH) and os.listdir(info.TRANSITIONS_PATH)):
-            transition_groups.append({"type": "user", "dir": info.TRANSITIONS_PATH, "files": os.listdir(info.TRANSITIONS_PATH)})
+        if (os.path.exists(paths.USER_TRANSITIONS) and os.listdir(paths.USER_TRANSITIONS)):
+            transition_groups.append({"type": "user", "dir": paths.USER_TRANSITIONS, "files": os.listdir(paths.USER_TRANSITIONS)})
 
         for group in transition_groups:
             type = group["type"]
@@ -125,12 +125,12 @@ class TransitionsModel():
                         continue
 
                 # Check for thumbnail path (in build-in cache)
-                thumb_path = os.path.join(info.IMAGES_PATH, "cache",  "{}.png".format(fileBaseName))
+                thumb_path = os.path.join(paths.IMAGES, "cache",  "{}.png".format(fileBaseName))
 
                 # Check built-in cache (if not found)
                 if not os.path.exists(thumb_path):
                     # Check user folder cache
-                    thumb_path = os.path.join(info.CACHE_PATH, "{}.png".format(fileBaseName))
+                    thumb_path = os.path.join(paths.CACHE, "{}.png".format(fileBaseName))
 
                 # Generate thumbnail (if needed)
                 if not os.path.exists(thumb_path):
@@ -144,7 +144,7 @@ class TransitionsModel():
                         reader.Open()
 
                         # Save thumbnail
-                        reader.GetFrame(0).Thumbnail(thumb_path, 98, 64, os.path.join(info.IMAGES_PATH, "mask.png"),
+                        reader.GetFrame(0).Thumbnail(thumb_path, 98, 64, os.path.join(paths.IMAGES, "mask.png"),
                                                      "", "#000", True, "png", 85)
                         reader.Close()
                         clip.Close()

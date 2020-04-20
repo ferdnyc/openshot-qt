@@ -41,9 +41,9 @@ from PyQt5.QtWidgets import *
 from PyQt5 import uic, QtSvg, QtGui
 import openshot
 
-from openshot_qt.classes import info, ui_util, settings, qt_types, updates
+from openshot_qt.classes import info, paths, ui_util, settings, qt_types, updates
 from openshot_qt.classes.logger import log
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.classes.query import File
 from openshot_qt.classes.metrics import *
 from openshot_qt.windows.views.titles_listview import TitlesListView
@@ -55,7 +55,7 @@ class TitleEditor(QDialog):
     """ Title Editor Dialog """
 
     # Path to ui file
-    ui_path = os.path.join(info.PATH, 'windows', 'ui', 'title-editor.ui')
+    ui_path = os.path.join(paths.PATH, 'windows', 'ui', 'title-editor.ui')
 
     def __init__(self, edit_file_path=None, duplicate=False):
 
@@ -178,7 +178,7 @@ class TitleEditor(QDialog):
     def create_temp_title(self, template_path):
 
         # Set temp file path
-        self.filename = os.path.join(info.USER_PATH, "title", "temp.svg")
+        self.filename = os.path.join(paths.USER, "title", "temp.svg")
 
         # Copy template to temp file
         shutil.copyfile(template_path, self.filename)
@@ -249,7 +249,7 @@ class TitleEditor(QDialog):
             # Find an unused file name
             for i in range(1, 1000):
                 curname = name % (offset + i)
-                possible_path = os.path.join(info.TITLE_PATH, "%s.svg" % curname)
+                possible_path = os.path.join(paths.TITLE, "%s.svg" % curname)
                 if not os.path.exists(possible_path):
                     self.txtFileName.setText(curname)
                     break
@@ -657,7 +657,7 @@ class TitleEditor(QDialog):
         else:
             # Create new title (with unique name)
             file_name = "%s.svg" % self.txtFileName.toPlainText().strip()
-            file_path = os.path.join(info.TITLE_PATH, file_name)
+            file_path = os.path.join(paths.TITLE, file_name)
 
             if self.txtFileName.toPlainText().strip():
                 # Do we have unsaved changes?

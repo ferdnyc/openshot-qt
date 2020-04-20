@@ -29,7 +29,7 @@
 import logging
 import os, sys
 from logging.handlers import RotatingFileHandler
-from openshot_qt.classes import info
+from openshot_qt.classes import paths
 
 
 class StreamToLogger(object):
@@ -63,7 +63,7 @@ log.setLevel(logging.INFO)
 
 # Add rotation file handler
 fh = RotatingFileHandler(
-    os.path.join(info.USER_PATH, 'openshot-qt.log'), encoding="utf-8", maxBytes=25*1024*1024, backupCount=3)
+    os.path.join(paths.USER, 'openshot-qt.log'), encoding="utf-8", maxBytes=25*1024*1024, backupCount=3)
 fh.setFormatter(formatter)
 log.addHandler(fh)
 
@@ -75,4 +75,3 @@ def reroute_output():
 
         se = StreamToLogger(log, logging.ERROR)
         sys.stderr = se
-

@@ -34,8 +34,8 @@ from PyQt5.QtWidgets import *
 from PyQt5 import uic
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 
-from openshot_qt.classes import info, ui_util, settings, qt_types, updates
-from openshot_qt.classes.app import get_app
+from openshot_qt.classes import info, paths, ui_util, settings, qt_types, updates
+from openshot_qt import get_app
 from openshot_qt.classes.logger import log
 from openshot_qt.classes.metrics import *
 
@@ -44,7 +44,7 @@ class Profile(QDialog):
     """ Choose Profile Dialog """
 
     # Path to ui file
-    ui_path = os.path.join(info.PATH, 'windows', 'ui', 'profile.ui')
+    ui_path = os.path.join(paths.PATH, 'windows', 'ui', 'profile.ui')
 
     def __init__(self):
 
@@ -70,7 +70,7 @@ class Profile(QDialog):
         # Loop through profiles
         self.profile_names = []
         self.profile_paths = {}
-        for profile_folder in [info.USER_PROFILES_PATH, info.PROFILES_PATH]:
+        for profile_folder in [paths.USER_PROFILES, paths.PROFILES]:
             for file in os.listdir(profile_folder):
                 # Load Profile
                 profile_path = os.path.join(profile_folder, file)

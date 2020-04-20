@@ -35,8 +35,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QKeySequence, QIcon
 from PyQt5 import uic
 
-from openshot_qt.classes import info, ui_util, settings, qt_types, updates
-from openshot_qt.classes.app import get_app
+from openshot_qt.classes import info, paths, ui_util, settings, qt_types, updates
+from openshot_qt import get_app
 from openshot_qt.classes.language import get_all_languages
 from openshot_qt.classes.logger import log
 from openshot_qt.classes.metrics import *
@@ -47,7 +47,7 @@ class Preferences(QDialog):
     """ Preferences Dialog """
 
     # Path to ui file
-    ui_path = os.path.join(info.PATH, 'windows', 'ui', 'preferences.ui')
+    ui_path = os.path.join(paths.PATH, 'windows', 'ui', 'preferences.ui')
 
     def __init__(self):
 
@@ -252,7 +252,7 @@ class Preferences(QDialog):
                     if param["setting"] == "default-profile":
                         value_list = []
                         # Loop through profiles
-                        for profile_folder in [info.USER_PROFILES_PATH, info.PROFILES_PATH]:
+                        for profile_folder in [paths.USER_PROFILES, paths.PROFILES]:
                             for file in os.listdir(profile_folder):
                                 # Load Profile and append description
                                 profile_path = os.path.join(profile_folder, file)
@@ -539,7 +539,7 @@ class Preferences(QDialog):
     def testHardwareDecode(self, decoder, decoder_card="0"):
         """Test specific settings for hardware decode, so the UI can remove unsupported options."""
         is_supported = False
-        example_media = os.path.join(info.RESOURCES_PATH, "hardware-example.mp4")
+        example_media = os.path.join(paths.RESOURCES, "hardware-example.mp4")
 
         # Persist decoder card results
         if decoder_card not in self.hardware_tests_cards:

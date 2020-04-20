@@ -34,8 +34,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 
-from openshot_qt.classes import info, ui_util, settings
-from openshot_qt.classes.app import get_app
+from openshot_qt.classes import info, paths, ui_util, settings
+from openshot_qt import get_app
 from openshot_qt.classes.logger import log
 from openshot_qt.classes.metrics import *
 
@@ -45,7 +45,7 @@ class FileProperties(QDialog):
     """ File Properties Dialog """
 
     # Path to ui file
-    ui_path = os.path.join(info.PATH, 'windows', 'ui', 'file-properties.ui')
+    ui_path = os.path.join(paths.PATH, 'windows', 'ui', 'file-properties.ui')
 
     def __init__(self, file):
         self.file = file

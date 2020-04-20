@@ -30,9 +30,9 @@ import os
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import *
 
-from openshot_qt.classes import info
+from openshot_qt.classes import info, paths
 from openshot_qt.classes.logger import log
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 
 import json
 

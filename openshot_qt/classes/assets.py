@@ -34,7 +34,7 @@ def get_assets_path(file_path=None, create_paths=True):
     """Get and/or create the current assets path. This path is used for thumbnail and blender files,
     and is unique to each project. For example: `Project1.osp` would use `Project1_assets` folder."""
     if not file_path:
-        return info.USER_PATH
+        return paths.USER
 
     try:
         # Generate asset folder name, max 30 chars of filename + "_assets"

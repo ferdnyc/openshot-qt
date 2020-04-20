@@ -36,7 +36,7 @@ from PyQt5.QtWidgets import QListView, QTreeView, QMessageBox, QAbstractItemView
 from PyQt5.QtGui import QCursor
 
 from openshot_qt.classes.logger import log
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.windows.models.changelog_model import ChangelogModel
 
 import json

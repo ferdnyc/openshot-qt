@@ -31,9 +31,9 @@ import locale
 
 from PyQt5.QtCore import QLocale, QLibraryInfo, QTranslator, QCoreApplication
 
+import openshot_qt
 from openshot_qt.classes.logger import log
-from openshot_qt.classes import info
-from openshot_qt.classes import settings
+from openshot_qt.classes import info, paths, settings
 
 
 try:
@@ -41,7 +41,7 @@ try:
     language_path=":/locale/"
     log.debug("Using compiled translation resources")
 except ImportError:
-    language_path=os.path.join(info.PATH, 'language')
+    language_path=os.path.join(paths.PATH, 'language')
     log.debug("Loading translations from: {}".format(language_path))
 
 def init_language():
@@ -60,10 +60,10 @@ def init_language():
          "path": QLibraryInfo.location(QLibraryInfo.TranslationsPath)},
         {"type": 'QT',
          "prefix": 'qt_',
-         "path": os.path.join(info.PATH, 'language')}, # Optional path where we package QT translations
+         "path": os.path.join(paths.PATH, 'language')}, # Optional path where we package QT translations
         {"type": 'QT',
          "prefix": 'qtbase_',
-         "path": os.path.join(info.PATH, 'language')}, # Optional path where we package QT translations
+         "path": os.path.join(paths.PATH, 'language')}, # Optional path where we package QT translations
         {"type": 'OpenShot',
          "prefix": 'OpenShot.',  # Our custom translations
          "path": language_path},
@@ -153,4 +153,3 @@ def get_all_languages():
 
 def get_current_locale():
     return info.CURRENT_LANGUAGE
-

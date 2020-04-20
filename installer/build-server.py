@@ -34,7 +34,6 @@ import shutil
 import re
 import stat
 import subprocess
-import sys
 import tinys3
 import time
 import traceback
@@ -43,10 +42,6 @@ from requests.auth import HTTPBasicAuth
 from requests import post
 
 PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))  # Primary openshot folder
-
-# Access info class (for version info)
-sys.path.append(os.path.join(PATH, 'src', 'classes'))
-import info
 
 freeze_command = None
 errors_detected = []

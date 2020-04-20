@@ -29,7 +29,7 @@ from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import *
 
 from openshot_qt.classes.logger import log
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.windows.models.add_to_timeline_model import TimelineModel
 
 import json

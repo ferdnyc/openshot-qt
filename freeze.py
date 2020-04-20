@@ -354,7 +354,7 @@ except NameError:
 
 # Create distutils setup object
 setup(name=info.PRODUCT_NAME,
-      version=info.VERSION,
+      version=openshot_qt.version,
       description=info.DESCRIPTION,
       author=info.COMPANY_NAME,
       options=build_options,

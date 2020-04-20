@@ -27,8 +27,8 @@
 
 import requests
 import threading
-from openshot_qt.classes.app import get_app
-from openshot_qt.classes import info
+import openshot_qt
+from openshot_qt import get_app
 from openshot_qt.classes.logger import log
 import json
 
@@ -44,7 +44,7 @@ def get_version_from_http():
 
     # Send metric HTTP data
     try:
-        r = requests.get(url, headers={"user-agent": "openshot-qt-%s" % info.VERSION}, verify=False)
+        r = requests.get(url, headers={"user-agent": "openshot-qt-%s" % openshot_qt.version}, verify=False)
         log.info("Found current version: %s" % r.text)
 
         # Parse version

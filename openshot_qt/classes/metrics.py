@@ -26,18 +26,19 @@
  """
 
 # idna encoding import required to prevent bug (unknown encoding: idna)
-import encodings.idna
 import requests
 import platform
 import threading
 import time
 import urllib.parse
 from copy import deepcopy
+
+import openshot_qt
 from openshot_qt.classes import info
 from openshot_qt.classes import language
 from openshot_qt.classes.logger import log
 from openshot_qt.classes import settings
-from openshot_qt import openshot
+from libopenshot import openshot
 
 from PyQt5.QtCore import QT_VERSION_STR
 from PyQt5.QtCore import PYQT_VERSION_STR
@@ -77,7 +78,7 @@ params = {
     "an": info.PRODUCT_NAME,                # App Name
     "aip": 1,                               # Anonymize IP
     "aid": "org.openshot.%s" % info.NAME,   # App ID
-    "av": info.VERSION,                     # App Version
+    "av": openshot_qt.version,                     # App Version
     "ul": language.get_current_locale().replace('_', '-').lower(),   # Current Locale
     "ua": user_agent,                       # Custom User Agent (for OS, Processor, and OS version)
     "cd1": openshot.OPENSHOT_VERSION_FULL,  # Dimension 1: libopenshot version
@@ -186,7 +187,7 @@ def send_exception(stacktrace, source):
 
         data = urllib.parse.urlencode({"stacktrace": stacktrace,
                                        "platform": platform.system(),
-                                       "version": info.VERSION,
+                                       "version": openshot_qt.version,
                                        "source": source,
                                        "unique_install_id": s.get("unique_install_id")})
         url = "http://www.openshot.org/exception/json/"

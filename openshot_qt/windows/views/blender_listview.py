@@ -37,11 +37,11 @@ from PyQt5.QtCore import QSize, Qt, QEvent, QObject, QThread, pyqtSlot, pyqtSign
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from openshot_qt.classes import info
+from openshot_qt.classes import info, paths
 from openshot_qt.classes.logger import log
 from openshot_qt.classes import settings
 from openshot_qt.classes.query import File
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.windows.models.blender_model import BlenderModel
 
 import json
@@ -236,8 +236,8 @@ class BlenderListView(QListView):
         self.unique_folder_name = str(self.app.project.generate_id())
 
         # Create a folder (if it does not exist)
-        if not os.path.exists(os.path.join(info.BLENDER_PATH, self.unique_folder_name)):
-            os.mkdir(os.path.join(info.BLENDER_PATH, self.unique_folder_name))
+        if not os.path.exists(os.path.join(paths.BLENDER, self.unique_folder_name)):
+            os.mkdir(os.path.join(paths.BLENDER, self.unique_folder_name))
 
     def disable_interface(self, cursor=True):
         """ Disable all controls on interface """
@@ -302,7 +302,7 @@ class BlenderListView(QListView):
     def render_finished(self):
 
         # Add file to project
-        final_path = os.path.join(info.BLENDER_PATH, self.unique_folder_name, self.params["file_name"] + "%04d.png")
+        final_path = os.path.join(paths.BLENDER, self.unique_folder_name, self.params["file_name"] + "%04d.png")
         log.info('RENDER FINISHED! Adding to project files: %s' % final_path)
 
         # Add to project files
@@ -449,7 +449,7 @@ class BlenderListView(QListView):
         project_params["alpha_mode"] = 1
         project_params["horizon_color"] = (0.57, 0.57, 0.57)
         project_params["animation"] = True
-        project_params["output_path"] = os.path.join(info.BLENDER_PATH, self.unique_folder_name,
+        project_params["output_path"] = os.path.join(paths.BLENDER, self.unique_folder_name,
                                                      self.params["file_name"])
 
         # return the dictionary
@@ -512,7 +512,7 @@ class BlenderListView(QListView):
         s = settings.get_settings()
         gpu_code_body = None
         if s.get("blender_gpu_enabled"):
-            gpu_enable_py = os.path.join(info.PATH, "blender", "scripts", "gpu_enable.py")
+            gpu_enable_py = os.path.join(paths.PATH, "blender", "scripts", "gpu_enable.py")
             try:
                 f = open(gpu_enable_py, 'r')
                 gpu_code_body = f.read()
@@ -557,9 +557,9 @@ class BlenderListView(QListView):
         self.disable_interface()
 
         # Init blender paths
-        blend_file_path = os.path.join(info.PATH, "blender", "blend", self.selected_template)
-        source_script = os.path.join(info.PATH, "blender", "scripts", self.selected_template.replace(".blend", ".py"))
-        target_script = os.path.join(info.BLENDER_PATH, self.unique_folder_name,
+        blend_file_path = os.path.join(paths.PATH, "blender", "blend", self.selected_template)
+        source_script = os.path.join(paths.PATH, "blender", "scripts", self.selected_template.replace(".blend", ".py"))
+        target_script = os.path.join(paths.BLENDER, self.unique_folder_name,
                                      self.selected_template.replace(".blend", ".py"))
 
         # Copy the .py script associated with this template to the temp folder.  This will allow

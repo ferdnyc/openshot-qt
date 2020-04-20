@@ -32,9 +32,9 @@ from functools import partial
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
-from openshot_qt.classes import info, ui_util
+from openshot_qt.classes import info, paths, ui_util
 from openshot_qt.classes.logger import log
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.classes.metrics import *
 from openshot_qt.windows.views.credits_treeview import CreditsTreeView
 
@@ -43,7 +43,7 @@ import json
 class Animation(QDialog):
     """ Animation Dialog """
 
-    ui_path = os.path.join(info.PATH, 'windows', 'ui', 'animation.ui')
+    ui_path = os.path.join(paths.PATH, 'windows', 'ui', 'animation.ui')
 
     def __init__(self):
         # Create dialog class

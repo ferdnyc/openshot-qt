@@ -39,13 +39,17 @@ from uuid import uuid4
 from copy import deepcopy
 
 from PyQt5.QtCore import *
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon, QCursor, QKeySequence
 from PyQt5.QtWidgets import *
-import openshot  # Python module for libopenshot (required video editing module installed separately)
+from PyQt5.QtWidgets import QMessageBox
 
+from libopenshot import openshot
+
+import openshot_qt
 from openshot_qt.windows.views.timeline_webview import TimelineWebView
-from openshot_qt.classes import info, ui_util, settings, qt_types, updates
-from openshot_qt.classes.app import get_app
+from openshot_qt.classes import info, paths, ui_util, settings, qt_types, updates
+from openshot_qt import get_app
 from openshot_qt.classes.logger import log
 from openshot_qt.classes.timeline import TimelineSync
 from openshot_qt.classes.query import File, Clip, Transition, Marker, Track
@@ -74,7 +78,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
     """ This class contains the logic for the main window widget """
 
     # Path to ui file
-    ui_path = os.path.join(info.PATH, 'windows', 'ui', 'main-window.ui')
+    ui_path = os.path.join(paths.PATH, 'windows', 'ui', 'main-window.ui')
 
     previewFrameSignal = pyqtSignal(int)
     refreshFrameSignal = pyqtSignal()
@@ -170,10 +174,10 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         log.info("recover_backup")
 
         # Check for backup.osp file
-        if os.path.exists(info.BACKUP_FILE):
+        if os.path.exists(paths.BACKUP_FILE):
             # Load recovery project
-            log.info("Recovering backup file: %s" % info.BACKUP_FILE)
-            self.open_project(info.BACKUP_FILE, clear_thumbnails=False)
+            log.info("Recovering backup file: %s" % paths.BACKUP_FILE)
+            self.open_project(paths.BACKUP_FILE, clear_thumbnails=False)
 
             # Clear the file_path (which is set by saving the project)
             project = get_app().project
@@ -200,13 +204,13 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
 
     def create_lock_file(self):
         """Create a lock file"""
-        lock_path = os.path.join(info.USER_PATH, ".lock")
+        lock_path = os.path.join(paths.USER, ".lock")
         lock_value = str(uuid4())
 
         # Check if it already exists
         if os.path.exists(lock_path):
             # Walk the libopenshot log (if found), and try and find last line before this launch
-            log_path = os.path.join(info.USER_PATH, "libopenshot.log")
+            log_path = os.path.join(paths.USER, "libopenshot.log")
             last_log_line = ""
             last_stack_trace = ""
             found_stack = False
@@ -266,7 +270,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
                 last_log_line = ""
 
             # Throw exception (with last libopenshot line... if found)
-            log.error("Unhandled crash detected... will attempt to recover backup project: %s" % info.BACKUP_FILE)
+            log.error("Unhandled crash detected... will attempt to recover backup project: %s" % paths.BACKUP_FILE)
             track_metric_error("unhandled-crash%s" % last_log_line, True)
 
             # Remove file
@@ -290,7 +294,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
 
     def destroy_lock_file(self):
         """Destroy the lock file"""
-        lock_path = os.path.join(info.USER_PATH, ".lock")
+        lock_path = os.path.join(paths.USER, ".lock")
 
         # Remove file (try a few times if failure)
         attempts = 5
@@ -397,7 +401,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         file_path = file.data.get("path")
 
         # Delete thumbnail for this file (it will be recreated soon)
-        thumb_path = os.path.join(info.THUMBNAIL_PATH, "{}.png".format(file.id))
+        thumb_path = os.path.join(paths.THUMBNAIL, "{}.png".format(file.id))
 
         # Check if thumb exists (and delete it)
         if os.path.exists(thumb_path):
@@ -550,31 +554,31 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
     def clear_all_thumbnails(self):
         """Clear all user thumbnails"""
         try:
-            clear_path = os.path.join(info.USER_PATH, "thumbnail")
+            clear_path = os.path.join(paths.USER, "thumbnail")
             if os.path.exists(clear_path):
                 log.info("Clear all thumbnails: %s" % clear_path)
                 shutil.rmtree(clear_path)
                 os.mkdir(clear_path)
 
             # Clear any blender animations
-            clear_path = os.path.join(info.USER_PATH, "blender")
+            clear_path = os.path.join(paths.USER, "blender")
             if os.path.exists(clear_path):
                 log.info("Clear all animations: %s" % clear_path)
                 shutil.rmtree(clear_path)
                 os.mkdir(clear_path)
 
             # Clear any title animations
-            clear_path = os.path.join(info.USER_PATH, "title")
+            clear_path = os.path.join(paths.USER, "title")
             if os.path.exists(clear_path):
                 log.info("Clear all titles: %s" % clear_path)
                 shutil.rmtree(clear_path)
                 os.mkdir(clear_path)
 
             # Clear any backups
-            if os.path.exists(info.BACKUP_FILE):
-                log.info("Clear backup: %s" % info.BACKUP_FILE)
+            if os.path.exists(paths.BACKUP_FILE):
+                log.info("Clear backup: %s" % paths.BACKUP_FILE)
                 # Remove backup file
-                os.unlink(info.BACKUP_FILE)
+                os.unlink(paths.BACKUP_FILE)
 
         except Exception as ex:
             log.info("Failed to clear {}: {}".format(clear_path, ex))
@@ -584,7 +588,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         _ = app._tr
         recommended_path = app.project.current_filepath
         if not recommended_path:
-            recommended_path = info.HOME_PATH
+            recommended_path = paths.HOME
 
         # Do we have unsaved changes?
         if app.project.needs_save():
@@ -609,7 +613,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         # Get current filepath if any, otherwise ask user
         file_path = app.project.current_filepath
         if not file_path:
-            recommended_path = os.path.join(info.HOME_PATH, "%s.osp" % _("Untitled Project"))
+            recommended_path = os.path.join(paths.HOME, "%s.osp" % _("Untitled Project"))
             file_path = QFileDialog.getSaveFileName(self, _("Save Project..."), recommended_path, _("OpenShot Project (*.osp)"))[0]
 
         if file_path:
@@ -641,17 +645,17 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
                 file_name, file_ext = os.path.splitext(file_name)
 
                 # Make copy of unsaved project file in 'recovery' folder
-                recover_path_with_timestamp = os.path.join(info.RECOVERY_PATH, "%d-%s.osp" % (int(time.time()), file_name))
+                recover_path_with_timestamp = os.path.join(paths.RECOVERY, "%d-%s.osp" % (int(time.time()), file_name))
                 shutil.copy(file_path, recover_path_with_timestamp)
 
                 # Find any recovery file older than X auto-saves
                 old_backup_files = []
                 backup_file_count = 0
-                for backup_filename in reversed(sorted(os.listdir(info.RECOVERY_PATH))):
+                for backup_filename in reversed(sorted(os.listdir(paths.RECOVERY))):
                     if ".osp" in backup_filename:
                         backup_file_count += 1
                         if backup_file_count > s.get("recovery-limit"):
-                            old_backup_files.append(os.path.join(info.RECOVERY_PATH, backup_filename))
+                            old_backup_files.append(os.path.join(paths.RECOVERY, backup_filename))
 
                 # Delete recovery files which are 'too old'
                 for backup_filepath in old_backup_files:
@@ -662,14 +666,14 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
                 self.save_project(file_path)
 
                 # Remove backup.osp (if any)
-                if os.path.exists(info.BACKUP_FILE):
+                if os.path.exists(paths.BACKUP_FILE):
                     # Delete backup.osp since we just saved the actual project
-                    os.unlink(info.BACKUP_FILE)
+                    os.unlink(paths.BACKUP_FILE)
 
             else:
                 # No saved project found
-                log.info("Creating backup of project file: %s" % info.BACKUP_FILE)
-                app.project.save(info.BACKUP_FILE, move_temp_files=False, make_paths_relative=False)
+                log.info("Creating backup of project file: %s" % paths.BACKUP_FILE)
+                app.project.save(paths.BACKUP_FILE, move_temp_files=False, make_paths_relative=False)
 
                 # Clear the file_path (which is set by saving the project)
                 app.project.current_filepath = None
@@ -681,7 +685,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
 
         recommended_path = app.project.current_filepath
         if not recommended_path:
-            recommended_path = os.path.join(info.HOME_PATH, "%s.osp" % _("Untitled Project"))
+            recommended_path = os.path.join(paths.HOME, "%s.osp" % _("Untitled Project"))
         file_path = QFileDialog.getSaveFileName(self, _("Save Project As..."), recommended_path, _("OpenShot Project (*.osp)"))[0]
         if file_path:
             # Append .osp if needed
@@ -696,7 +700,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         _ = app._tr
         recommended_path = app.project.get("import_path")
         if not recommended_path or not os.path.exists(recommended_path):
-            recommended_path = os.path.join(info.HOME_PATH)
+            recommended_path = os.path.join(paths.HOME)
         files = QFileDialog.getOpenFileNames(self, _("Import File..."), recommended_path)[0]
         for file_path in files:
             self.filesTreeView.add_file(file_path)
@@ -1004,7 +1008,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         self.setStatusBar(self.statusBar)
 
         # Determine path for saved frame - Default export path
-        recommended_path = recommended_path = os.path.join(info.HOME_PATH)
+        recommended_path = recommended_path = os.path.join(paths.HOME)
         if app.project.current_filepath:
             recommended_path = os.path.dirname(app.project.current_filepath)
 
@@ -2319,7 +2323,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         _ = get_app()._tr
 
         # Compare versions (alphabetical compare of version strings should work fine)
-        if info.VERSION < version:
+        if openshot_qt.version < version:
             # Add spacer and 'New Version Available' toolbar button (default hidden)
             spacer = QWidget(self)
             spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -2404,11 +2408,11 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
 
         elif s.get("cache-mode") == "CacheDisk":
             # Create CacheDisk object, and set on timeline
-            log.info("Creating CacheDisk object with %s byte limit at %s" % (cache_limit, info.PREVIEW_CACHE_PATH))
+            log.info("Creating CacheDisk object with %s byte limit at %s" % (cache_limit, paths.PREVIEW_CACHE))
             image_format = s.get("cache-image-format")
             image_quality = s.get("cache-quality")
             image_scale = s.get("cache-scale")
-            new_cache_object = openshot.CacheDisk(info.PREVIEW_CACHE_PATH, image_format, image_quality, image_scale, cache_limit)
+            new_cache_object = openshot.CacheDisk(paths.PREVIEW_CACHE, image_format, image_quality, image_scale, cache_limit)
             self.timeline_sync.timeline.SetCache(new_cache_object)
 
         # Clear old cache before it goes out of scope
@@ -2710,4 +2714,3 @@ def onLogTheEnd():
         log.info("================================================")
     except Exception:
         pass
-

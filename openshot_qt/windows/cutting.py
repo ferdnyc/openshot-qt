@@ -34,8 +34,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 
-from openshot_qt.classes import info, ui_util, time_parts, settings, qt_types, updates
-from openshot_qt.classes.app import get_app
+from openshot_qt.classes import info, paths, ui_util, time_parts, settings, qt_types, updates
+from openshot_qt import get_app
 from openshot_qt.classes.logger import log
 from openshot_qt.classes.metrics import *
 from openshot_qt.windows.preview_thread import PreviewParent
@@ -47,7 +47,7 @@ class Cutting(QDialog):
     """ Cutting Dialog """
 
     # Path to ui file
-    ui_path = os.path.join(info.PATH, 'windows', 'ui', 'cutting.ui')
+    ui_path = os.path.join(paths.PATH, 'windows', 'ui', 'cutting.ui')
 
     # Signals for preview thread
     previewFrameSignal = pyqtSignal(int)
@@ -248,7 +248,7 @@ class Cutting(QDialog):
         self.start_frame = current_frame
 
         # Save thumbnail image
-        self.start_image = os.path.join(info.USER_PATH, 'thumbnail', '%s.png' % self.start_frame)
+        self.start_image = os.path.join(paths.USER, 'thumbnail', '%s.png' % self.start_frame)
         self.r.GetFrame(self.start_frame).Thumbnail(self.start_image, 160, 90, '', '', '#000000', True, 'png', 85)
 
         # Set CSS on button
@@ -285,7 +285,7 @@ class Cutting(QDialog):
         self.end_frame = current_frame
 
         # Save thumbnail image
-        self.end_image = os.path.join(info.USER_PATH, 'thumbnail', '%s.png' % self.end_frame)
+        self.end_image = os.path.join(paths.USER, 'thumbnail', '%s.png' % self.end_frame)
         self.r.GetFrame(self.end_frame).Thumbnail(self.end_image, 160, 90, '', '', '#000000', True, 'png', 85)
 
         # Set CSS on button

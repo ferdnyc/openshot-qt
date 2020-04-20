@@ -29,7 +29,7 @@ import os
 import copy
 
 from openshot_qt.classes import info
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 
 
 # Get project data reference

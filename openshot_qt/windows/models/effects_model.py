@@ -32,9 +32,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QMessageBox
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 
-from openshot_qt.classes import info
+from openshot_qt.classes import info, paths
 from openshot_qt.classes.logger import log
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 
 import json
 
@@ -76,7 +76,7 @@ class EffectsModel():
         self.model.setHorizontalHeaderLabels([_("Thumb"), _("Name"), _("Description")])
 
         # Get the folder path of effects
-        effects_dir = os.path.join(info.PATH, "effects")
+        effects_dir = os.path.join(paths.PATH, "effects")
         icons_dir = os.path.join(effects_dir, "icons")
 
         # Get a JSON list of all supported effects in libopenshot
@@ -108,12 +108,12 @@ class EffectsModel():
                     continue
 
             # Check for thumbnail path (in build-in cache)
-            thumb_path = os.path.join(info.IMAGES_PATH, "cache", icon_name)
+            thumb_path = os.path.join(paths.IMAGES, "cache", icon_name)
 
             # Check built-in cache (if not found)
             if not os.path.exists(thumb_path):
                 # Check user folder cache
-                thumb_path = os.path.join(info.CACHE_PATH, icon_name)
+                thumb_path = os.path.join(paths.CACHE, icon_name)
 
             # Generate thumbnail (if needed)
             if not os.path.exists(thumb_path):
@@ -128,7 +128,7 @@ class EffectsModel():
                     reader.Open()
 
                     # Save thumbnail
-                    reader.GetFrame(0).Thumbnail(thumb_path, 98, 64, os.path.join(info.IMAGES_PATH, "mask.png"),
+                    reader.GetFrame(0).Thumbnail(thumb_path, 98, 64, os.path.join(paths.IMAGES, "mask.png"),
                                                  "", "#000", True, "png", 85)
                     reader.Close()
 

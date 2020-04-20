@@ -42,9 +42,9 @@ from PyQt5.QtGui import QCursor, QKeySequence
 from PyQt5.QtWebKitWidgets import QWebView
 from PyQt5.QtWidgets import QMenu
 
-from openshot_qt.classes import info, updates
+from openshot_qt.classes import info, paths, updates
 from openshot_qt.classes import settings
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.classes.logger import log
 from openshot_qt.classes.query import File, Clip, Transition, Track
 from openshot_qt.classes.waveform import get_audio_data
@@ -156,7 +156,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
     """ A WebView QWidget used to load the Timeline """
 
     # Path to html file
-    html_path = os.path.join(info.PATH, 'timeline', 'index.html')
+    html_path = os.path.join(paths.PATH, 'timeline', 'index.html')
 
     @pyqtSlot()
     def page_ready(self):
@@ -274,7 +274,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
 
         # Open up QtImageReader for transition Image
         transition_reader = openshot.QtImageReader(
-            os.path.join(info.PATH, "transitions", "common", "fade.svg"))
+            os.path.join(paths.PATH, "transitions", "common", "fade.svg"))
 
         # Generate transition object
         transition_object = openshot.Mask()
@@ -2673,10 +2673,10 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
 
         if (file.data["media_type"] == "video" or file.data["media_type"] == "image"):
             # Determine thumb path
-            thumb_path = os.path.join(info.THUMBNAIL_PATH, "%s.png" % file.data["id"])
+            thumb_path = os.path.join(paths.THUMBNAIL, "%s.png" % file.data["id"])
         else:
             # Audio file
-            thumb_path = os.path.join(info.PATH, "images", "AudioThumbnail.png")
+            thumb_path = os.path.join(paths.PATH, "images", "AudioThumbnail.png")
 
         # Get file name
         filename = os.path.basename(file.data["path"])

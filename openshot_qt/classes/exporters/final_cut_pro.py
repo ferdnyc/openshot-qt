@@ -33,7 +33,7 @@ from xml.dom import minidom
 from PyQt5.QtWidgets import QFileDialog
 
 from openshot_qt.classes import info
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.classes.logger import log
 from openshot_qt.classes.query import Clip, Track
 
@@ -87,7 +87,7 @@ def export_xml():
     # Get path
     recommended_path = get_app().project.current_filepath or ""
     if not recommended_path:
-        recommended_path = os.path.join(info.HOME_PATH, "%s.xml" % _("Untitled Project"))
+        recommended_path = os.path.join(paths.HOME, "%s.xml" % _("Untitled Project"))
     else:
         recommended_path = recommended_path.replace(".osp", ".xml")
     file_path = QFileDialog.getSaveFileName(app.window, _("Export XML..."), recommended_path,
@@ -112,7 +112,7 @@ def export_xml():
             duration = clip_last_frame
 
     # XML template path
-    xmldoc = minidom.parse(os.path.join(info.RESOURCES_PATH, 'export-project-template.xml'))
+    xmldoc = minidom.parse(os.path.join(paths.RESOURCES, 'export-project-template.xml'))
 
     # Set Project Details
     xmldoc.getElementsByTagName("name")[0].childNodes[0].nodeValue = file_name
@@ -145,12 +145,12 @@ def export_xml():
             continue
 
         # Create video track node
-        trackTemplateDoc = minidom.parse(os.path.join(info.RESOURCES_PATH, 'export-track-video-template.xml'))
+        trackTemplateDoc = minidom.parse(os.path.join(paths.RESOURCES, 'export-track-video-template.xml'))
         videoTrackNode = trackTemplateDoc.getElementsByTagName('track')[0]
         xmldoc.getElementsByTagName("video")[0].appendChild(videoTrackNode)
 
         # Create audio track nodes (1 for each channel)
-        trackTemplateDoc = minidom.parse(os.path.join(info.RESOURCES_PATH, 'export-track-audio-template.xml'))
+        trackTemplateDoc = minidom.parse(os.path.join(paths.RESOURCES, 'export-track-audio-template.xml'))
         audioTrackNode = trackTemplateDoc.getElementsByTagName('track')[0]
         parentAudioNode.appendChild(audioTrackNode)
         audioTrackNode.getElementsByTagName("outputchannelindex")[0].childNodes[0].nodeValue = track_count
@@ -165,7 +165,7 @@ def export_xml():
             # Create VIDEO clip node
             clipNode = None
             if clip.data.get("reader", {}).get("has_video"):
-                clipTemplateDoc = minidom.parse(os.path.join(info.RESOURCES_PATH, 'export-clip-video-template.xml'))
+                clipTemplateDoc = minidom.parse(os.path.join(paths.RESOURCES, 'export-clip-video-template.xml'))
                 clipNode = clipTemplateDoc.getElementsByTagName('clipitem')[0]
                 videoTrackNode.appendChild(clipNode)
 
@@ -188,7 +188,7 @@ def export_xml():
 
             # Create AUDIO clip nodes
             if clip.data.get("reader", {}).get("has_audio"):
-                clipTemplateDoc = minidom.parse(os.path.join(info.RESOURCES_PATH, 'export-clip-audio-template.xml'))
+                clipTemplateDoc = minidom.parse(os.path.join(paths.RESOURCES, 'export-clip-audio-template.xml'))
                 clipAudioNode = clipTemplateDoc.getElementsByTagName('clipitem')[0]
                 audioTrackNode.appendChild(clipAudioNode)
 

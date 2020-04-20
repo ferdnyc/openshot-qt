@@ -33,8 +33,8 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QTableView, QAbstractItemView, QMenu, QSizePolicy, QHeaderView, QColorDialog, QItemDelegate, QStyle, QLabel, QPushButton, QHBoxLayout, QFrame
 
 from openshot_qt.classes.logger import log
-from openshot_qt.classes.app import get_app
-from openshot_qt.classes import info
+from openshot_qt import get_app
+from openshot_qt.classes import info, paths
 from openshot_qt.classes.query import Clip, Effect, Transition
 from openshot_qt.windows.models.properties_model import PropertiesModel
 from openshot_qt.windows.models.transition_model import TransitionsModel
@@ -48,9 +48,9 @@ class PropertyDelegate(QItemDelegate):
         QItemDelegate.__init__(self, parent, *args)
 
         # pixmaps for curve icons
-        self.curve_pixmaps = {openshot.BEZIER: QPixmap(os.path.join(info.IMAGES_PATH, "keyframe-%s.png" % openshot.BEZIER)),
-                              openshot.LINEAR: QPixmap(os.path.join(info.IMAGES_PATH, "keyframe-%s.png" % openshot.LINEAR)),
-                              openshot.CONSTANT: QPixmap(os.path.join(info.IMAGES_PATH, "keyframe-%s.png" % openshot.CONSTANT))
+        self.curve_pixmaps = {openshot.BEZIER: QPixmap(os.path.join(paths.IMAGES, "keyframe-%s.png" % openshot.BEZIER)),
+                              openshot.LINEAR: QPixmap(os.path.join(paths.IMAGES, "keyframe-%s.png" % openshot.LINEAR)),
+                              openshot.CONSTANT: QPixmap(os.path.join(paths.IMAGES, "keyframe-%s.png" % openshot.CONSTANT))
                               }
 
     def paint(self, painter, option, index):
@@ -469,9 +469,9 @@ class PropertiesTableView(QTableView):
                 (0.680, -0.550, 0.265, 1.550, _("Ease In/Out (Back)"))
             ]
 
-            bezier_icon = QIcon(QPixmap(os.path.join(info.IMAGES_PATH, "keyframe-%s.png" % openshot.BEZIER)))
-            linear_icon = QIcon(QPixmap(os.path.join(info.IMAGES_PATH, "keyframe-%s.png" % openshot.LINEAR)))
-            constant_icon = QIcon(QPixmap(os.path.join(info.IMAGES_PATH, "keyframe-%s.png" % openshot.CONSTANT)))
+            bezier_icon = QIcon(QPixmap(os.path.join(paths.IMAGES, "keyframe-%s.png" % openshot.BEZIER)))
+            linear_icon = QIcon(QPixmap(os.path.join(paths.IMAGES, "keyframe-%s.png" % openshot.LINEAR)))
+            constant_icon = QIcon(QPixmap(os.path.join(paths.IMAGES, "keyframe-%s.png" % openshot.CONSTANT)))
 
             # Add menu options for keyframes
             menu = QMenu(self)
@@ -685,7 +685,7 @@ class SelectionLabel(QFrame):
                     effect = Effect.get(id=effect.get('id'))
                     if effect:
                         item_name = effect.title()
-                        item_icon = QIcon(QPixmap(os.path.join(info.PATH, "effects", "icons", "%s.png" % effect.data.get('class_name').lower())))
+                        item_icon = QIcon(QPixmap(os.path.join(paths.PATH, "effects", "icons", "%s.png" % effect.data.get('class_name').lower())))
                         action = menu.addAction('  >  %s' % _(item_name))
                         action.setIcon(item_icon)
                         action.setData({'item_id': effect.id, 'item_type': 'effect'})
@@ -707,7 +707,7 @@ class SelectionLabel(QFrame):
             effect = Effect.get(id=item_id)
             if effect:
                 item_name = _(effect.title())
-                item_icon = QIcon(QPixmap(os.path.join(info.PATH, "effects", "icons", "%s.png" % effect.data.get('class_name').lower())))
+                item_icon = QIcon(QPixmap(os.path.join(paths.PATH, "effects", "icons", "%s.png" % effect.data.get('class_name').lower())))
                 action = menu.addAction(_(item_name))
                 action.setIcon(item_icon)
                 action.setData({'item_id': item_id, 'item_type': 'effect'})
@@ -750,7 +750,7 @@ class SelectionLabel(QFrame):
             effect = Effect.get(id=self.item_id)
             if effect:
                 self.item_name = _(effect.title())
-                self.item_icon = QIcon(QPixmap(os.path.join(info.PATH, "effects", "icons", "%s.png" % effect.data.get('class_name').lower())))
+                self.item_icon = QIcon(QPixmap(os.path.join(paths.PATH, "effects", "icons", "%s.png" % effect.data.get('class_name').lower())))
 
         # Truncate long text
         if self.item_name and len(self.item_name) > 25:

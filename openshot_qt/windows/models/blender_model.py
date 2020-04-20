@@ -33,9 +33,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QMessageBox
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 
-from openshot_qt.classes import info
+from openshot_qt.classes import info, paths
 from openshot_qt.classes.logger import log
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 
 
 class BlenderModel():
@@ -56,7 +56,7 @@ class BlenderModel():
         self.model.setHorizontalHeaderLabels([_("Thumb"), _("Name")])
 
         # get a list of files in the OpenShot /effects directory
-        effects_dir = os.path.join(info.PATH, "blender")
+        effects_dir = os.path.join(paths.PATH, "blender")
         icons_dir = os.path.join(effects_dir, "icons")
 
         for file in sorted(os.listdir(effects_dir)):
@@ -76,12 +76,12 @@ class BlenderModel():
                 service = xmldoc.getElementsByTagName("service")[0].childNodes[0].data
 
                 # Check for thumbnail path (in build-in cache)
-                thumb_path = os.path.join(info.IMAGES_PATH, "cache",  "blender_{}".format(icon_name))
+                thumb_path = os.path.join(paths.IMAGES, "cache",  "blender_{}".format(icon_name))
 
                 # Check built-in cache (if not found)
                 if not os.path.exists(thumb_path):
                     # Check user folder cache
-                    thumb_path = os.path.join(info.CACHE_PATH, "blender_{}".format(icon_name))
+                    thumb_path = os.path.join(paths.CACHE, "blender_{}".format(icon_name))
 
                 # Check if thumb exists
                 if not os.path.exists(thumb_path):

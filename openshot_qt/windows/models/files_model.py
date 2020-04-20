@@ -34,10 +34,10 @@ from PyQt5.QtWidgets import QMessageBox
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 
 from openshot_qt.classes import updates
-from openshot_qt.classes import info
+from openshot_qt.classes import info, paths
 from openshot_qt.classes.query import File
 from openshot_qt.classes.logger import log
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from requests import get
 
 import json
@@ -139,7 +139,7 @@ class FilesModel(updates.UpdateInterface):
                     thumbnail_frame = round(float(file.data['start']) * fps_float) + 1
 
                 # Determine thumb path (default value... a guess)
-                thumb_path = os.path.join(info.THUMBNAIL_PATH, "%s-%s.png" % (file.id, thumbnail_frame))
+                thumb_path = os.path.join(paths.THUMBNAIL, "%s-%s.png" % (file.id, thumbnail_frame))
 
                 # Connect to thumbnail server and get image
                 thumb_server_details = get_app().window.http_server_thread.server_address
@@ -150,7 +150,7 @@ class FilesModel(updates.UpdateInterface):
                     thumb_path = r.text
             else:
                 # Audio file
-                thumb_path = os.path.join(info.PATH, "images", "AudioThumbnail.png")
+                thumb_path = os.path.join(paths.PATH, "images", "AudioThumbnail.png")
 
             row = []
 

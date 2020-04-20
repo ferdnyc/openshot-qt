@@ -31,7 +31,7 @@ from operator import itemgetter
 from PyQt5.QtWidgets import QFileDialog
 
 from openshot_qt.classes import info
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.classes.logger import log
 from openshot_qt.classes.query import Clip, Track
 from openshot_qt.classes.time_parts import secondsToTimecode
@@ -53,7 +53,7 @@ def export_edl():
     # Get EDL path
     recommended_path = app.project.current_filepath or ""
     if not recommended_path:
-        recommended_path = os.path.join(info.HOME_PATH, "%s.edl" % _("Untitled Project"))
+        recommended_path = os.path.join(paths.HOME, "%s.edl" % _("Untitled Project"))
     else:
         recommended_path = recommended_path.replace(".osp", ".edl")
     file_path = QFileDialog.getSaveFileName(app.window, _("Export EDL..."), recommended_path,

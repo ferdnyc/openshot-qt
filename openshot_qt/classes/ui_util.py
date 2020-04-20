@@ -224,7 +224,7 @@ def init_ui(window):
 
 def center(window):
     """Center a window on the main window"""
-    from openshot_qt.classes.app import get_app
+    from openshot_qt import get_app
 
     frameGm = window.frameGeometry()
     centerPoint = get_app().window.frameGeometry().center()

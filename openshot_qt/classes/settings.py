@@ -30,11 +30,11 @@
 # SettingStore - class which allows getting/storing of settings, loading and saving to json
 import os
 
-from PyQt5.QtCore import QStandardPaths, QCoreApplication
+from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import QMessageBox
 
 from openshot_qt.classes.logger import log
-from openshot_qt.classes import info
+from openshot_qt.classes import paths
 from openshot_qt.classes.json_data import JsonDataStore
 
 
@@ -52,7 +52,7 @@ class SettingStore(JsonDataStore):
         # Set the data type name for logging clarity (base class functions use this variable)
         self.data_type = "user settings"
         self.settings_filename = "openshot.settings"
-        self.default_settings_filename = os.path.join(info.PATH, 'settings', '_default.settings')
+        self.default_settings_filename = os.path.join(paths.PATH, 'settings', '_default.settings')
 
     def get_all_settings(self):
         """ Get the entire list of settings (with all metadata) """
@@ -86,7 +86,7 @@ class SettingStore(JsonDataStore):
         default_settings = self.read_from_file(self.default_settings_filename)
 
         # Try to find user settings file
-        file_path = os.path.join(info.USER_PATH, self.settings_filename)
+        file_path = os.path.join(paths.CONFIG, self.settings_filename)
 
         # Load user settings (if found)
         if os.path.exists(os.fsencode(file_path)):
@@ -112,7 +112,7 @@ class SettingStore(JsonDataStore):
         """ Save user settings file to disk """
 
         # Try to find user settings file
-        file_path = os.path.join(info.USER_PATH, self.settings_filename)
+        file_path = os.path.join(paths.CONFIG, self.settings_filename)
 
         # try to save data to file, will raise exception on failure
         self.write_to_file(file_path, self._data)

@@ -33,7 +33,7 @@ from PyQt5.QtCore import QSize, Qt, QPoint
 from PyQt5.QtWidgets import QListView, QTreeView, QMessageBox, QAbstractItemView, QMenu, QSizePolicy, QHeaderView
 
 from openshot_qt.classes.logger import log
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.windows.models.credits_model import CreditsModel
 
 import json

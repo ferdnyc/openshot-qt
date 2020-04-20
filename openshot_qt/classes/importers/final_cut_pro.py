@@ -34,7 +34,7 @@ from openshot_qt import openshot
 from PyQt5.QtWidgets import QFileDialog
 
 from openshot_qt.classes import info
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.classes.image_types import is_image
 from openshot_qt.classes.query import Clip, Track, File
 from openshot_qt.windows.views.find_file import find_missing_file
@@ -53,7 +53,7 @@ def import_xml():
     # Get XML path
     recommended_path = app.project.current_filepath or ""
     if not recommended_path:
-        recommended_path = info.HOME_PATH
+        recommended_path = paths.HOME
     else:
         recommended_path = os.path.dirname(recommended_path)
     file_path = QFileDialog.getOpenFileName(app.window, _("Import XML..."), recommended_path,
@@ -146,10 +146,10 @@ def import_xml():
 
                 if (file.data["media_type"] == "video" or file.data["media_type"] == "image"):
                     # Determine thumb path
-                    thumb_path = os.path.join(info.THUMBNAIL_PATH, "%s.png" % file.data["id"])
+                    thumb_path = os.path.join(paths.THUMBNAIL, "%s.png" % file.data["id"])
                 else:
                     # Audio file
-                    thumb_path = os.path.join(info.PATH, "images", "AudioThumbnail.png")
+                    thumb_path = os.path.join(paths.PATH, "images", "AudioThumbnail.png")
 
                 # Create Clip object
                 clip = Clip()

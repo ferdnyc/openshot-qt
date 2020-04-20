@@ -36,9 +36,9 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 
-from openshot_qt.classes import info
+from openshot_qt.classes import info, paths
 from openshot_qt.classes import ui_util
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.classes.metrics import *
 from openshot_qt.classes.query import File
 
@@ -48,7 +48,7 @@ class Export(QDialog):
     """ Export Dialog """
 
     # Path to ui file
-    ui_path = os.path.join(info.PATH, 'windows', 'ui', 'export.ui')
+    ui_path = os.path.join(paths.PATH, 'windows', 'ui', 'export.ui')
 
     def __init__(self):
 
@@ -133,7 +133,7 @@ class Export(QDialog):
         self.timeline.Open()
 
         # Default export path
-        recommended_path = os.path.join(info.HOME_PATH)
+        recommended_path = os.path.join(paths.HOME)
         if get_app().project.current_filepath:
             recommended_path = os.path.dirname(get_app().project.current_filepath)
 
@@ -194,7 +194,7 @@ class Export(QDialog):
         # Loop through profiles
         self.profile_names = []
         self.profile_paths = {}
-        for profile_folder in [info.USER_PROFILES_PATH, info.PROFILES_PATH]:
+        for profile_folder in [paths.USER_PROFILES, paths.PROFILES]:
             for file in os.listdir(profile_folder):
                 # Load Profile
                 profile_path = os.path.join(profile_folder, file)
@@ -227,7 +227,7 @@ class Export(QDialog):
         # ********* Simple Project Type **********
         # load the simple project type dropdown
         presets = []
-        for preset_path in [info.EXPORT_PRESETS_PATH, info.USER_PRESETS_PATH]:
+        for preset_path in [paths.EXPORT_PRESETS, paths.USER_PRESETS]:
             for file in os.listdir(preset_path):
                 xmldoc = xml.parse(os.path.join(preset_path, file))
                 type = xmldoc.getElementsByTagName("type")
@@ -370,7 +370,7 @@ class Export(QDialog):
         # parse the xml files and get targets that match the project type
         project_types = []
         acceleration_types = {}
-        for preset_path in [info.EXPORT_PRESETS_PATH, info.USER_PRESETS_PATH]:
+        for preset_path in [paths.EXPORT_PRESETS, paths.USER_PRESETS]:
             for file in os.listdir(preset_path):
                 xmldoc = xml.parse(os.path.join(preset_path, file))
                 type = xmldoc.getElementsByTagName("type")
@@ -468,7 +468,7 @@ class Export(QDialog):
             # parse the xml to return suggested profiles
             profile_index = 0
             all_profiles = False
-            for preset_path in [info.EXPORT_PRESETS_PATH, info.USER_PRESETS_PATH]:
+            for preset_path in [paths.EXPORT_PRESETS, paths.USER_PRESETS]:
                 for file in os.listdir(preset_path):
                     xmldoc = xml.parse(os.path.join(preset_path, file))
                     title = xmldoc.getElementsByTagName("title")
@@ -698,7 +698,7 @@ class Export(QDialog):
 
         # Determine final exported file path (and replace blank paths with default ones)
         default_filename = "Untitled Project"
-        default_folder = os.path.join(info.HOME_PATH)
+        default_folder = os.path.join(paths.HOME)
         if export_type == _("Image Sequence"):
             file_name_with_ext = "%s%s" % (self.txtFileName.text().strip() or default_filename, self.txtImageFormat.text().strip())
         else:

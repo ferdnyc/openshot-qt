@@ -33,7 +33,7 @@ from PyQt5.QtCore import QObject, QThread, pyqtSlot, pyqtSignal, QCoreApplicatio
 from PyQt5.QtWidgets import QMessageBox
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 from openshot_qt.classes.logger import log
 from openshot_qt.classes import settings
 

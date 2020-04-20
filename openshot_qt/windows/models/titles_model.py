@@ -33,9 +33,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QMessageBox
 import openshot  # Python module for libopenshot (required video editing module installed separately)
 
-from openshot_qt.classes import info
+from openshot_qt.classes import info, paths
 from openshot_qt.classes.logger import log
-from openshot_qt.classes.app import get_app
+from openshot_qt import get_app
 
 import json
 
@@ -78,7 +78,7 @@ class TitlesModel():
         self.model.setHorizontalHeaderLabels([_("Thumb"), _("Name")])
 
         # get a list of files in the OpenShot /transitions directory
-        titles_dir = os.path.join(info.PATH, "titles")
+        titles_dir = os.path.join(paths.PATH, "titles")
 
         # Add build-in templates
         titles_list = []
@@ -86,10 +86,10 @@ class TitlesModel():
             titles_list.append(os.path.join(titles_dir, filename))
 
         # Add user-defined titles (if any)
-        for file in sorted(os.listdir(info.TITLE_PATH)):
+        for file in sorted(os.listdir(paths.USER_TITLES)):
             # pretty up the filename for display purposes
             if fnmatch.fnmatch(file, '*.svg'):
-                titles_list.append(os.path.join(info.TITLE_PATH, file))
+                titles_list.append(os.path.join(paths.USER_TITLES, file))
 
         for path in sorted(titles_list):
             filename = os.path.basename(path)
@@ -116,12 +116,12 @@ class TitlesModel():
                 title_name = self.app._tr(title_name)
 
             # Check for thumbnail path (in build-in cache)
-            thumb_path = os.path.join(info.IMAGES_PATH, "cache", "{}.png".format(fileBaseName))
+            thumb_path = os.path.join(paths.IMAGES, "cache", "{}.png".format(fileBaseName))
 
             # Check built-in cache (if not found)
             if not os.path.exists(thumb_path):
                 # Check user folder cache
-                thumb_path = os.path.join(info.CACHE_PATH, "{}.png".format(fileBaseName))
+                thumb_path = os.path.join(paths.CACHE, "{}.png".format(fileBaseName))
 
             # Generate thumbnail (if needed)
             if not os.path.exists(thumb_path):
@@ -135,7 +135,7 @@ class TitlesModel():
                     reader.Open()
 
                     # Save thumbnail
-                    reader.GetFrame(0).Thumbnail(thumb_path, 98, 64, os.path.join(info.IMAGES_PATH, "mask.png"),
+                    reader.GetFrame(0).Thumbnail(thumb_path, 98, 64, os.path.join(paths.IMAGES, "mask.png"),
                                                  "", "#000", True, "png", 85)
                     reader.Close()
                     clip.Close()

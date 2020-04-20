@@ -1,0 +1,8 @@
+libopenshot > 0.2.5
+PyQt5-sip
+PyQt5 == 5.15.0
+PyQtWebEngine == 5.15.0
+pyzmq
+httplib2
+requests
+
