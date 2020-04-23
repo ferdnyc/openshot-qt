@@ -78,7 +78,7 @@ into the file):
 Once you restart OpenShot, you will see your custom profile appear in the list of Profiles.
 
 =====  =====  =========
-YUV colorspace used by International Telecommunications Union
+#      #      YUV colorspace used by International Telecommunications Union
 =====  =====  =========
 601    SD     Legacy. Use only if all source video is in this format
 709    HD     Normal mode for most cases
