@@ -277,12 +277,12 @@ App.controller('TimelineCtrl',function($scope) {
 	  // Determine seconds
 	  var frames_per_second = $scope.project.fps.num / $scope.project.fps.den;
 	  var position_seconds = ((position_frames - 1) / frames_per_second);
-	  
+
 	  // Center on the playhead if it has moved out of view and the timeline should follow it
 	  if ($scope.enable_playhead_follow && !$scope.isTimeVisible(position_seconds)) {
 	    $scope.centerOnTime(position_seconds);
 	  }
-      
+
 	  // Update internal scope (in seconds)
 	  $scope.MovePlayhead(position_seconds);
   };
@@ -425,6 +425,7 @@ App.controller('TimelineCtrl',function($scope) {
     // Get scrollbar positions
     var horz_scroll_offset = $("#scrolling_tracks").scrollLeft();
     var track_labels_width = $("#track_controls").width();
+    var viewport_width = $("#scrolling_tracks").width();
     var center_x = 0;
     var cursor_time = 0;
 
@@ -447,20 +448,26 @@ App.controller('TimelineCtrl',function($scope) {
         $scope.pixelsPerSecond = parseFloat($scope.project.tick_pixels) / parseFloat($scope.project.scale);
     });
 
-	 // Scroll back to correct cursor time (minus the difference of the cursor location)
-	 var new_cursor_x = Math.round((cursor_time * $scope.pixelsPerSecond) - center_x);
-	 $("#scrolling_tracks").scrollLeft(new_cursor_x);
+     // Make sure we don't fall off the right edge of the timeline
+     // (even if the playhead does)
+     var max_x = Math.max(center_x - (viewport_width / 2),
+                          $scope.GetTimelineWidth(50) - viewport_width);
+
+     // Scroll back to correct cursor time (minus the difference of the cursor location)
+     var new_cursor_x = Math.round((cursor_time * $scope.pixelsPerSecond) - center_x);
+
+     $("#scrolling_tracks").scrollLeft(Math.min(new_cursor_x, max_x));
  };
- 
+
  // Center the timeline on a given time position
  $scope.centerOnTime = function(centerTime) {
     // Get the width of the timeline
     var scrollingTracksWidth = $("#scrolling_tracks").width();
-    
+
     // Calculate the position to scroll the timeline to to center on the requested time
     var pixelToCenterOn = parseFloat(centerTime) * $scope.pixelsPerSecond;
     var scrollPosition = Math.max(pixelToCenterOn - (scrollingTracksWidth / 2.0), 0);
-    
+
     // Scroll the timeline using JQuery
     $("#scrolling_tracks").scrollLeft(Math.floor(scrollPosition + 0.5));
  };
