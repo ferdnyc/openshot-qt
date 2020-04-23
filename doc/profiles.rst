@@ -73,5 +73,6 @@ into the file):
     sample_aspect_den=1
     display_aspect_num=16
     display_aspect_den=9
+    colorspace=709
 
 Once you restart OpenShot, you will see your custom profile appear in the list of Profiles.
