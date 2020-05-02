@@ -20,7 +20,7 @@ About the documentation
 =======================
 
 The source files for the manual are all found in the project repository (the doc/ directory),
- 'test <https://github.com/OpenShot/openshot-qt/tree/develop/doc>'_ 
+ `test <https://github.com/OpenShot/openshot-qt/tree/develop/doc>`_ 
 `openshot.org/download <https://www.openshot.org/download>`_ 
 
 Before we can begin making a video, we need to import files into OpenShot. Most media file types are
