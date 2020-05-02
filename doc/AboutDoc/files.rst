@@ -20,7 +20,7 @@ About the documentation
 =======================
 
 The source files for the manual are all found in the project repository (the doc/ directory),
-.. <https://github.com/OpenShot/openshot-qt/tree/develop/doc>
+'test'<https://github.com/OpenShot/openshot-qt/tree/develop/doc>
 
 Before we can begin making a video, we need to import files into OpenShot. Most media file types are
 recognized, such as videos, images, and audio files. Files can be viewed and managed in the **Project Files** panel.
