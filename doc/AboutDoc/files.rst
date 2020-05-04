@@ -119,6 +119,7 @@ License notice
 Referral anchor for the title
 
 Followed by the title with double underlining
+                           ==================
 
 Then a short description of what the chapter will be about, and why the reader should care (or skip). 
 
