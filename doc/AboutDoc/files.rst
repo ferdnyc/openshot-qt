@@ -112,11 +112,11 @@ File structure
 
 Every file starts with 5 hidden segments   ..(see template?)
 
-- Copyright notice
-- Openshot description
-- Openshot disclaimer
-- License notice
-- Referral anchor for the title
+ Copyright notice
+ Openshot description
+ Openshot disclaimer
+ License notice
+ Referral anchor for the title
 
 Followed by the title with double underlining
                            ==================
