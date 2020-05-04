@@ -33,18 +33,53 @@ https://github.com/OpenShot/openshot-qt/issues/2989
 
 Or in *this* reddit thread. 
 
-.. NOTE: reddit tread to be made, add hyperlink https://github.com/OpenShot/openshot-qt/issues/2989
+.. NOTE: Reddit tread to be made, add hyperlink 
 
 The preferred method for submitting large edits would be via GitHub Pull Request. 
 But we can make accommodations for anyone who would like to contribute but isn't familiar with version-control systems like Git.
 
 
+License
+-------
+We use the GPL-3 license (see above) for documentation, see the header. 
+This is both simplicity because it is the same license as the project code. 
+And because the documentation gets parsed in other tools before it reaches its final form. 
+
+
+Github
+------
+In the issue tracker, subjects that contain explanations that should probably be included in the documentation can me labeled `*docs*. <https://github.com/OpenShot/openshot-qt/pulls?q=is%3Apr+is%3Aopen+label%3Adocs>`_ 
+
+:: add link to https://github.com/OpenShot/openshot-qt/pulls?q=is%3Apr+is%3Aopen+label%3Adocs
+
+Questions that are answered often in github or reddit can be tagged *FAQ* / are tagged *question*
+:: add link reddit + link github
+
+Tutorials how to add changes to github
+Github on Pull requests https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork
+Github text howto https://opensource.com/life/16/3/submit-github-pull-request
+Github video howto https://www.youtube.com/watch?v=rgbCcBNZcdQ
+
+It is possible to edit files directly in the Github web interface.  
+To edit a file via the web interface, 
+you can just click the pencil icon in its upper-right corner.
+(Take docs/getting_started.rst for example)
+When you started editing, 
+Github would see that you don't have permissions to make changes directly to files here.  
+So it would set you up with a copy ("fork") under your account, 
+where you can make changes before submitting them as a Pull Request.
+
+Editing on the web is perfectly workable.  
+The only downside being that there's no real way to preview your changes. 
+With a local clone you can use a previewing editor or 
+(if you have the necessary Sphinx tools installed) 
+generate updated HTML docs and view them in a web browser.
 
 
 
 
-Before we can begin making a video, we need to import files into OpenShot. Most media file types are
-recognized, such as videos, images, and audio files. Files can be viewed and managed in the **Project Files** panel.
+
+
 
 Import Files
 ------------
