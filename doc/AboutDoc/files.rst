@@ -107,36 +107,6 @@ Images are named after the file they belong to, and sorted in the doc\images sub
 .. Or maybe not, see Images
 Translations go into their own directory. 
 
-File structure
---------------
-
-Every file starts with 5 hidden segments   ..(see template?)
-
- Copyright notice
- Openshot description
- Openshot disclaimer
- License notice
- Referral anchor for the title
-
-Followed by the title with double underlining
-                           ==================
-Then a short description of what the chapter will be about, and why the reader should care (or skip). 
-
-Subtitles are single underlined
-              -----------------
-|
-Sentences should be written one sentence per line, and *NOT* end on a space.
-The markup language then flows them all together into paragraphs when it generates the formatted docs.
-You can also break at other logical points, like after a comma in a longer sentence,
-or before starting an inline markup command.
-It is a guideline, not a rule.
-This tends to be a pretty good fit for any sort of written prose, when it is in a markup language like adoc/reST/MarkDown and managed in version control.
-
-There are four reasons for this:
-- Writing that way, there is no worrying about line length or when to wrap.
-- It encourages shorter, simpler sentences which is a good thing when writing docs.
-- The diffs when changes are submitted also tend to be more readable and focused.
-- Lines are easier to translate and less likely to be changed. 
 
 
 
