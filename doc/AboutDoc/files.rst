@@ -144,11 +144,12 @@ If the images are not translated, they will default back to the original.
 Filenames do not get translated. 
 There may be translation notes hidden in the documentation, blocked out with \.. TRANSLATION NOTE: 
 
-Files for translation will be hosted at Launchpad. 
-.. TEST: After translating tables, make sure that the underlining of table rows stays the same length as the new words. 
-When translating numbers referencing a screenshot in non-westen languages, please make sure to update the screenshot too. 
-If availeble, Images of the translation should be saved in .......
+Files for translation will be hosted at `Launchpad <https://translations.launchpad.net/openshot/2.0/+translations>`_.
 
+When translating numbers referencing a screenshot in non-westen languages, please make sure to update the screenshot too. 
+If availeble, Images of the translation should be saved in their subdirectory *(to be decided)* 
+
+.. TRANSLATION NOTE: After translating tables, make sure that the underlining of table rows stays the same length as the new words. 
 
 
 
@@ -227,36 +228,4 @@ or a large number of short video clips. The **Add to Timeline** dialog can autom
 all files you need to add, right click, and choose Add to Timeline.
 
 .. image:: images/file-add-to-timeline.jpg
-
-.. table::
-   :widths: 5 28
-
-   ==  ==================  ============
-   #   Name                Description
-   ==  ==================  ============
-   1   Selected Files      The list of selected files that need to be added to the timeline
-   2   Order of Files      Use these buttons to reorder the list of files (move up, move down, randomize, remove)
-   3   Timeline Position   Choose the starting position and track where these files need to be inserted on the timeline
-   4   Fade Options        Fade in, fade out, both, or none
-   5   Zoom Options        Zoom in, zoom out, or none
-   6   Transitions         Choose a specific transition to use between files, random, or none
-   ==  ==================  ============
-
-Properties
-----------
-To view the properties of any imported file in your video project, right click on the file, and choose **File Properties**.
-This will launch the file properties dialog, which displays information about your media file. For certain types of images
-(i.e. image sequences), you can adjust the frame rate on this dialog also.
-
-.. image:: images/file-properties.jpg
-
-.. table::
-   :widths: 5 24
-   
-   ==  ====================  ============
-   #   Name                  Description
-   ==  ====================  ============
-   1   File Properties       Select an image sequence in the **Project Files** panel, right click and choose **File Properties**
-   2   Frame Rate            For image sequences, you can also adjust the frame rate of the animation
-   ==  ====================  ============
 
