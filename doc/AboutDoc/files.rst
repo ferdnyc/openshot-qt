@@ -110,13 +110,13 @@ Translations go into their own directory.
 File structure
 --------------
 
-Every file starts with 5 hidden segments ::(see template?)
+Every file starts with 5 hidden segments (See template. )
 
- Copyright notice
- Openshot description
- Openshot disclaimer
- License notice
- Referral anchor for the title
+Copyright notice
+Openshot description
+Openshot disclaimer
+License notice
+Referral anchor for the title
 
 Followed by the title with double underlining
 
