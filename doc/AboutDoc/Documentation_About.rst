@@ -128,12 +128,9 @@ Every file starts with 5 hidden segments ::(see template?)
 - Referral anchor for the title
 
 Followed by the title with double underlining
-                           ==================
 Then a short description of what the chapter will be about, and why the reader should care (or skip). 
-
 Subtitles are single underlined
-              -----------------
-|
+
 Sentences should be written one sentence per line, and *NOT* end on a space. 
 The markup language then flows them all together into paragraphs when it generates the formatted docs. 
 You can also break at other logical points, like after a comma in a longer sentence, 
