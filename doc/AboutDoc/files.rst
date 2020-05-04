@@ -48,32 +48,48 @@ And because the documentation gets parsed in other tools before it reaches its f
 
 Github
 ------
-In the issue tracker, subjects that contain explanations that should probably be included in the documentation can me labeled `*docs*. <https://github.com/OpenShot/openshot-qt/pulls?q=is%3Apr+is%3Aopen+label%3Adocs>`_ 
-
-:: add link to https://github.com/OpenShot/openshot-qt/pulls?q=is%3Apr+is%3Aopen+label%3Adocs
-
+In the issue tracker, subjects that contain explanations that should probably be included in the documentation can me labeled `*docs*. <https://github.com/OpenShot/openshot-qt/labels/docs>`_ 
 Questions that are answered often in github or reddit can be tagged *FAQ* / are tagged *question*
+
 :: add link reddit + link github
 
-Tutorials how to add changes to github
+Tutorials how to add changes to github: 
 Github on Pull requests https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork
 Github text howto https://opensource.com/life/16/3/submit-github-pull-request
 Github video howto https://www.youtube.com/watch?v=rgbCcBNZcdQ
 
-It is possible to edit files directly in the Github web interface.  
-To edit a file via the web interface, 
+It is possible to edit files directly in the Github web interface.
+To edit a file via the web interface,
 you can just click the pencil icon in its upper-right corner.
 (Take docs/getting_started.rst for example)
-When you started editing, 
-Github would see that you don't have permissions to make changes directly to files here.  
-So it would set you up with a copy ("fork") under your account, 
+When you started editing,
+Github would see that you do not have permissions to make changes directly to files here.
+So it would set you up with a copy ("fork") under your account,
 where you can make changes before submitting them as a Pull Request.
 
-Editing on the web is perfectly workable.  
-The only downside being that there's no real way to preview your changes. 
-With a local clone you can use a previewing editor or 
-(if you have the necessary Sphinx tools installed) 
+Editing on the web is perfectly workable.
+The only downside being that there's no real way to preview your changes.
+With a local clone you can use a previewing editor or
+(if you have the necessary Sphinx tools installed)
 generate updated HTML docs and view them in a web browser.
+
+Sphinx
+------
+`Spinx <https://en.wikipedia.org/wiki/Sphinx_(documentation_generator)>`_ was created to simply generate documentation from Python sourcecode.
+It is written in Python, and also used in other environments. 
+It is licensed under the BSD license.
+It can also export files for translation.
+
+Generating a local copy of the manual requires only the Python-based Sphinx documentation system and the Sphinx RTD theme.  
+They can be installed via pip3 install sphinx sphinx-rtd-theme, or using most package managers. 
+Anyone who would like to contribute and needs help with installing and using Sphinx can ask for support in the issues tracker.
+
+
+
+
+
+
+
 
 
 
