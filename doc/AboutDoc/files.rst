@@ -118,12 +118,11 @@ Openshot disclaimer
 License notice
 Referral anchor for the title
 
-Followed by the title with double underlining
-
+Followed by the title with double underlining (with == )
 
 Then a short description of what the chapter will be about, and why the reader should care (or skip). 
 
-Subtitles are single underlined
+Subtitles are single underlined ( -- )
               
 
 Sentences should be written one sentence per line, and *NOT* end on a space. 
