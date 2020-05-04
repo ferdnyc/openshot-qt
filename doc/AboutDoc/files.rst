@@ -110,7 +110,7 @@ Translations go into their own directory.
 File structure
 --------------
 
-Every file starts with 5 hidden segments (See template. )
+Every file starts with 5 hidden segments (See 'template <Template.rst>`_ . )
 
 - Copyright notice
 - Openshot description
