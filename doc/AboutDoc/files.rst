@@ -31,6 +31,7 @@ The tool used by Openshot is Sphinx to create both the online HTML and the offli
 You can suggest improvements or submit small changes for our documentation on our github here: 
 https://github.com/OpenShot/openshot-qt/issues/2989
 Or in *this* reddit thread. 
+
 .. NOTE: reddit tread to be made, add hyperlink
 
 The preferred method for submitting large edits would be via GitHub Pull Request. 
