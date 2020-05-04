@@ -19,11 +19,10 @@
 About the documentation
 =======================
 
-The source files for the manual are all found in the project repository (the doc/ directory),
- `test <https://github.com/OpenShot/openshot-qt/tree/develop/doc>`_ 
+The source files for the manual are all found in the project repository,
+ `(the doc/ directory) <https://github.com/OpenShot/openshot-qt/tree/develop/doc>`_ 
 
-
-The documentation is written in reStructured Text, or Rest.
+The documentation is written in reStructured Text, or ReST. 
 This is a plain text format encoded in UTF-8.
 It contains special syntax so formatting can be applied by third-party tools.
 The tool used by Openshot is Sphinx to create both the online HTML and the offline manual.
@@ -51,7 +50,7 @@ Github
 In the issue tracker, subjects that contain explanations that should probably be included in the documentation can me labeled `*docs*. <https://github.com/OpenShot/openshot-qt/labels/docs>`_ 
 Questions that are answered often in github or reddit can be tagged *FAQ* / are tagged *question*
 
-:: add link reddit + link github
+.. TODO: Add link reddit + link github
 
 Tutorials how to add changes to github: 
 Github on Pull requests https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork
@@ -86,7 +85,7 @@ Anyone who would like to contribute and needs help with installing and using Sph
 
 Tutorial video	https://www.youtube.com/watch?v=ouHVkMo3gwE
 
-Rest Basic Syntax
+ReST Basic Syntax
 -----------------
 `List of basic syntax <Documentation_RestSyntax.rst>`_  in Openshot documentation.  
 
@@ -95,7 +94,7 @@ More here
 Video tutorial here 
 
 Software 
-Notepad++ Rest template:	https://github.com/steenhulthin/reStructuredText_NPP
+Notepad++ ReST template:	https://github.com/steenhulthin/reStructuredText_NPP
 Linux: 
 
 
@@ -103,8 +102,13 @@ File naming and directory structure
 -----------------------------------
 
 Files are stored in \docs
+File names may not contain spaces.
+For mult-word filenames, ReST docuentation filenames are separated by an underscore (_).
+Images filenames are separated by a dash (-). 
 Images are named after the file they belong to, and sorted in the doc\images subdirectory. 
-.. Or maybe not, see Images
+
+.. NOTE: Or maybe not, see Images
+
 Translations go into their own directory. 
 
 File structure
@@ -127,33 +131,31 @@ The markup language then flows them all together into paragraphs when it generat
 You can also break at other logical points, like after a comma in a longer sentence,
 or before starting an inline markup command.
 It is a guideline, not a rule.
-This tends to be a pretty good fit for any sort of written prose, when it is in a markup language like adoc/reST/MarkDown and managed in version control.
+This tends to be a pretty good fit for any sort of written prose, when it is in a markup language like ReST and managed in a version control system.
 
 There are four reasons for this:
-Writing that way, there is no worrying about line length or when to wrap. 
-It encourages shorter, simpler sentences which is a good thing when writing docs. 
-The diffs when changes are submitted also tend to be more readable and focused. 
-Lines are easier to translate and less likely to be changed. 
+- Writing that way, there is no worrying about line length or when to wrap. 
+- It encourages shorter, simpler sentences which is a good thing when writing docs. 
+- The diffs when changes are submitted also tend to be more readable and focused. 
+- Lines are easier to translate and less likely to be changed. 
 
-|
+Comments for why things are documented a certain way can be hidden after a double dot and NOTE: and may contain a link to relevant issue in the tracker for more info. 
 
 Translation
 -----------
-Translation files are generated and managed by Sphinx. 
-If the images are not translated, they will default back to the original. 
-Filenames do not get translated. 
+Translation files are generated and managed by Sphinx.
+If the images are not translated, they will default back to the original.
+Filenames do not get translated.
 There may be translation notes hidden in the documentation, blocked out with \.. TRANSLATION NOTE: 
 
 Files for translation will be hosted at `Launchpad <https://translations.launchpad.net/openshot/2.0/+translations>`_.
 
 When translating numbers referencing a screenshot in non-westen languages, please make sure to update the screenshot too. 
-If availeble, Images of the translation should be saved in their subdirectory *(to be decided)* 
+If availeble, images of the translation should be saved in their subdirectory *(to be decided)* 
 
-.. TRANSLATION NOTE: After translating tables, make sure that the underlining of table rows stays the same length as the new words. 
+.. TODO: Add subdirectory
 
-
-
-
+.. TRANSLATION NOTE: After translating tables, make sure that the underlining of table rows stay the same length as the new words. 
 
 
 
@@ -161,71 +163,6 @@ If availeble, Images of the translation should be saved in their subdirectory *(
 
 
 
-Import Files
-------------
-There are many ways to import media files into OpenShot.
 
-.. table::
-   :widths: 25
 
-   ====================  ============
-   Name                  Description
-   ====================  ============
-   Drag and Drop         Drag and drop the files from your file manager (file explorer, finder, etc...)
-   Right Click\→Import   Right click in the **Project Files** panel, choose **Import Files...**
-   File Menu\→Import     File menu\→Import Files...
-   Import Files Toolbar  Click the **Import Files...** toolbar button (on the top menu)
-   ====================  ============
-
-.. image:: images/quick-start-drop-files.jpg
-
-File Menu
----------
-To view the file menu, right click on a file (in the **Project Files** panel). Here are the actions you can use from the
-file menu.
-
-.. image:: images/file-menu.jpg
-
-====================  ============
-Name                  Description
-====================  ============
-Import Files...       Import files into your project
-Thumbnail/Detail      Toggle the view between details and thumbnails
-Preview File          Preview a media file
-Split Clip...         Split a file into many smaller clips
-Edit Title            Edit an existing title SVG file
-Duplicate Title       Make a copy, and then edit the copied title SVG file
-Add to Timeline       Add many files to the timeline in one step
-File Properties       View the properties of a file, such as frame rate, size, etc...
-Remove from Project   Remove a file from the project
-====================  ============
-
-Split Clip
-----------
-If you need to cut a file into many smaller clips before editing, the **Split Clip** dialog is built exactly for this
-purpose. Right click on a file, and choose Split Clip... from the file menu. This opens the Split Clip dialog. Use this
-dialog to quickly cut out as many small clips as you need. The dialog stays open after you create a clip, to allow you
-to repeat the steps for your next clip. When you are finished, simply close the dialog.
-
-.. image:: images/file-split-dialog.jpg
-
-.. table::
-   :widths: 5 20
-
-   ==  ==================  ============
-   #   Name                Description
-   ==  ==================  ============
-   1   Start of Clip       Choose the starting frame of your clip by clicking this button
-   2   End of Clip         Choose the ending frame of your clip by clicking this button
-   3   Name of Clip        Enter an optional name
-   4   Create Clip         Create the clip (which resets this dialog, so you can repeat these steps for each clip)
-   ==  ==================  ============
-
-Add to Timeline
----------------
-In certain cases, you might need to add many files to the timeline at the same time. For example, a photo slide show,
-or a large number of short video clips. The **Add to Timeline** dialog can automate this task for you. First, select
-all files you need to add, right click, and choose Add to Timeline.
-
-.. image:: images/file-add-to-timeline.jpg
-
+\
