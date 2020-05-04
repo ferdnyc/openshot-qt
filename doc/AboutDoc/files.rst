@@ -134,7 +134,9 @@ Writing that way, there is no worrying about line length or when to wrap.
 It encourages shorter, simpler sentences which is a good thing when writing docs. 
 The diffs when changes are submitted also tend to be more readable and focused. 
 Lines are easier to translate and less likely to be changed. 
+
 |
+
 Translation
 -----------
 Translation files are generated and managed by Sphinx. 
