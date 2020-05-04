@@ -21,7 +21,25 @@ About the documentation
 
 The source files for the manual are all found in the project repository (the doc/ directory),
  `test <https://github.com/OpenShot/openshot-qt/tree/develop/doc>`_ 
-`openshot.org/download <https://www.openshot.org/download>`_ 
+
+
+The documentation is written in reStructured Text, or Rest.
+This is a plain text format encoded in UTF-8.
+It contains special syntax so formatting can be applied by third-party tools.
+The tool used by Openshot is Sphinx to create both the online HTML and the offline manual.
+
+You can suggest improvements or submit small changes for our documentation on our github here: 
+https://github.com/OpenShot/openshot-qt/issues/2989
+Or in *this* reddit thread. 
+.. NOTE: reddit tread to be made, add hyperlink
+
+The preferred method for submitting large edits would be via GitHub Pull Request. 
+But we can make accommodations for anyone who would like to contribute but isn't familiar with version-control systems like Git.
+
+
+
+
+
 
 Before we can begin making a video, we need to import files into OpenShot. Most media file types are
 recognized, such as videos, images, and audio files. Files can be viewed and managed in the **Project Files** panel.
