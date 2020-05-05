@@ -6,9 +6,9 @@ name: CI
 # events but only for the master branch
 on:
   push:
-    branches: [ master ]
+    paths: [ "doc/AboutDoc" ]
   pull_request:
-    branches: [ master ]
+    paths: [ "doc/AboutDoc" ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -21,6 +21,7 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
+    - name: Generate AboutDoc documentation
     - uses: ammaraskar/sphinx-action@master
       with:
         docs-folder: "doc/AboutDoc/"
