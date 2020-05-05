@@ -127,13 +127,21 @@ Every file starts with 5 hidden segments ::(see template?)
 - License notice
 - Referral anchor for the title
 
-Followed by the title with double underlining
-                           ==================
+Headings are created by "underlining" the heading text on the following line.
+The underline is created with a row of symbol characters,
+and must be at least as many characters wide as the heading text.
+The symbol used to create the underline determines the heading level.
+
+.. code:: rst
+
+   Section headings (double-underline)
+   ===================================
+   
+   Subsection headings (single-underline)
+   ----------------------------------------
+
 Then a short description of what the chapter will be about, and why the reader should care (or skip). 
 
-Subtitles are single underlined
-              -----------------
-|
 Sentences should be written one sentence per line, and *NOT* end on a space. 
 The markup language then flows them all together into paragraphs when it generates the formatted docs. 
 You can also break at other logical points, like after a comma in a longer sentence, 
