@@ -79,7 +79,7 @@ It can also export files for translation.
 Generating a local copy of the manual requires only the Python-based Sphinx documentation system and the Sphinx RTD theme.  
 They can be installed  using most package managers, or via 
 
-.. code-block:: Linux
+.. code-block:: console
   pip3 install sphinx sphinx-rtd-theme
 
 Anyone who would like to contribute and needs help with installing and using Sphinx can ask for support in the issues tracker.
@@ -91,10 +91,11 @@ ReST Basic Syntax
 `List of basic syntax <Documentation_RestSyntax.rst>`_  in Openshot documentation.  
 
 - Some explanation here:  https://hyperpolyglot.org/lightweight-markup
-- or here: https://wiki.typo3.org/ReST_Syntax
+- or here: https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html
 - Video tutorials here:  https://www.youtube.com/results?search_query=restructuredtext+tutorial
 
 Software 
+
 - Notepad++ ReST template:	https://github.com/steenhulthin/reStructuredText_NPP
 - Linux: 
 
