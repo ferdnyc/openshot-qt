@@ -116,7 +116,7 @@ Translations go into their own directory.
 File structure
 --------------
 
-Every file starts with 5 hidden segments (See `template <Template.rst>`_ . )
+Every file starts with 5 hidden segments (See `template <Template.rst>`_ )
 
 - Copyright notice
 - Openshot description
@@ -162,7 +162,8 @@ If availeble, images of the translation should be saved in their subdirectory *(
 
 Images
 ------
-*NB: Please make sure to add your images under the GPL3 as well. *
+
+** Please make sure to add your images under the GPL3 as well. **
 
 PNG is the preferred format for screenshots, as it's not subject to compression artifacts the way JPG is. 
 JPG is fine too, though, if the quality is high enough (Compression of 90% or better). 
@@ -205,7 +206,7 @@ interface-export-simple.png and so on.
 
 Tutorial art
 ------------
-The color for arrows is #aec255ff
+The color for arrows is *#aec255ff*
 
 The green constrasts well with the dark GUI of Openshot
 The font used in the art is *Ubuntu* and can be found in the repo or the Openshot installation. 
