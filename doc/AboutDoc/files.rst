@@ -116,7 +116,7 @@ Translations go into their own directory.
 File structure
 --------------
 
-Every file starts with 5 hidden segments (See 'template <Template.rst>`_ . )
+Every file starts with 5 hidden segments (See `template <Template.rst>`_ . )
 
 - Copyright notice
 - Openshot description
@@ -162,15 +162,16 @@ If availeble, images of the translation should be saved in their subdirectory *(
 
 Images
 ------
-NB: Please make sure to add your images under the GPL3 as well. 
+*NB: Please make sure to add your images under the GPL3 as well. *
 
 PNG is the preferred format for screenshots, as it's not subject to compression artifacts the way JPG is. 
 JPG is fine too, though, if the quality is high enough (Compression of 90% or better). 
 Clarity is the priority, not file size. 
+
 Animated GIFS are not suitable as screenshots, because the animated component is only visible when the docs are viewed in web form. 
 Also the quality and/or file size ratio tends to be abysmal and thus multi-megabyte GIFs can take forever to download and start animating. 
 They are however suitable as alternative to Video. 
-|
+
 Images should be 696px wide at their maximum. 
 The page layout has a width cap that makes it the effective maximum width for images. 
 For this reason 4:3 pictures are preferred over widescreen. 
@@ -178,11 +179,10 @@ Images should be whatever shape they need to be in order to show the necessary i
 But since images will be scaled to fit the width of the page, in general images should not be unnecessarily wide. 
 Otherwise they can end up too small when displayed.
 
-.. Verification Needed; 
-.. Is this set in the server? Does it apply to all browsers? Does this apply to offline docs too?
-.. Fromw a test by ferdnyc "when I have a Chrome window open with the manual loaded into it, once the window hits about 1160px wide, that's it — the content stops getting any wider. Past that width (which is including the sidebar), the only thing that grows is the empty space to the right of the content container. 
-And at that size, the images are scaled to 696px wide.
-.. https://github.com/OpenShot/openshot-qt/issues/2989
+.. NOTE: Verification Needed; 
+  Is this set in the server? Does it apply to all browsers? Does this apply to offline docs too?
+  From a test by ferdnyc "when I have a Chrome window open with the manual loaded into it, once the window hits about 1160px wide, that's it — the content stops getting any wider. Past that width (which is including the sidebar), the only thing that grows is the empty space to the right of the content container. And at that size, the images are scaled to 696px wide."
+  https://github.com/OpenShot/openshot-qt/issues/2989
 
 There is no demo art package availeble for sceenshots. 
 Screenshots showing different content is an opportunity to illustrate the variety of different features and configurations available.
@@ -192,10 +192,55 @@ So that the illustrations reflect exactly what the user would expect to see in t
 Images should be named descriptively, so the names have relevance long-term.
 It should say what it is, and it should be what it says. 
 They should (not?) be named for the tutorial page they belong to. 
-.. QUESTION: Opinions differ
+
+.. QUESTION: Opinions differ, see File naming and directory structure
+
 They can be named for Action-WindowName or ActionStepNumber. 
 Images belonging to a sequence should be numbered. 
-.. QUESTION:  and be in the same resolution so they can be combined to a GIF?
 Names like intro-tutorial-step-1.png (followed by -step-2.png through -step-n.png), 
 interface-export-simple.png and so on. 
 
+.. QUESTION: Should image sequences be in the same resolution? 
+  So they can be combined to animation?
+
+Tutorial art
+------------
+The color for arrows is #aec255ff
+The green constrasts well with the dark GUI of Openshot
+The font used in the art is *Ubuntu* and can be found in the repo or the Openshot installation. 
+
+There is a green callout circle  used for numbering in the repo under docs/images/circle.svg. 
+It is editable in software that can edit SVG files (e.g. Inkscape and Illustrator). 
+The green arrow is not yet in the repo.
+
+.. TODO: upload font and callout circle to dir
+
+.. QUESTION: because it is an SVG, is the number changed in ReST?
+
+.. PROPOSAL: save all tutorial art into docs/pointers/ or something like that?
+
+
+Video
+-----
+The manual should ideally be useful in print form as well,
+but for extra clarification a video or GIF can be included.
+Any animated elements should enhance the information presented in the static content, rather than replace it. 
+Whatever happens in the animation should also be described in full detail in the accompanying text.
+So make sure a discription and pictures are suitable for offline documentation first. 
+
+Video may be preferrable over animated GIF, because embedded videos are clearer and higher quality.
+They are also click-to-play which avoids forcing a large initial download on the user. 
+For short actions, GIFS may however be a lot easier. 
+
+Beside GIF, only Youtube videos can be embedded with the tag
+\.. youtube \:: 
+.. NOTE: https://github.com/OpenShot/openshot-qt/pull/3394
+
+Tables
+------
+Todo
+Issues with tables
+https://github.com/OpenShot/openshot-qt/issues/1262
+https://github.com/OpenShot/openshot-qt/pull/1272
+
+..  TODO: Table specifications
