@@ -80,6 +80,7 @@ Generating a local copy of the manual requires only the Python-based Sphinx docu
 They can be installed  using most package managers, or via 
 
 .. code-block:: console
+
   pip3 install sphinx sphinx-rtd-theme
 
 Anyone who would like to contribute and needs help with installing and using Sphinx can ask for support in the issues tracker.
