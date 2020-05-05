@@ -206,6 +206,7 @@ interface-export-simple.png and so on.
 Tutorial art
 ------------
 The color for arrows is #aec255ff
+
 The green constrasts well with the dark GUI of Openshot
 The font used in the art is *Ubuntu* and can be found in the repo or the Openshot installation. 
 
@@ -234,12 +235,13 @@ For short actions, GIFS may however be a lot easier.
 
 Beside GIF, only Youtube videos can be embedded with the tag
 \.. youtube \:: 
+
 .. NOTE: https://github.com/OpenShot/openshot-qt/pull/3394
 
 Tables
 ------
-Todo
-Issues with tables
+Todo: Issues with tables
+
 https://github.com/OpenShot/openshot-qt/issues/1262
 https://github.com/OpenShot/openshot-qt/pull/1272
 
