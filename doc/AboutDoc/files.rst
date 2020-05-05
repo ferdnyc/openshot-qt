@@ -79,7 +79,7 @@ It can also export files for translation.
 Generating a local copy of the manual requires only the Python-based Sphinx documentation system and the Sphinx RTD theme.  
 They can be installed  using most package managers, or via 
 
-.. code-block:: console
+::
 
   pip3 install sphinx sphinx-rtd-theme
 
@@ -136,6 +136,7 @@ It is a guideline, not a rule.
 This tends to be a pretty good fit for any sort of written prose, when it is in a markup language like ReST and managed in a version control system.
 
 There are four reasons for this:
+
 - Writing that way, there is no worrying about line length or when to wrap. 
 - It encourages shorter, simpler sentences which is a good thing when writing docs. 
 - The diffs when changes are submitted also tend to be more readable and focused. 
