@@ -44,8 +44,8 @@ And because the documentation gets parsed in other tools before it reaches its f
 
 Github
 ------
-In the issue tracker, subjects that contain explanations that should probably be included in the documentation can me labeled `*docs*. <https://github.com/OpenShot/openshot-qt/labels/docs>`_ 
-Questions that are answered often in github or reddit can be tagged *FAQ* / are tagged *question*
+In the issue tracker, subjects that contain explanations that should probably be included in the documentation can be labeled ** `docs. <https://github.com/OpenShot/openshot-qt/labels/docs>`_ **
+Questions that are answered often in github or reddit can be tagged *FAQ* / are tagged **question**
 
 .. TODO: Add link reddit + link github
 
@@ -103,11 +103,12 @@ Software
 File naming and directory structure
 -----------------------------------
 
-Files are stored in \docs
-File names may not contain spaces.
-For mult-word filenames, ReST documentation filenames are separated by an underscore ( _ ).
-Images filenames are separated by a dash ( - ). 
-Images are named after the file they belong to, and sorted in the doc\\images subdirectory. 
+| Files are stored in \docs
+| File names may not contain spaces. 
+Spaces in filenames cause problems with Sphinx. 
+| For multi-word filenames, ReST documentation filenames are separated by an underscore ( _ ).
+Image filenames are separated by a dash ( - ). 
+| Images are named after the file they belong to, and sorted in the doc\\images subdirectory. 
 
 .. NOTE: Or maybe not, see Images
 
@@ -128,7 +129,7 @@ Followed by the title with double underlining (with == )
 Then a short description of what the chapter will be about, and why the reader should care (or skip). 
 Subtitles are single underlined ( -- )
 
-Sentences should be written one sentence per line, and *NOT* end on a space.
+Sentences should be written one sentence per line, and do not need to end on a space.
 The markup language then flows them all together into paragraphs when it generates the formatted docs.
 You can also break at other logical points, like after a comma in a longer sentence,
 or before starting an inline markup command.
@@ -142,7 +143,8 @@ There are four reasons for this:
 - The diffs when changes are submitted also tend to be more readable and focused. 
 - Lines are easier to translate and less likely to be changed. 
 
-Comments for why things are documented a certain way can be hidden after a double dot and NOTE: and may contain a link to relevant issue in the tracker for more info. 
+Comments for why things are documented a certain way can be hidden after a double dot and start with "NOTE: ". 
+They may contain a link to a relevant issue in the tracker for more information. 
 
 Translation
 -----------
@@ -163,17 +165,17 @@ If availeble, images of the translation should be saved in their subdirectory *(
 Images
 ------
 
-** Please make sure to add your images under the GPL3 as well. **
+**Please make sure to add your images under the GPL3 as well.**
 
-PNG is the preferred format for screenshots, as it's not subject to compression artifacts the way JPG is. 
+**PNG** is the preferred format for screenshots, as it's not subject to compression artifacts the way JPG is. 
 JPG is fine too, though, if the quality is high enough (Compression of 90% or better). 
 Clarity is the priority, not file size. 
 
-Animated GIFS are not suitable as screenshots, because the animated component is only visible when the docs are viewed in web form. 
+Animated GIFs are not suitable as screenshots, because the animated component is only visible when the docs are viewed in web form. 
 Also the quality and/or file size ratio tends to be abysmal and thus multi-megabyte GIFs can take forever to download and start animating. 
 They are however suitable as alternative to Video. 
 
-Images should be 696px wide at their maximum. 
+Images should be **696px wide** at their **maximum**. 
 The page layout has a width cap that makes it the effective maximum width for images. 
 For this reason 4:3 pictures are preferred over widescreen. 
 Images should be whatever shape they need to be in order to show the necessary information, there is no fixed aspect.
