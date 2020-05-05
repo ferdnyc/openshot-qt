@@ -64,7 +64,7 @@ So it would set you up with a copy ("fork") under your account,
 where you can make changes before submitting them as a Pull Request.
 
 Editing on the web is perfectly workable.
-The only downside being that there's no real way to preview your changes.
+The only downside being that there is no real way to preview your changes.
 With a local clone you can use a previewing editor or
 (if you have the necessary Sphinx tools installed)
 generate updated HTML docs and view them in a web browser.
@@ -79,7 +79,7 @@ It can also export files for translation.
 Generating a local copy of the manual requires only the Python-based Sphinx documentation system and the Sphinx RTD theme.  
 They can be installed  using most package managers, or via 
 
-::
+.. code-block:: console
 
   pip3 install sphinx sphinx-rtd-theme
 
@@ -89,7 +89,7 @@ Tutorial video:	https://www.youtube.com/watch?v=ouHVkMo3gwE
 
 ReST Basic Syntax
 -----------------
-`List of basic syntax <Documentation_RestSyntax.rst>`_  in Openshot documentation.  
+`List of basic syntax </Documentation_RestSyntax.rst>`_  in Openshot documentation.  
 
 - Some explanation here:  https://hyperpolyglot.org/lightweight-markup
 - or here: https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html
@@ -160,12 +160,42 @@ If availeble, images of the translation should be saved in their subdirectory *(
 
 .. TRANSLATION NOTE: After translating tables, make sure that the underlining of table rows stay the same length as the new words. 
 
+Images
+------
+NB: Please make sure to add your images under the GPL3 as well. 
 
+PNG is the preferred format for screenshots, as it's not subject to compression artifacts the way JPG is. 
+JPG is fine too, though, if the quality is high enough (Compression of 90% or better). 
+Clarity is the priority, not file size. 
+Animated GIFS are not suitable as screenshots, because the animated component is only visible when the docs are viewed in web form. 
+Also the quality and/or file size ratio tends to be abysmal and thus multi-megabyte GIFs can take forever to download and start animating. 
+They are however suitable as alternative to Video. 
+|
+Images should be 696px wide at their maximum. 
+The page layout has a width cap that makes it the effective maximum width for images. 
+For this reason 4:3 pictures are preferred over widescreen. 
+Images should be whatever shape they need to be in order to show the necessary information, there is no fixed aspect.
+But since images will be scaled to fit the width of the page, in general images should not be unnecessarily wide. 
+Otherwise they can end up too small when displayed.
 
+.. Verification Needed; 
+.. Is this set in the server? Does it apply to all browsers? Does this apply to offline docs too?
+.. Fromw a test by ferdnyc "when I have a Chrome window open with the manual loaded into it, once the window hits about 1160px wide, that's it — the content stops getting any wider. Past that width (which is including the sidebar), the only thing that grows is the empty space to the right of the content container. 
+And at that size, the images are scaled to 696px wide.
+.. https://github.com/OpenShot/openshot-qt/issues/2989
 
+There is no demo art package availeble for sceenshots. 
+Screenshots showing different content is an opportunity to illustrate the variety of different features and configurations available.
+However during a step-by-step tutorial for a feature, it makes sense to have a set of consistent imports for all of the steps. 
+So that the illustrations reflect exactly what the user would expect to see in the actual software.
+|
+Images should be named descriptively, so the names have relevance long-term.
+It should say what it is, and it should be what it says. 
+They should (not?) be named for the tutorial page they belong to. 
+.. QUESTION: Opinions differ
+They can be named for Action-WindowName or ActionStepNumber. 
+Images belonging to a sequence should be numbered. 
+.. QUESTION:  and be in the same resolution so they can be combined to a GIF?
+Names like intro-tutorial-step-1.png (followed by -step-2.png through -step-n.png), 
+interface-export-simple.png and so on. 
 
-
-
-
-
-\
