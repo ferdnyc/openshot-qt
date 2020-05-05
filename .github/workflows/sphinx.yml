@@ -5,10 +5,8 @@ name: CI
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
-  push:
-    paths: [ "doc/AboutDoc" ]
-  pull_request:
-    paths: [ "doc/AboutDoc" ]
+- push
+- pull_request
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -16,11 +14,12 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
+    # Builds docs in the indicated directory using sphinx
     - uses: ammaraskar/sphinx-action@master
       with:
         docs-folder: "doc/AboutDoc/"
