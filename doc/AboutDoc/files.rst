@@ -50,9 +50,9 @@ Questions that are answered often in github or reddit can be tagged *FAQ* / are 
 .. TODO: Add link reddit + link github
 
 Tutorials how to add changes to github: 
-| Github on Pull requests https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork
-| Github text howto https://opensource.com/life/16/3/submit-github-pull-request
-| Github video howto https://www.youtube.com/watch?v=rgbCcBNZcdQ
+|  Github on Pull requests https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork
+|  Github text howto https://opensource.com/life/16/3/submit-github-pull-request
+|  Github video howto https://www.youtube.com/watch?v=rgbCcBNZcdQ
 
 It is possible to edit files directly in the Github web interface.
 To edit a file via the web interface,
