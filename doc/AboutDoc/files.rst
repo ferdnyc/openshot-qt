@@ -19,8 +19,7 @@
 About the documentation
 =======================
 
-The source files for the manual are all found in the project repository,
- `(the doc/ directory) <https://github.com/OpenShot/openshot-qt/tree/develop/doc>`_ 
+The source files for the manual are all found in the project repository, `(the doc/ directory) <https://github.com/OpenShot/openshot-qt/tree/develop/doc>`_ 
 
 The documentation is written in reStructured Text, or ReST. 
 This is a plain text format encoded in UTF-8.
@@ -32,18 +31,16 @@ https://github.com/OpenShot/openshot-qt/issues/2989
 
 Or in *this* reddit thread. 
 
-.. NOTE: Reddit tread to be made, add hyperlink 
+.. TODO: Reddit thread to be made, bookmarked?, add hyperlink 
 
 The preferred method for submitting large edits would be via GitHub Pull Request. 
-But we can make accommodations for anyone who would like to contribute but isn't familiar with version-control systems like Git.
-
+But we can make accommodations for anyone who would like to contribute but is not familiar with version-control systems like Git.
 
 License
 -------
 We use the GPL-3 license (see above) for documentation, see the header. 
-This is both simplicity because it is the same license as the project code. 
+This is for simplicity because it is the same license as the project code. 
 And because the documentation gets parsed in other tools before it reaches its final form. 
-
 
 Github
 ------
@@ -53,14 +50,14 @@ Questions that are answered often in github or reddit can be tagged *FAQ* / are 
 .. TODO: Add link reddit + link github
 
 Tutorials how to add changes to github: 
-Github on Pull requests https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork
-Github text howto https://opensource.com/life/16/3/submit-github-pull-request
-Github video howto https://www.youtube.com/watch?v=rgbCcBNZcdQ
+- Github on Pull requests https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork
+- Github text howto https://opensource.com/life/16/3/submit-github-pull-request
+- Github video howto https://www.youtube.com/watch?v=rgbCcBNZcdQ
 
 It is possible to edit files directly in the Github web interface.
 To edit a file via the web interface,
 you can just click the pencil icon in its upper-right corner.
-(Take docs/getting_started.rst for example)
+
 When you started editing,
 Github would see that you do not have permissions to make changes directly to files here.
 So it would set you up with a copy ("fork") under your account,
@@ -80,32 +77,37 @@ It is licensed under the BSD license.
 It can also export files for translation.
 
 Generating a local copy of the manual requires only the Python-based Sphinx documentation system and the Sphinx RTD theme.  
-They can be installed via pip3 install sphinx sphinx-rtd-theme, or using most package managers. 
+They can be installed via 
+  pip3 install sphinx sphinx-rtd-theme
+, or using most package managers. 
+
+.. code-block:: Linux
+  pip3 install sphinx sphinx-rtd-theme
+
 Anyone who would like to contribute and needs help with installing and using Sphinx can ask for support in the issues tracker.
 
-Tutorial video	https://www.youtube.com/watch?v=ouHVkMo3gwE
+Tutorial video:	https://www.youtube.com/watch?v=ouHVkMo3gwE
 
 ReST Basic Syntax
 -----------------
 `List of basic syntax <Documentation_RestSyntax.rst>`_  in Openshot documentation.  
 
-Some explanation on  https://wiki.typo3.org/ReST_Syntax
-More here 
-Video tutorial here 
+- Some explanation here:  https://hyperpolyglot.org/lightweight-markup
+- or here: https://wiki.typo3.org/ReST_Syntax
+- Video tutorials here:  https://www.youtube.com/results?search_query=restructuredtext+tutorial
 
 Software 
-Notepad++ ReST template:	https://github.com/steenhulthin/reStructuredText_NPP
-Linux: 
-
+- Notepad++ ReST template:	https://github.com/steenhulthin/reStructuredText_NPP
+- Linux: 
 
 File naming and directory structure
 -----------------------------------
 
 Files are stored in \docs
 File names may not contain spaces.
-For mult-word filenames, ReST docuentation filenames are separated by an underscore (_).
-Images filenames are separated by a dash (-). 
-Images are named after the file they belong to, and sorted in the doc\images subdirectory. 
+For mult-word filenames, ReST documentation filenames are separated by an underscore ( _ ).
+Images filenames are separated by a dash ( - ). 
+Images are named after the file they belong to, and sorted in the doc\\images subdirectory. 
 
 .. NOTE: Or maybe not, see Images
 
