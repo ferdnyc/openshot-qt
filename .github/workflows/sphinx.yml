@@ -1,14 +1,14 @@
-# This is a basic workflow to help you get started with Actions
-
+# Github Actions workflow to generate documentation
+# Uses the following shared task definitions:
+# - (checkout, upload artifact) from Github
+# - sphinx-action maintained by @ammaraskar
 name: Sphinx build
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
+# Controls when the action will run.
+# Triggers the workflow on push or pull request events.
 on:
-  push:
-    paths: [ "doc/AboutDoc/" ]
-  pull_request:
-    paths: [ "doc/AboutDoc/" ]
+- push
+- pull_request
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -16,11 +16,17 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    
-    # Steps represent a sequence of tasks that will be executed as part of the job
+
+    # Steps are a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    # Check out repository under $GITHUB_WORKSPACE
     - uses: actions/checkout@v2
+    # Builds docs using sphinx
     - uses: ammaraskar/sphinx-action@master
       with:
-        docs-folder: "doc/AboutDoc/"
+        docs-folder: "doc/"
+    # Create an artifact out of the generated HTML
+    - uses: actions/upload-artifact@v1
+      with:
+        name: UserGuideHTML
+        path: "doc/_build/html/"

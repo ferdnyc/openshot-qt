@@ -161,7 +161,8 @@ class TitleEditor(QDialog):
         reader.Open()
 
         # Save thumbnail image and close readers
-        reader.GetFrame(1).Thumbnail(tmp_filename, self.graphicsView.width(), self.graphicsView.height(), "", "", "#000", False, "png", 100, 0.0)
+        reader.GetFrame(1).Thumbnail(tmp_filename, self.graphicsView.width(), self.graphicsView.height(), "", "",
+                                     "#000", False, "png", 85, 0.0)
         reader.Close()
         clip.Close()
 
@@ -353,7 +354,6 @@ class TitleEditor(QDialog):
         if col.isValid():
             self.set_font_color_elements(col.name(), col.alphaF())
             self.update_font_color_button()
-            self.font_color_code = col
 
             # Something changed, so update temp SVG
             self.writeToFile(self.xmldoc)
@@ -373,7 +373,6 @@ class TitleEditor(QDialog):
         if col.isValid():
             self.set_bg_style(col.name(), col.alphaF())
             self.update_background_color_button()
-            self.bg_color_code = col
 
             # Something changed, so update temp SVG
             self.writeToFile(self.xmldoc)
@@ -460,13 +459,13 @@ class TitleEditor(QDialog):
             else:
                 text_color = QtGui.QColor(Qt.black)
 
-            # Convert the opacity into the alpha value
-            alpha = int(opacity * 65535.0)
-
-            # Set the colors of the button
+            # Set the color of the button, ignoring alpha
             self.btnFontColor.setStyleSheet(
                 "background-color: %s; opacity: %s; color: %s;"
-                % (color.name(), alpha, text_color.name()))
+                % (color.name(), 1, text_color.name()))
+
+            # Store the opacity as the color's alpha level
+            color.setAlphaF(opacity)
             self.font_color_code = color
 
     def update_background_color_button(self):
@@ -518,13 +517,13 @@ class TitleEditor(QDialog):
             else:
                 text_color = QtGui.QColor(Qt.black)
 
-            # Convert the opacity into the alpha value
-            alpha = int(opacity * 65535.0)
-
-            # Set the colors of the button
+            # Set the colors of the button, ignoring opacity
             self.btnBackgroundColor.setStyleSheet(
                 "background-color: %s; opacity: %s; color: %s;"
-                % (color.name(), alpha, text_color.name()))
+                % (color.name(), 1, text_color.name()))
+
+            # Store the opacity as the color's alpha level
+            color.setAlphaF(opacity)
             self.bg_color_code = color
 
     def set_font_style(self):
