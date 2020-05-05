@@ -104,10 +104,9 @@ File naming and directory structure
 -----------------------------------
 
 | Files are stored in \docs
-| File names may not contain spaces. 
-Spaces in filenames cause problems with Sphinx. 
+| File names may not contain spaces. Spaces in filenames cause problems with Sphinx. 
 | For multi-word filenames, ReST documentation filenames are separated by an underscore ( _ ).
-Image filenames are separated by a dash ( - ). 
+| Image filenames are separated by a dash ( - ). 
 | Images are named after the file they belong to, and sorted in the doc\\images subdirectory. 
 
 .. NOTE: Or maybe not, see Images
