@@ -1,0 +1,41 @@
+<RCC>
+    <qresource prefix="/">
+        <file>index.html</file>
+        <file>app.js</file>
+        
+        <file>js/qwebchannel.js</file>
+        <file>js/controllers.js</file>
+        <file>js/functions.js</file>
+        
+        <file>js/directives/clip.js</file>
+        <file>js/directives/misc.js</file>
+        <file>js/directives/playhead.js</file>
+        <file>js/directives/ruler.js</file>
+        <file>js/directives/track.js</file>
+        <file>js/directives/transition.js</file>
+        
+        <file>media/css/main.css</file>
+        <file>media/css/bootstrap.min.css</file>
+        <file>media/css/debug.css</file>
+        <file>media/css/jquery-ui.css</file>
+        <file>media/css/ui-darkness/jquery-ui.theme.css</file>
+        
+        <file>media/js/jquery.js</file>
+        <file>media/js/jquery-ui.js</file>
+        <file>media/js/angular.min.js</file>
+        <file>media/js/angular-animate.min.js</file>
+        <file>media/js/ui-bootstrap-tpls-0.7.0.min.js</file>
+        
+        <file>media/images/gear.png</file>
+        <file>media/images/lock.png</file>
+        <file>media/images/menu_hover.png</file>
+        <file>media/images/menu.png</file>
+        <file>media/images/openshot_scratch.svg</file>
+        <file>media/images/play_head.png</file>
+        <file>media/images/razor_line_with_razor.png</file>
+        <file>media/images/ruler_ticks.png</file>
+        <file>media/images/thumbnail.png</file>
+        <file>media/images/transition.png</file>
+        <file>media/images/markers/blue.png</file>
+    </qresource>
+</RCC>

@@ -50,6 +50,8 @@ from classes.query import File, Clip, Transition, Track
 from classes.waveform import get_audio_data
 from classes.conversion import zoomToSeconds, secondsToZoom
 
+from timeline import timeline_rc
+
 import json
 
 # Constants used by this file
@@ -156,7 +158,8 @@ class TimelineWebView(QWebEngineView, updates.UpdateInterface):
     """ A Web(Engine)View QWidget used to load the Timeline """
 
     # Path to html file
-    html_path = os.path.join(info.PATH, 'timeline', 'index.html')
+    #html_path = os.path.join(info.PATH, 'timeline', 'index.html')
+    html_path = "qrc:/index.html"
 
     @pyqtSlot()
     def page_ready(self):
@@ -390,6 +393,7 @@ class TimelineWebView(QWebEngineView, updates.UpdateInterface):
 
     # Prevent default context menu, and ignore, so that javascript can intercept
     def contextMenuEvent(self, event):
+        event.preventDefault()
         event.ignore()
 
     # Javascript callable function to show clip or transition content menus, passing in type to show
@@ -2773,25 +2777,32 @@ class TimelineWebView(QWebEngineView, updates.UpdateInterface):
     def keyPressEvent(self, event):
         """ Keypress callback for timeline """
         key_value = event.key()
-        if (key_value == Qt.Key_Shift or key_value == Qt.Key_Control):
-
-            # Only pass a few keystrokes to the webview (CTRL and SHIFT)
-            return QWebEngineView.keyPressEvent(self, event)
-
-        else:
-            # Ignore most keypresses
+        if (key_value in [
+            Qt.Key_Shift,
+            Qt.Key_Control,
+            Qt.Key_Left,
+            Qt.Key_Right,
+            Qt.Key_Up,
+            Qt.Key_Down,
+        ]):
+            # Release to parent
             event.ignore()
+        else:
+            # Propagate most keypresses
+            event.preventDefault()
 
     # Capture wheel event to alter zoom slider control
     def wheelEvent(self, event):
-        if int(QCoreApplication.instance().keyboardModifiers() & Qt.ControlModifier) > 0:
+        if (int(event.modifiers) & Qt.ControlModifier) > 0:
             # For each 120 (standard scroll unit) adjust the zoom slider
             tick_scale = 120
             steps = int(event.angleDelta().y() / tick_scale)
             self.window.sliderZoom.setValue(self.window.sliderZoom.value() - self.window.sliderZoom.pageStep() * steps)
+            event.preventDefault()
+            event.accept()
         else:
             # Otherwise pass on to implement default functionality (scroll in QWebEngineView)
-            super(type(self), self).wheelEvent(event)
+            event.ignore()
 
     def setup_js_data(self):
         # Export self as a javascript object in webview
@@ -2821,17 +2832,14 @@ class TimelineWebView(QWebEngineView, updates.UpdateInterface):
             elif self.item_type == "transition":
                 self.addTransition(data, pos)
 
-            # accept all events, even if a new clip is not being added
-            event.accept()
-
         # Accept a plain file URL (from the OS)
         elif not self.new_item and event.mimeData().hasUrls():
             # Track that a new item is being 'added'
             self.new_item = True
             self.item_type = "os_drop"
 
-            # accept event
-            event.accept()
+        # accept all events, even if a new clip is not being added
+        event.accept()
 
     # Add Clip
     def addClip(self, data, event_position):
@@ -2997,8 +3005,11 @@ class TimelineWebView(QWebEngineView, updates.UpdateInterface):
                     self.update_clip_data(clip.data, only_basic_props=False, ignore_reader=True)
 
         # Find position from javascript
-        self.run_js(JS_SCOPE_SELECTOR + ".getJavaScriptPosition({}, {});"
-            .format(event_position.x(), event_position.y()), partial(callback, self, effect_names))
+        self.run_js(
+            JS_SCOPE_SELECTOR + ".getJavaScriptPosition({}, {});".format(
+                event_position.x(),
+                event_position.y()),
+            partial(callback, self, effect_names))
 
     # Without defining this method, the 'copy' action doesn't show with cursor
     def dragMoveEvent(self, event):
@@ -3140,7 +3151,7 @@ class TimelineWebView(QWebEngineView, updates.UpdateInterface):
 
         self.webchannel = QWebChannel(self.page())
         # set url from configuration (QUrl takes absolute paths for file system paths, create from QFileInfo)
-        self.setUrl(QUrl.fromLocalFile(QFileInfo(self.html_path).absoluteFilePath()))
+        self.setUrl(QUrl(self.html_path))
         self.page().setWebChannel(self.webchannel)
 
         # Connect signal of javascript initialization to our javascript reference init function
