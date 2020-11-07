@@ -56,31 +56,40 @@ def main():
     """"Initialize settings (not implemented) and create main window/application."""
 
     parser = argparse.ArgumentParser(description = 'OpenShot version ' + info.SETUP['version'])
-    parser.add_argument('-l', '--lang', action='store',
+    parser.add_argument(
+        '-l', '--lang', action='store',
         help='language code for interface (overrides '
              'preferences and system environment)')
-    parser.add_argument('--list-languages', dest='list_languages',
+    parser.add_argument(
+        '--list-languages', dest='list_languages',
         action='store_true',
         help='List all language codes supported by OpenShot')
-    parser.add_argument('--path', dest='py_path', action='append',
+    parser.add_argument(
+        '--path', dest='py_path', action='append',
         help='Additional locations to search for modules '
               '(PYTHONPATH). Can be used multiple times.')
-    parser.add_argument('--test-models', dest='modeltest',
-        action='store_true',
+    parser.add_argument(
+        '--test-models', dest='modeltest', action='append',
         help="Load Qt's QAbstractItemModelTester into data models "
-        '(requires Qt 5.11+)')
-    parser.add_argument('-b', '--web-backend', action='store',
+        '(requires Qt 5.11+) Test specific models by supplying one or'
+        'more of: all (default), files, effects, transitions, emojis')
+    parser.add_argument(
+        '-b', '--web-backend', action='store',
         choices=['auto', 'webkit', 'webengine'], default='auto',
         help="Web backend to use for Timeline")
-    parser.add_argument('-d', '--debug', action='store_true',
+    parser.add_argument(
+        '-d', '--debug', action='store_true',
         help='Enable debugging output')
-    parser.add_argument('--debug-file', action='store_true',
+    parser.add_argument(
+        '--debug-file', action='store_true',
         help='Debugging output (logfile only)')
-    parser.add_argument('--debug-console', action='store_true',
+    parser.add_argument(
+        '--debug-console', action='store_true',
         help='Debugging output (console only)')
     parser.add_argument('-V', '--version', action='store_true')
-    parser.add_argument('remain', nargs=argparse.REMAINDER,
-       help=argparse.SUPPRESS)
+    parser.add_argument(
+        'remain', nargs=argparse.REMAINDER,
+        help=argparse.SUPPRESS)
 
     args = parser.parse_args()
 
@@ -115,7 +124,7 @@ def main():
                     continue
 
     if args.modeltest:
-        info.MODEL_TEST = True
+        info.MODEL_TEST = [m.lower() or 'all' for m in args.modeltest]
         # Set default logging rules, if the user didn't
         if os.getenv('QT_LOGGING_RULES') is None:
             os.putenv('QT_LOGGING_RULES', 'qt.modeltest.debug=true')

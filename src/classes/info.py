@@ -86,7 +86,7 @@ DESKTOP_ID = "org.openshot.OpenShot.desktop"
 BLENDER_MIN_VERSION = "2.80"
 
 # Data-model debugging enabler
-MODEL_TEST = False
+MODEL_TEST = []
 
 # Default/initial logging levels
 LOG_LEVEL_FILE = 'INFO'

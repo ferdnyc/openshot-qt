@@ -249,7 +249,7 @@ class TransitionsModel(QObject):
 
         # Attempt to load model testing interface, if requested
         # (will only succeed with Qt 5.11+)
-        if info.MODEL_TEST:
+        if "transitions" in info.MODEL_TEST or "all" in info.MODEL_TEST:
             try:
                 # Create model tester objects
                 from PyQt5.QtTest import QAbstractItemModelTester

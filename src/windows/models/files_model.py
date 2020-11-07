@@ -549,6 +549,8 @@ class FilesModel(QObject, updates.UpdateInterface):
             return File.get(id=cur_id)
 
     def __init__(self, *args):
+        # Call init for superclass QObject
+        QObject.__init__(self, *args)
 
         # Add self as listener to project data updates
         # (undo/redo, as well as normal actions handled within this class all update the model)
@@ -565,6 +567,7 @@ class FilesModel(QObject, updates.UpdateInterface):
 
         # Create proxy model (for sorting and filtering)
         self.proxy_model = FileFilterProxyModel(parent=self)
+        self.proxy_model.setObjectName("files.sortfilterproxy")
         self.proxy_model.setDynamicSortFilter(True)
         self.proxy_model.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.proxy_model.setSortCaseSensitivity(Qt.CaseSensitive)
@@ -573,6 +576,7 @@ class FilesModel(QObject, updates.UpdateInterface):
 
         # Create selection model to share between views
         self.selection_model = QItemSelectionModel(self.proxy_model)
+        self.selection_model.setObjectName("files.selection")
 
         # Connect signal
         app.window.FileUpdated.connect(self.update_file_thumbnail)
@@ -584,16 +588,20 @@ class FilesModel(QObject, updates.UpdateInterface):
 
         # Attempt to load model testing interface, if requested
         # (will only succeed with Qt 5.11+)
-        if info.MODEL_TEST:
+        if "files" in info.MODEL_TEST or "all" in info.MODEL_TEST:
             try:
                 # Create model tester objects
                 from PyQt5.QtTest import QAbstractItemModelTester
                 self.model_tests = []
-                for m in [self.proxy_model, self.model]:
-                    self.model_tests.append(
-                        QAbstractItemModelTester(
-                            m, QAbstractItemModelTester.FailureReportingMode.Warning)
-                    )
-                log.info("Enabled {} model tests for emoji data".format(len(self.model_tests)))
+                for m in [self.proxy_model, self.base_model]:
+                    model_tester = QAbstractItemModelTester(
+                        m, QAbstractItemModelTester.FailureReportingMode.Warning
+                        )
+                    name = f"ModelTester.{m.objectName()}"
+                    model_tester.setObjectName(name)
+                    self.model_tests.append(model_tester)
+                log.info(
+                    "Enabled %d model tests for project files data",
+                    len(self.model_tests))
             except ImportError:
                 pass
