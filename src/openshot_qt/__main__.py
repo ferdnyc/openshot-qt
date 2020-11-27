@@ -44,9 +44,8 @@ import sys
 import os
 import argparse
 
-if __package__ == '':
-    sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from openshot_qt.classes import info
+from .classes import info
+
 
 def main():
     """"Initialize settings (not implemented) and create main window/application."""
@@ -92,7 +91,7 @@ def main():
             info.LOG_LEVEL_CONSOLE = 'DEBUG'
 
     if args.list_languages:
-        from openshot_qt.classes.language import get_all_languages
+        from .classes.language import get_all_languages
         print("Supported Languages:")
         for lang in get_all_languages():
             print("  {:>12}  {}".format(lang[0],lang[1]))
@@ -128,7 +127,7 @@ def main():
     print("Loaded modules from: %s" % info.PATH)
 
     # Create Qt application, pass any unprocessed arguments
-    from openshot_qt.classes.app import OpenShotApp
+    from .classes.app import OpenShotApp
 
     argv = [sys.argv[0]]
     for arg in args.remain:
