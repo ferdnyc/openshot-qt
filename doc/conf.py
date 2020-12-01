@@ -21,7 +21,7 @@ import os
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath('.')), "src"))
 
-from classes import info
+from openshot_qt.classes import info
 
 # -- General configuration ------------------------------------------------
 
