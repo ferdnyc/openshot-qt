@@ -103,6 +103,7 @@ class SettingStore(JsonDataStore):
 
         # Load user settings (if found)
         if os.path.exists(os.fsencode(file_path)):
+            log.debug("Reading settings from %s", file_path)
             # Will raise exception to caller on failure to read
             try:
                 user_settings = self.read_from_file(file_path)
@@ -118,13 +119,14 @@ class SettingStore(JsonDataStore):
         self._data = self.merge_settings(default_settings, user_settings)
 
         # Return success of saving user settings file back after merge
+        log.debug("Writing merged settings back to %s", file_path)
         return self.write_to_file(file_path, self._data)
 
     def save(self):
         """ Save user settings file to disk """
-
         # Try to find user settings file
         file_path = os.path.join(info.USER_PATH, self.settings_filename)
+        log.debug("Saving settings to %s", file_path)
 
         # try to save data to file, will raise exception on failure
         self.write_to_file(file_path, self._data)

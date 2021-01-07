@@ -2447,20 +2447,30 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         s = settings.get_settings()
 
         # Save window state and geometry (saves toolbar and dock locations)
-        s.set('window_state_v2', qt_types.bytes_to_str(self.saveState()))
         s.set('window_geometry_v2', qt_types.bytes_to_str(self.saveGeometry()))
+        s.set('window_state_v2', qt_types.bytes_to_str(self.saveState()))
         s.set('docks_frozen', self.docks_frozen)
+        log.debug("Saved window layout and geometry to settings")
 
     # Get window settings from setting store
     def load_settings(self):
         s = settings.get_settings()
 
         # Window state and geometry (also toolbar, dock locations and frozen UI state)
-        if s.get('window_state_v2'):
-            self.restoreState(qt_types.str_to_bytes(s.get('window_state_v2')))
         if s.get('window_geometry_v2'):
-            self.restoreGeometry(qt_types.str_to_bytes(s.get('window_geometry_v2')))
+            log.debug("Restoring window geometry from settings")
+            bytes_value = qt_types.str_to_bytes(s.get('window_geometry_v2'))
+            if not self.restoreGeometry(bytes_value):
+                log.error("Failed to restore main window geometry!")
+
+        if s.get('window_state_v2'):
+            log.debug("Restoring window state from settings")
+            bytes_value = qt_types.str_to_bytes(s.get('window_state_v2'))
+            if not self.restoreState(bytes_value):
+                log.error("Failed to restore window state!")
+
         if s.get('docks_frozen'):
+            log.debug("Restoring frozen dock state from settings")
             # Freeze all dockable widgets on the main screen
             self.freezeDocks()
             self.actionFreeze_View.setVisible(False)
