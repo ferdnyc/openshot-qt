@@ -558,7 +558,7 @@ Blender Path: {}
         s = settings.get_settings()
         gpu_code_body = None
         if s.get("blender_gpu_enabled"):
-            gpu_enable_py = os.path.join(info.PATH, "blender", "scripts", "gpu_enable.py")
+            gpu_enable_py = os.path.join(info.PATH, "blender", "scripts", "gpu_enable.py.in")
             try:
                 with open(gpu_enable_py, 'r') as f:
                     gpu_code_body = f.read()
