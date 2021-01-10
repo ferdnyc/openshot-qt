@@ -10,4 +10,4 @@ idna
 requests
 urllib3
 defusedxml
-
+libopenshot >= 0.2.5
