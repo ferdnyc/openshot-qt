@@ -28,7 +28,7 @@
 from threading import Thread
 from openshot_qt.classes import settings, info
 from openshot_qt.classes.logger import log
-import openshot
+from libopenshot import openshot
 import os
 import zmq
 

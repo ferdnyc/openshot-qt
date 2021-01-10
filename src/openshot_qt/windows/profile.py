@@ -27,7 +27,7 @@
 
 import os
 
-import openshot  # Python module for libopenshot (required video editing module installed separately)
+from libopenshot import openshot  # Python module for libopenshot (required video editing module installed separately)
 
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QDialog

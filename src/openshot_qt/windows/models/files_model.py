@@ -47,7 +47,7 @@ from openshot_qt.classes.logger import log
 from openshot_qt.classes.app import get_app
 from requests import get
 
-import openshot
+from libopenshot import openshot
 
 
 class FileFilterProxyModel(QSortFilterProxyModel):

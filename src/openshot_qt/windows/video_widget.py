@@ -33,7 +33,7 @@ from PyQt5.QtGui import (
 )
 from PyQt5.QtWidgets import QSizePolicy, QWidget, QPushButton
 
-import openshot  # Python module for libopenshot (required video editing module installed separately)
+from libopenshot import openshot  # Python module for libopenshot (required video editing module installed separately)
 
 from openshot_qt.classes import updates
 from openshot_qt.classes import openshot_rc  # noqa

@@ -36,7 +36,7 @@ from copy import deepcopy
 from time import sleep
 from uuid import uuid4
 
-import openshot  # Python module for libopenshot (required video editing module installed separately)
+from libopenshot import openshot  # Python module for libopenshot (required video editing module installed separately)
 from PyQt5.QtCore import (
     Qt, pyqtSignal, QCoreApplication, PYQT_VERSION_STR,
     QTimer, QDateTime, QFileInfo, QUrl,

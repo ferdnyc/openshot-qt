@@ -37,7 +37,7 @@ import uuid
 from PyQt5.QtGui import QGuiApplication
 from openshot_qt.classes.app import OpenShotApp
 from openshot_qt.classes import info
-import openshot  # Python module for libopenshot (required video editing module installed separately)
+from libopenshot import openshot  # Python module for libopenshot (required video editing module installed separately)
 import json
 
 class TestQueryClass(unittest.TestCase):

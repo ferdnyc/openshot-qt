@@ -249,7 +249,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
     # Load default project data
     def new(self):
         """ Try to load default project settings file, will raise error on failure """
-        import openshot
+        from libopenshot import openshot
 
         # Try to load user default project
         if os.path.exists(info.USER_DEFAULT_PROJECT):
@@ -460,7 +460,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
         import pickle
         from openshot_qt.classes.query import File, Track, Clip, Transition
         from openshot_qt.classes.app import get_app
-        import openshot
+        from libopenshot import openshot
         import json
 
         # Get translation method
@@ -768,7 +768,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
 
     def save(self, file_path, move_temp_files=True, make_paths_relative=True):
         """ Save project file to disk """
-        import openshot
+        from libopenshot import openshot
 
         log.info("Saving project file: {}".format(file_path))
 

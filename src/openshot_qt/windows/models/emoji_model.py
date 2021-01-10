@@ -30,7 +30,7 @@ import os
 from PyQt5.QtCore import QMimeData, Qt, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import QMessageBox
-import openshot  # Python module for libopenshot (required video editing module installed separately)
+from libopenshot import openshot  # Python module for libopenshot (required video editing module installed separately)
 
 from openshot_qt.classes import info
 from openshot_qt.classes.logger import log

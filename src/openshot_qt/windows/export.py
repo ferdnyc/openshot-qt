@@ -31,7 +31,7 @@ import time
 import tempfile
 import math
 
-import openshot
+from libopenshot import openshot
 
 # Try to get the security-patched XML functions from defusedxml
 try:

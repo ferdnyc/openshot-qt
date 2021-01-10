@@ -29,7 +29,7 @@ from PyQt5.QtCore import QMimeData, QSize, QPoint, Qt, pyqtSlot, QRegExp
 from PyQt5.QtGui import QDrag
 from PyQt5.QtWidgets import QListView
 
-import openshot  # Python module for libopenshot (required video editing module installed separately)
+from libopenshot import openshot  # Python module for libopenshot (required video editing module installed separately)
 from openshot_qt.classes.query import File
 from openshot_qt.classes.app import get_app
 from openshot_qt.classes.settings import get_settings

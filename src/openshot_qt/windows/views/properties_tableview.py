@@ -45,7 +45,7 @@ from openshot_qt.classes import info
 from openshot_qt.classes.query import Clip, Effect, Transition
 from openshot_qt.windows.models.properties_model import PropertiesModel
 
-import openshot
+from libopenshot import openshot
 
 
 class PropertyDelegate(QItemDelegate):

@@ -41,7 +41,7 @@ from openshot_qt.classes.app import get_app
 from openshot_qt.classes.metrics import track_metric_screen
 from openshot_qt.windows.views.add_to_timeline_treeview import TimelineTreeView
 
-import openshot
+from libopenshot import openshot
 import json
 
 

@@ -27,7 +27,7 @@
 
 import os
 import re
-import openshot
+from libopenshot import openshot
 import socket
 import time
 from threading import Thread

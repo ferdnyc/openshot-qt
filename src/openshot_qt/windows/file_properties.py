@@ -33,7 +33,7 @@ from PyQt5.QtWidgets import (
     )
 
 # Python module for libopenshot (required video editing module installed separately)
-import openshot
+from libopenshot import openshot
 
 from openshot_qt.classes import info, ui_util, settings
 from openshot_qt.classes.app import get_app

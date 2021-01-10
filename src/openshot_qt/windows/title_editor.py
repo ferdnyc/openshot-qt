@@ -41,7 +41,7 @@ from PyQt5.QtWidgets import (
     QPushButton, QTextEdit, QLabel
 )
 
-import openshot
+from libopenshot import openshot
 
 from openshot_qt.classes import info, ui_util, settings
 from openshot_qt.classes.logger import log

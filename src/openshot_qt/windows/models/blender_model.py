@@ -36,7 +36,7 @@ except ImportError:
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon, QPixmap, QStandardItem, QStandardItemModel
 
-import openshot
+from libopenshot import openshot
 
 from openshot_qt.classes import info
 from openshot_qt.classes.logger import log

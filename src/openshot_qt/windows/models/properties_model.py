@@ -40,7 +40,7 @@ from openshot_qt.classes import openshot_rc  # noqa
 from openshot_qt.classes.query import Clip, Transition, Effect
 from openshot_qt.classes.logger import log
 from openshot_qt.classes.app import get_app
-import openshot
+from libopenshot import openshot
 
 import json
 

@@ -47,7 +47,7 @@ from openshot_qt.classes.language import get_all_languages
 from openshot_qt.classes.logger import log
 from openshot_qt.classes.metrics import track_metric_screen
 
-import openshot
+from libopenshot import openshot
 
 
 class Preferences(QDialog):

@@ -93,7 +93,7 @@ class OpenShotApp(QApplication):
                 settings, project_data, updates, language, ui_util,
                 logger_libopenshot
                 )
-            import openshot
+            from libopenshot import openshot
 
             # Re-route stdout and stderr to logger
             reroute_output()

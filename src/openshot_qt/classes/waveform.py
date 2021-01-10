@@ -32,7 +32,7 @@ from openshot_qt.classes import info
 from openshot_qt.classes.app import get_app
 from openshot_qt.classes.logger import log
 from openshot_qt.classes import settings
-import openshot
+from libopenshot import openshot
 
 
 # Get settings

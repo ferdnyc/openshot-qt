@@ -47,7 +47,7 @@ from openshot_qt.classes import language
 from openshot_qt.classes.logger import log
 from openshot_qt.classes import settings
 
-import openshot
+from libopenshot import openshot
 
 from PyQt5.QtCore import QT_VERSION_STR
 from PyQt5.QtCore import PYQT_VERSION_STR

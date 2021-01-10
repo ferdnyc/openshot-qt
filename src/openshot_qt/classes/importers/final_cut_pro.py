@@ -30,7 +30,7 @@ import os
 from operator import itemgetter
 from xml.dom import minidom
 
-import openshot
+from libopenshot import openshot
 from PyQt5.QtWidgets import QFileDialog
 
 from openshot_qt.classes import info

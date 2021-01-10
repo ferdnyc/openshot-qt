@@ -30,7 +30,7 @@ import functools
 
 from PyQt5.QtCore import pyqtSignal, QTimer
 from PyQt5.QtWidgets import QDialog, QMessageBox, QSizePolicy
-import openshot  # Python module for libopenshot (required video editing module installed separately)
+from libopenshot import openshot  # Python module for libopenshot (required video editing module installed separately)
 
 from openshot_qt.classes import info, ui_util, time_parts
 from openshot_qt.classes.app import get_app

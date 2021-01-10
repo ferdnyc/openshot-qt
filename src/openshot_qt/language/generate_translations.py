@@ -62,7 +62,7 @@ try:
 except ImportError:
   from xml.dom import minidom as xml
 
-import openshot
+from libopenshot import openshot
 
 # Get the absolute path of this project
 path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

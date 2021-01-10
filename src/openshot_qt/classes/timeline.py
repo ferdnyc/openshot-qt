@@ -26,7 +26,7 @@
  """
 
 import time
-import openshot  # Python module for libopenshot (required video editing module installed separately)
+from libopenshot import openshot  # Python module for libopenshot (required video editing module installed separately)
 
 from openshot_qt.classes.updates import UpdateInterface
 from openshot_qt.classes.logger import log

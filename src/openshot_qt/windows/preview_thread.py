@@ -30,7 +30,7 @@ import sip
 
 from PyQt5.QtCore import QObject, QThread, pyqtSlot, pyqtSignal, QCoreApplication
 from PyQt5.QtWidgets import QMessageBox
-import openshot  # Python module for libopenshot (required video editing module installed separately)
+from libopenshot import openshot  # Python module for libopenshot (required video editing module installed separately)
 
 from openshot_qt.classes.app import get_app
 from openshot_qt.classes.logger import log

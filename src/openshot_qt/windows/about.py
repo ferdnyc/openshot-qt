@@ -44,7 +44,7 @@ from openshot_qt.windows.views.changelog_treeview import ChangelogTreeView
 import json
 import datetime
 
-import openshot
+from libopenshot import openshot
 
 
 def parse_changelog(changelog_path):
