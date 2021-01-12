@@ -1,10 +1,17 @@
 include AUTHORS
 include COPYING
 include README
-recursive-include bin *
+include pyproject.toml
+include setup.cfg
+include setup.py
+include MANIFEST.in
+include requirements.txt
+
 recursive-include doc *
-recursive-include openshot_qt *
+recursive-include images *
+recursive-include installer *
 recursive-include xdg *
+graft src
 
 global-exclude *__pycache__*
 global-exclude *pyc
