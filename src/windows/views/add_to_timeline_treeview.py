@@ -1,26 +1,26 @@
-""" 
+"""
  @file
  @brief This file contains the add to timeline file treeview
  @author Jonathan Thomas <jonathan@openshot.org>
- 
+
  @section LICENSE
- 
+
  Copyright (c) 2008-2018 OpenShot Studios, LLC
  (http://www.openshotstudios.com). This file is part of
  OpenShot Video Editor (http://www.openshot.org), an open-source project
  dedicated to delivering high quality video editing and animation solutions
  to the world.
- 
+
  OpenShot Video Editor is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  OpenShot Video Editor is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with OpenShot Library.  If not, see <http://www.gnu.org/licenses/>.
  """
@@ -46,14 +46,8 @@ class TimelineTreeView(QTreeView):
         _ = self.app._tr
 
     def contextMenuEvent(self, event):
-        # # Ignore event, propagate to parent
+        # Ignore event, propagate to parent widget
         event.ignore()
-
-    def mousePressEvent(self, event):
-
-        # Ignore event, propagate to parent
-        event.ignore()
-        super().mousePressEvent(event)
 
     def refresh_view(self):
         self.timeline_model.update_model()

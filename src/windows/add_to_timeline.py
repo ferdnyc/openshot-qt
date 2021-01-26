@@ -61,7 +61,7 @@ class AddToTimeline(QDialog):
             selected_index = self.treeFiles.selected.row()
 
         # Ignore if empty files
-        if not files or selected_index == None:
+        if not files or selected_index is None:
             return
 
         # New index

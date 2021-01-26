@@ -700,7 +700,7 @@ class TitleEditor(QDialog):
                 self.writeToFile(self.xmldoc)
 
                 # Add file to project
-                app.window.files_model.add_files(self.filename)
+                app.window.files_manager.add_files(self.filename)
 
         # Close window
         super().accept()

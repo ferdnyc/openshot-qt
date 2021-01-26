@@ -648,10 +648,10 @@ class PropertiesTableView(QTableView):
 
         # Get base models for files, transitions
         self.transition_model = self.win.transition_model.model
-        self.files_model = self.win.files_model.model
+        self.files_model = self.win.files_manager.base_model
 
         # Connect to update signals, so our menus stay current
-        self.win.files_model.ModelRefreshed.connect(self.refresh_menu)
+        self.files_model.modelReset.connect(self.refresh_menu)
         self.win.transition_model.ModelRefreshed.connect(self.refresh_menu)
         self.menu_reset = False
 

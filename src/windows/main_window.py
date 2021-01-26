@@ -67,9 +67,10 @@ from classes.thumbnail import httpThumbnailServerThread
 from classes.time_parts import secondsToTimecode
 from classes.timeline import TimelineSync
 from classes.version import get_current_Version
+
 from windows.models.effects_model import EffectsModel
 from windows.models.emoji_model import EmojisModel
-from windows.models.files_model import FilesModel
+from windows.models.files_model import FilesManager
 from windows.models.transition_model import TransitionsModel
 from windows.preview_thread import PreviewParent
 from windows.video_widget import VideoWidget
@@ -775,7 +776,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
         try:
             # Import list of files
-            self.files_model.process_urls(qurl_list)
+            self.files_manager.process_urls(qurl_list)
 
             # Refresh files views
             self.refreshFilesSignal.emit()
@@ -823,7 +824,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
     def actionAdd_to_Timeline_trigger(self, checked=False):
         # Loop through selected files
         files = self.selected_files()
-
+        log.debug("Launching add_to_timeline UI with: %s", str(files))
         # Bail if nothing's selected
         if not files:
             return
@@ -998,7 +999,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         log.info('actionPreview_File_trigger')
 
         # Loop through selected files (set 1 selected file if more than 1)
-        f = self.files_model.current_file()
+        f = self.files_manager.current_file()
 
         # Bail out if no file selected
         if not f:
@@ -1763,7 +1764,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         log.debug("actionSplitClip_trigger")
 
         # Loop through selected files (set 1 selected file if more than 1)
-        f = self.files_model.current_file()
+        f = self.files_manager.current_file()
 
         # Bail out if no file selected
         if not f:
@@ -1987,7 +1988,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         log.info("Show file properties")
 
         # Get current selected file (corresponding to menu, if possible)
-        f = self.files_model.current_file()
+        f = self.files_manager.current_file()
         if not f:
             log.warning("Couldn't find current file for properties window")
             return
@@ -2428,19 +2429,19 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
     def selected_files(self):
         """ Return a list of File objects for the Project Files dock's selection """
-        return self.files_model.selected_files()
+        return self.files_manager.selected_files()
 
     def selected_file_ids(self):
         """ Return a list of File IDs for the Project Files dock's selection """
-        return self.files_model.selected_file_ids()
+        return self.files_manager.selected_file_ids()
 
     def current_file(self):
         """ Return the Project Files dock's currently-active item as a File object """
-        return self.files_model.current_file()
+        return self.files_manager.current_file()
 
     def current_file_id(self):
         """ Return the ID of the Project Files dock's currently-active item """
-        return self.files_model.current_file_id()
+        return self.files_manager.current_file_id()
 
     # Update window settings in setting store
     def save_settings(self):
@@ -2901,10 +2902,10 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         self.setCorner(Qt.BottomRightCorner, Qt.RightDockWidgetArea)
 
         # Setup files tree and list view (both share a model)
-        self.files_model = FilesModel()
-        self.filesTreeView = FilesTreeView(self.files_model)
-        self.filesListView = FilesListView(self.files_model)
-        self.files_model.update_model()
+        self.files_manager = FilesManager()
+        self.filesTreeView = FilesTreeView(self.files_manager)
+        self.filesListView = FilesListView(self.files_manager)
+        self.files_manager.update_model()
         self.tabFiles.layout().insertWidget(-1, self.filesTreeView)
         self.tabFiles.layout().insertWidget(-1, self.filesListView)
         if s.get("file_view") == "details":

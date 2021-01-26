@@ -36,7 +36,7 @@ from classes.app import get_app
 
 
 class TimelineModel():
-    def update_model(self, files=[], clear=True):
+    def update_model(self, files=None, clear=True):
         log.info("updating timeline model.")
         app = get_app()
 
@@ -45,9 +45,9 @@ class TimelineModel():
         _ = app._tr
 
         # Set files list (if found)
-        if files:
+        if files and isinstance(files, list):
             log.info('set files to %s' % files)
-            self.files = files
+            self.files.extend(files)
 
         # Clear all items
         if clear:
@@ -56,9 +56,9 @@ class TimelineModel():
         # Add Headers
         self.model.setHorizontalHeaderLabels([_("Thumb"), _("Name")])
 
-        log.info(self.files)
-
         for file in self.files:
+            if file is None:
+                continue
             # Get attributes from file
             path, filename = os.path.split(file.data["path"])
             title = filename

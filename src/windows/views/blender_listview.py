@@ -331,7 +331,7 @@ class BlenderListView(QListView):
         log.info('RENDER FINISHED! Adding to project files: {}'.format(filename))
 
         # Add to project files
-        get_app().window.files_model.add_files(final_path, seq_params)
+        get_app().window.files_manager.add_files(final_path, seq_params)
 
         # We're done here
         self.win.close()

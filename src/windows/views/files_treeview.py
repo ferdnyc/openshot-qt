@@ -27,8 +27,6 @@
  along with OpenShot Library.  If not, see <http://www.gnu.org/licenses/>.
  """
 
-import os
-
 from PyQt5.QtCore import QSize, Qt, QPoint
 from PyQt5.QtGui import QDrag, QCursor
 from PyQt5.QtWidgets import QTreeView, QAbstractItemView, QMenu, QSizePolicy, QHeaderView
@@ -92,57 +90,57 @@ class FilesTreeView(QTreeView):
             event.setDropAction(Qt.CopyAction)
             event.accept()
 
-    def startDrag(self, supportedActions):
-        """ Override startDrag method to display custom icon """
+    # def startDrag(self, supportedActions):
+    #     """ Override startDrag method to display custom icon """
+    #
+    #     # Get first column indexes for all selected rows
+    #     selected = self.selectionModel().selectedRows(0)
+    #
+    #     # Get image of current item
+    #     current = self.selectionModel().currentIndex()
+    #     if not current.isValid() and selected:
+    #         current = selected[0]
+    #
+    #     if not current.isValid():
+    #         log.warning("No draggable items found in model!")
+    #         return False
+    #
+    #     # Get icon from column 0 on same row as current item
+    #     icon = current.sibling(current.row(), 0).data(Qt.DecorationRole)
+    #
+    #     # Start drag operation
+    #     drag = QDrag(self)
+    #     drag.setMimeData(self.model().mimeData(selected))
+    #     drag.setPixmap(icon.pixmap(QSize(self.drag_item_size, self.drag_item_size)))
+    #     drag.setHotSpot(QPoint(self.drag_item_size / 2, self.drag_item_size / 2))
+    #     drag.exec_()
+    #
+    # # Without defining this method, the 'copy' action doesn't show with cursor
+    # def dragMoveEvent(self, event):
+    #     event.accept()
 
-        # Get first column indexes for all selected rows
-        selected = self.selectionModel().selectedRows(0)
-
-        # Get image of current item
-        current = self.selectionModel().currentIndex()
-        if not current.isValid() and selected:
-            current = selected[0]
-
-        if not current.isValid():
-            log.warning("No draggable items found in model!")
-            return False
-
-        # Get icon from column 0 on same row as current item
-        icon = current.sibling(current.row(), 0).data(Qt.DecorationRole)
-
-        # Start drag operation
-        drag = QDrag(self)
-        drag.setMimeData(self.model().mimeData(selected))
-        drag.setPixmap(icon.pixmap(QSize(self.drag_item_size, self.drag_item_size)))
-        drag.setHotSpot(QPoint(self.drag_item_size / 2, self.drag_item_size / 2))
-        drag.exec_()
-
-    # Without defining this method, the 'copy' action doesn't show with cursor
-    def dragMoveEvent(self, event):
-        event.accept()
-
-    # Handle a drag and drop being dropped on widget
-    def dropEvent(self, event):
-        if not event.mimeData().hasUrls():
-            # Nothing we're interested in
-            event.ignore()
-            return
-        event.accept()
-        # Use try/finally so we always reset the cursor
-        try:
-            # Set cursor to waiting
-            get_app().setOverrideCursor(QCursor(Qt.WaitCursor))
-
-            qurl_list = event.mimeData().urls()
-            log.info("Processing drop event for {} urls".format(len(qurl_list)))
-            self.files_model.process_urls(qurl_list)
-        finally:
-            # Restore cursor
-            get_app().restoreOverrideCursor()
+    # # Handle a drag and drop being dropped on widget
+    # def dropEvent(self, event):
+    #     if not event.mimeData().hasUrls():
+    #         # Nothing we're interested in
+    #         event.ignore()
+    #         return
+    #     event.accept()
+    #     # Use try/finally so we always reset the cursor
+    #     try:
+    #         # Set cursor to waiting
+    #         get_app().setOverrideCursor(QCursor(Qt.WaitCursor))
+    #
+    #         qurl_list = event.mimeData().urls()
+    #         log.info("Processing drop event for {} urls".format(len(qurl_list)))
+    #         self.manager.process_urls(qurl_list)
+    #     finally:
+    #         # Restore cursor
+    #         get_app().restoreOverrideCursor()
 
     # Forward file-add requests to the model, for legacy code (previous API)
     def add_file(self, filepath):
-        self.files_model.add_files(filepath)
+        self.manager.add_files(filepath)
 
     def filter_changed(self):
         self.refresh_view()
@@ -168,39 +166,39 @@ class FilesTreeView(QTreeView):
         self.header().setSectionResizeMode(1, QHeaderView.Stretch)
         self.header().setSectionResizeMode(2, QHeaderView.Interactive)
 
-    def value_updated(self, item):
-        """ Name or tags updated """
-        if self.files_model.ignore_updates:
-            return
+    # def value_updated(self, item):
+    #     """ Name or tags updated """
+    #     if self.files_model.ignore_updates:
+    #         return
+    #
+    #     # Get translation method
+    #     _ = get_app()._tr
+    #
+    #     # Determine what was changed
+    #     file_id = self.files_manager.model.item(item.row(), 5).text()
+    #     name = self.files_manager.model.item(item.row(), 1).text()
+    #     tags = self.files_manager.model.item(item.row(), 2).text()
+    #
+    #     # Get file object and update friendly name and tags attribute
+    #     f = File.get(id=file_id)
+    #     if name and name != os.path.basename(f.data["path"]):
+    #         f.data["name"] = name
+    #     else:
+    #         f.data["name"] = os.path.basename(f.data["path"])
+    #
+    #     if "tags" in f.data.keys():
+    #         if tags != f.data["tags"]:
+    #             f.data["tags"] = tags
+    #     elif tags:
+    #         f.data["tags"] = tags
+    #
+    #     # Save File
+    #     f.save()
+    #
+    #     # Update file thumbnail
+    #     self.win.FileUpdated.emit(file_id)
 
-        # Get translation method
-        _ = get_app()._tr
-
-        # Determine what was changed
-        file_id = self.files_model.model.item(item.row(), 5).text()
-        name = self.files_model.model.item(item.row(), 1).text()
-        tags = self.files_model.model.item(item.row(), 2).text()
-
-        # Get file object and update friendly name and tags attribute
-        f = File.get(id=file_id)
-        if name and name != os.path.basename(f.data["path"]):
-            f.data["name"] = name
-        else:
-            f.data["name"] = os.path.basename(f.data["path"])
-
-        if "tags" in f.data.keys():
-            if tags != f.data["tags"]:
-                f.data["tags"] = tags
-        elif tags:
-            f.data["tags"] = tags
-
-        # Save File
-        f.save()
-
-        # Update file thumbnail
-        self.win.FileUpdated.emit(file_id)
-
-    def __init__(self, model, *args):
+    def __init__(self, manager, *args):
         # Invoke parent init
         super().__init__(*args)
 
@@ -208,14 +206,14 @@ class FilesTreeView(QTreeView):
         self.win = get_app().window
 
         # Get Model data
-        self.files_model = model
-        self.setModel(self.files_model.proxy_model)
+        self.manager = manager
+        self.setModel(manager.model)
 
         # Remove the default selection model and wire up to the shared one
         self.selectionModel().deleteLater()
+        self.setSelectionModel(manager.selection_model)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.setSelectionModel(self.files_model.selection_model)
 
         self.setAcceptDrops(True)
         self.setDragEnabled(True)
@@ -230,7 +228,7 @@ class FilesTreeView(QTreeView):
         self.setWordWrap(False)
         self.setTextElideMode(Qt.ElideRight)
 
-        self.files_model.ModelRefreshed.connect(self.refresh_view)
+        self.model().modelReset.connect(self.refresh_view)
 
         # setup filter events
-        # self.files_model.model.itemChanged.connect(self.value_updated)
+        # self.files_manager.model.itemChanged.connect(self.value_updated)

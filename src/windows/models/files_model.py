@@ -30,15 +30,13 @@ import os
 import json
 import re
 import glob
-import functools
 
 from PyQt5.QtCore import (
-    QMimeData, Qt, pyqtSignal, QEventLoop, QObject,
-    QSortFilterProxyModel, QItemSelectionModel, QPersistentModelIndex,
+    QMimeData, Qt, QObject, QSortFilterProxyModel, QItemSelectionModel,
+    QModelIndex, QAbstractTableModel, QUrl, QSize,
 )
-from PyQt5.QtGui import (
-    QIcon, QStandardItem, QStandardItemModel
-)
+from PyQt5.QtGui import QIcon
+
 from classes import updates
 from classes import info
 from classes.image_types import is_image
@@ -55,45 +53,39 @@ class FileFilterProxyModel(QSortFilterProxyModel):
 
     def filterAcceptsRow(self, sourceRow, sourceParent):
         """Filter for text"""
-        if get_app().window.actionFilesShowVideo.isChecked() \
-                or get_app().window.actionFilesShowAudio.isChecked() \
-                or get_app().window.actionFilesShowImage.isChecked() \
-                or get_app().window.filesFilter.text():
+        app = get_app()
+        win = app.window
+        if any([
+            win.actionFilesShowVideo.isChecked(),
+            win.actionFilesShowAudio.isChecked(),
+            win.actionFilesShowImage.isChecked(),
+            win.filesFilter.text(),
+        ]):
             # Fetch the file name
             index = self.sourceModel().index(sourceRow, 0, sourceParent)
-            file_name = self.sourceModel().data(index)  # file name (i.e. MyVideo.mp4)
+            file_name = self.sourceModel().data(index, FilesModel)  # file name (i.e. MyVideo.mp4)
 
             # Fetch the media_type
-            index = self.sourceModel().index(sourceRow, 3, sourceParent)
-            media_type = self.sourceModel().data(index)  # media type (i.e. video, image, audio)
+            media_type = self.sourceModel().data(index, FileRoles.MediaType)
 
             index = self.sourceModel().index(sourceRow, 2, sourceParent)
             tags = self.sourceModel().data(index)  # tags (i.e. intro, custom, etc...)
 
             if any([
-                get_app().window.actionFilesShowVideo.isChecked() and media_type != "video",
-                get_app().window.actionFilesShowAudio.isChecked() and media_type != "audio",
-                get_app().window.actionFilesShowImage.isChecked() and media_type != "image",
+                win.actionFilesShowVideo.isChecked() and media_type != "video",
+                win.actionFilesShowAudio.isChecked() and media_type != "audio",
+                win.actionFilesShowImage.isChecked() and media_type != "image",
             ]):
                 return False
 
             # Match against regex pattern
-            return self.filterRegExp().indexIn(file_name) >= 0 or self.filterRegExp().indexIn(tags) >= 0
+            return bool(
+                self.filterRegExp().indexIn(file_name) >= 0
+                or self.filterRegExp().indexIn(tags) >= 0
+                )
 
         # Continue running built-in parent filter logic
         return super().filterAcceptsRow(sourceRow, sourceParent)
-
-    def mimeData(self, indexes):
-        # Create MimeData for drag operation
-        data = QMimeData()
-
-        # Get list of all selected file ids
-        ids = self.parent.selected_file_ids()
-        data.setText(json.dumps(ids))
-        data.setHtml("clip")
-
-        # Return Mimedata
-        return data
 
     def __init__(self, **kwargs):
         if "parent" in kwargs:
@@ -104,9 +96,201 @@ class FileFilterProxyModel(QSortFilterProxyModel):
         super().__init__(**kwargs)
 
 
-class FilesModel(QObject, updates.UpdateInterface):
-    ModelRefreshed = pyqtSignal()
+class FileRoles:
+    Id = Qt.UserRole + 11
+    Path = Qt.UserRole + 12
+    MediaType = Qt.UserRole + 13
+    DataKey = Qt.UserRole + 14
 
+
+class FilesModel(QAbstractTableModel):
+    """Adapter which uses the project "files" list as its data storage backend,
+    and provides a standard Qt data model interface to the file data"""
+
+    app = get_app()
+    _ = app._tr
+
+    data_labels = [
+        ("", ""),
+        (_("Name"), "name"),
+        (_("Tags"), "tags"),
+    ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        app = get_app()
+        self._data = []
+        app.window.OpenProjectSignal.connect(self.reset_model)
+        self.reset_model()
+
+    def reset_model(self):
+        app = get_app()
+        self.beginResetModel()
+        if hasattr(app, "project"):
+            self._data = app.project._data.get("files")
+        self._thumb_paths = {}
+        self.endResetModel()
+
+    def rowCount(self, parent=QModelIndex()):
+        if parent and parent.isValid():
+            # Our indexes don't have children
+            return 0
+        return len(self._data)
+
+    def columnCount(self, parent=QModelIndex()):
+        return 6
+
+    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+        _flags = (
+            Qt.ItemIsSelectable | Qt.ItemIsEnabled
+            | Qt.ItemNeverHasChildren
+            )
+        if not index.isValid():
+            return Qt.NoItemFlags
+        if index.column() == 0:
+            # Add drag & drop for first column data
+            _flags = _flags | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled
+        if index.column() in [1, 2]:
+            # Name and Tags can be edited directly in the list
+            _flags = _flags | Qt.ItemIsEditable
+        return _flags
+
+    def headerData(self, section: int, orientation: Qt.Orientation, role: int):
+        if orientation is Qt.Vertical:
+            return f"Row {section}"
+        if role == Qt.DisplayRole:
+            if section < 3:
+                # Columns 0-2 have header text, others are hidden
+                return self.data_labels[section][0]
+            return ""
+        if role == Qt.TextAlignmentRole:
+            return Qt.AlignLeft
+
+    def data(self, index: QModelIndex, role: int):
+        text_roles = [Qt.DisplayRole, Qt.ToolTipRole, Qt.EditRole]
+        if not index.isValid():
+            return
+        col = index.column()
+        file_data = self._data[index.row()]
+        file_id = file_data.get("id")
+        file_path = file_data.get("path")
+
+        if col == 5 and role in text_roles:
+            return file_id
+        if col in [0, 1] and role in text_roles:
+            return file_data.get("name", os.path.basename(file_path))
+        if col == 2 and role in text_roles:
+            return file_data.get("tags", None)
+        if col == 3 and role in text_roles:
+            return file_data.get("media_type", None)
+        if col == 4 and role in text_roles:
+            return file_path
+        if role == FileRoles.Id:
+            return file_id
+        if role == FileRoles.Path:
+            return file_path
+        if role == FileRoles.MediaType:
+            return file_data.get("media_type", None)
+        if col < 3 and role == FileRoles.DataKey:
+            if role == FileRoles.DataKey:
+                return self.data_labels[col][1]
+        if col == 0 and role == Qt.DecorationRole:
+            if file_id not in self._thumb_paths:
+                thumb_frame = 1
+                if 'start' in file_data:
+                    # We need to offset the frame being thumbnailed
+                    fps = file_data["fps"]
+                    fps_float = float(fps["num"]) / float(fps["den"])
+                    thumb_frame = round(float(file_data['start']) * fps_float) + 1
+                # Get thumb path
+                thumb_path = self.get_thumb_path(
+                    file_id, thumb_frame, clear_cache=True)
+                self._thumb_paths.update({
+                    file_id: thumb_path,
+                    })
+            return QIcon(self._thumb_paths.get(file_id, None))
+
+    def setData(self, index: QModelIndex, value, role: int) -> bool:
+        # Skip calls that don't provide any changes we can store
+        if not index.isValid() or value == self.data(index, role):
+            return True
+
+        # Update the backend data store
+        file_id = index.data(FileRoles.Id)
+        key = index.data(FileRoles.DataKey)
+
+        if not file_id or not key:
+            return False
+        log.debug("%s: Setting %s=%s", file_id, key, value)
+
+        # Get file object and update the data at the corresponding key
+        f = File.get(id=file_id)
+        f.type = "update"
+        f.key = [File.object_name, {"id": file_id}]
+        f.data = {key: value}
+        f.save()
+
+        # Notify views and others about updated row data
+        if key == "tags":
+            # Signal one model item (tag cell) updated
+            l_top = r_bottom = index
+        else:
+            # Signal a refresh of the whole row
+            l_top = index.sibling(index.row(), 0)
+            r_bottom = index.sibling(index.row(), self.columnCount() - 1)
+        self.dataChanged.emit(l_top, r_bottom)
+        return True
+
+    @staticmethod
+    def get_thumb_path(
+            file_id, thumbnail_frame, clear_cache=False):
+        """Get thumbnail path by invoking HTTP thumbnail request"""
+
+        # Clear thumb cache (if requested)
+        thumb_cache = ""
+        if clear_cache:
+            thumb_cache = "no-cache/"
+
+        # Connect to thumbnail server and get image
+        thumb_server_details = get_app().window.http_server_thread.server_address
+        thumb_address = "http://%s:%s/thumbnails/%s/%s/path/%s" % (
+            thumb_server_details[0],
+            thumb_server_details[1],
+            file_id,
+            thumbnail_frame,
+            thumb_cache)
+        r = get(thumb_address)
+        if r.ok:
+            # Update thumbnail path to real one
+            return r.text
+        else:
+            return ''
+
+    def mimeData(self, indexes):
+        """Return MIME representation of selected files"""
+        mime_data = QMimeData()
+        # Drop invalid indexes
+        indexes = list([idx for idx in indexes if idx.isValid()])
+        log.debug("Generating MIME data for %d model indexes", len(indexes))
+        # Grab all of the unique file IDs involved
+        ids = [idx.data(FileRoles.Id) for idx in indexes]
+        # Deduplicate list (all indexes in a given row have the same ID)
+        ids = list(set(ids))
+        log.debug("IDs: %s", ids)
+        # Format as openshot:// URIs (readable by properties model / timeline)
+        uris = [QUrl(f"openshot://file/{i}") for i in ids]
+        mime_data.setUrls(uris)
+        log.debug("URIs: %s", str(list(uris)))
+        # Set the MIME data icon to the first valid item icon we can find
+        icons = [idx.data(Qt.DecorationRole) for idx in indexes]
+        for icon in icons:
+            if isinstance(icon, QIcon):
+                mime_data.setImageData(icon.pixmap(QSize(48, 48)))
+                break
+        return mime_data
+
+
+class FilesManager(updates.UpdateInterface, QObject):
     # This method is invoked by the UpdateManager each time a change happens (i.e UpdateInterface)
     def changed(self, action):
 
@@ -127,125 +311,10 @@ class FilesModel(QObject, updates.UpdateInterface):
                 self.update_model(clear=True)
 
     def update_model(self, clear=True, delete_file_id=None):
-        log.debug("updating files model.")
-        app = get_app()
-
-        self.ignore_updates = True
-
-        # Translations
-        _ = app._tr
-
-        # Delete a file (if delete_file_id passed in)
-        if delete_file_id in self.model_ids:
-            # Use the persistent index we stored to find the row
-            id_index = self.model_ids[delete_file_id]
-
-            # sanity check
-            if not id_index.isValid() or delete_file_id != id_index.data():
-                log.warning("Couldn't remove {} from model!".format(delete_file_id))
-                return
-            # Delete row from model
-            row_num = id_index.row()
-            self.model.removeRows(row_num, 1, id_index.parent())
-            self.model.submit()
-            self.model_ids.pop(delete_file_id)
-
-        # Clear all items
+        log.debug("Updating files model.")
         if clear:
-            self.model_ids = {}
-            self.model.clear()
-
-        # Add Headers
-        self.model.setHorizontalHeaderLabels(["", _("Name"), _("Tags")])
-
-        # Get list of files in project
-        files = File.filter()  # get all files
-
-        # add item for each file
-        row_added_count = 0
-        for file in files:
-            id = file.data["id"]
-            if id in self.model_ids and self.model_ids[id].isValid():
-                # Ignore files that already exist in model
-                continue
-
-            path, filename = os.path.split(file.data["path"])
-            tags = ""
-            if "tags" in file.data.keys():
-                tags = file.data["tags"]
-            name = filename
-            if "name" in file.data.keys():
-                name = file.data["name"]
-
-            media_type = file.data.get("media_type")
-
-            # Generate thumbnail for file (if needed)
-            if media_type in ["video", "image"]:
-                # Check for start and end attributes (optional)
-                thumbnail_frame = 1
-                if 'start' in file.data.keys():
-                    fps = file.data["fps"]
-                    fps_float = float(fps["num"]) / float(fps["den"])
-                    thumbnail_frame = round(float(file.data['start']) * fps_float) + 1
-
-                # Get thumb path
-                thumb_icon = QIcon(self.get_thumb_path(file.id, thumbnail_frame))
-            else:
-                # Audio file
-                thumb_icon = QIcon(os.path.join(info.PATH, "images", "AudioThumbnail.svg"))
-
-            row = []
-            flags = Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsDragEnabled | Qt. ItemNeverHasChildren
-
-            # Append thumbnail
-            col = QStandardItem(thumb_icon, name)
-            col.setToolTip(filename)
-            col.setFlags(flags)
-            row.append(col)
-
-            # Append Filename
-            col = QStandardItem(name)
-            col.setFlags(flags | Qt.ItemIsEditable)
-            row.append(col)
-
-            # Append Tags
-            col = QStandardItem(tags)
-            col.setFlags(flags | Qt.ItemIsEditable)
-            row.append(col)
-
-            # Append Media Type
-            col = QStandardItem(media_type)
-            col.setFlags(flags)
-            row.append(col)
-
-            # Append Path
-            col = QStandardItem(path)
-            col.setFlags(flags)
-            row.append(col)
-
-            # Append ID
-            col = QStandardItem(id)
-            col.setFlags(flags | Qt.ItemIsUserCheckable)
-            row.append(col)
-
-            # Append ROW to MODEL (if does not already exist in model)
-            if id not in self.model_ids:
-                self.model.appendRow(row)
-                # Link the file ID hash to that column of the table row by persistent index
-                self.model_ids[id] = QPersistentModelIndex(row[5].index())
-
-                row_added_count += 1
-                if row_added_count % 2 == 0:
-                    # Update every X items
-                    get_app().processEvents(QEventLoop.ExcludeUserInputEvents)
-
-            # Refresh view and filters (to hide or show this new item)
-            get_app().window.resize_contents()
-
-        self.ignore_updates = False
-
-        # Emit signal when model is updated
-        self.ModelRefreshed.emit()
+            self.base_model.reset_model()
+        return True
 
     def add_files(self, files, image_seq_details=None, quiet=False):
         # Access translations
@@ -257,13 +326,19 @@ class FilesModel(QObject, updates.UpdateInterface):
             files = [files]
 
         start_count = len(files)
+
+        # Signal that the model will be growing
+        start_row = self.base_model.rowCount()
+        end_row = start_row + start_count - 1
+        self.base_model.beginInsertRows(QModelIndex(), start_row, end_row)
+
         for count, filepath in enumerate(files):
             (dir_path, filename) = os.path.split(filepath)
 
             # Check for this path in our existing project data
             new_file = File.get(path=filepath)
 
-            # If this file is already found, exit
+            # If this file is already found, skip
             if new_file:
                 del new_file
                 continue
@@ -368,6 +443,8 @@ class FilesModel(QObject, updates.UpdateInterface):
         # Reset list of ignored paths
         self.ignore_image_sequence_paths = []
 
+        # Report completion
+        self.base_model.endInsertRows()
         message = _("Imported %(count)d files") % {"count": len(files) - 1}
         app.window.statusBar.showMessage(message, 3000)
 
@@ -464,66 +541,17 @@ class FilesModel(QObject, updates.UpdateInterface):
         log.debug("Importing file list: {}".format(media_paths))
         self.add_files(media_paths, quiet=import_quietly)
 
-    def get_thumb_path(
-            self, file_id, thumbnail_frame, clear_cache=False):
-        """Get thumbnail path by invoking HTTP thumbnail request"""
-
-        # Clear thumb cache (if requested)
-        thumb_cache = ""
-        if clear_cache:
-            thumb_cache = "no-cache/"
-
-        # Connect to thumbnail server and get image
-        thumb_server_details = get_app().window.http_server_thread.server_address
-        thumb_address = "http://%s:%s/thumbnails/%s/%s/path/%s" % (
-            thumb_server_details[0],
-            thumb_server_details[1],
-            file_id,
-            thumbnail_frame,
-            thumb_cache)
-        r = get(thumb_address)
-        if r.ok:
-            # Update thumbnail path to real one
-            return r.text
-        else:
-            return ''
-
     def update_file_thumbnail(self, file_id):
         """Update/re-generate the thumbnail of a specific file"""
-        file = File.get(id=file_id)
-        path, filename = os.path.split(file.data["path"])
-        name = filename
-        if "name" in file.data.keys():
-            name = file.data["name"]
-
-        # Refresh thumbnail for updated file
-        self.ignore_updates = True
-        m = self.model
-
-        if file_id in self.model_ids:
-            # Look up stored index to ID column
-            id_index = self.model_ids[file_id]
-            if not id_index.isValid():
-                return
-
-            # Update thumb for file
-            thumb_path = self.get_thumb_path(file_id, 1, clear_cache=True)
-            thumb_index = id_index.sibling(id_index.row(), 0)
-            item = m.itemFromIndex(thumb_index)
-            item.setIcon(QIcon(thumb_path))
-            item.setText(name)
-
-            # Emit signal when model is updated
-            self.ModelRefreshed.emit()
-
-        self.ignore_updates = False
+        pass
 
     def selected_file_ids(self):
         """ Get a list of file IDs for all selected files """
         # Get the indexes for column 5 of all selected rows
-        selected = self.selection_model.selectedRows(5)
+        selected = self.selection_model.selectedRows(0)
+        log.debug(", ".join([idx.data() for idx in selected]))
 
-        return [idx.data() for idx in selected]
+        return [idx.data(FileRoles.Id) for idx in selected]
 
     def selected_files(self):
         """ Get a list of File objects representing the current selection """
@@ -540,7 +568,7 @@ class FilesModel(QObject, updates.UpdateInterface):
             cur = self.selection_model.selectedIndexes()[0]
 
         if cur and cur.isValid():
-            return cur.sibling(cur.row(), 5).data()
+            return cur.data(FileRoles.Id)
 
     def current_file(self):
         """ Get the File object for the current files-view item, or the first selection """
@@ -558,33 +586,26 @@ class FilesModel(QObject, updates.UpdateInterface):
         app.updates.add_listener(self)
 
         # Create standard model
-        self.model = QStandardItemModel()
-        self.model.setColumnCount(6)
-        self.model_ids = {}
-        self.ignore_updates = False
+        self.base_model = FilesModel()
+        self.base_model.setObjectName("files.model")
 
         self.ignore_image_sequence_paths = []
 
         # Create proxy model (for sorting and filtering)
-        self.proxy_model = FileFilterProxyModel(parent=self)
+        self.proxy_model = FileFilterProxyModel(parent=self.base_model)
         self.proxy_model.setObjectName("files.sortfilterproxy")
         self.proxy_model.setDynamicSortFilter(True)
         self.proxy_model.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.proxy_model.setSortCaseSensitivity(Qt.CaseSensitive)
-        self.proxy_model.setSourceModel(self.model)
+        self.proxy_model.setSourceModel(self.base_model)
         self.proxy_model.setSortLocaleAware(True)
 
         # Create selection model to share between views
-        self.selection_model = QItemSelectionModel(self.proxy_model)
+        self.selection_model = QItemSelectionModel(self.proxy_model, self)
         self.selection_model.setObjectName("files.selection")
 
-        # Connect signal
-        app.window.FileUpdated.connect(self.update_file_thumbnail)
-        app.window.refreshFilesSignal.connect(
-            functools.partial(self.update_model, clear=False))
-
-        # Call init for superclass QObject
-        super(QObject, FilesModel).__init__(self, *args)
+        # "Alias" the model that faces the rest of the code
+        self.model = self.proxy_model
 
         # Attempt to load model testing interface, if requested
         # (will only succeed with Qt 5.11+)
