@@ -26,13 +26,11 @@
  """
 
 from PyQt5.QtCore import QSize
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QTreeView, QAbstractItemView
 
-from classes.logger import log
 from classes.app import get_app
 from windows.models.add_to_timeline_model import TimelineModel
 
-import json
 
 class TimelineTreeView(QTreeView):
     """ A TreeView QWidget used on the add to timeline window """
