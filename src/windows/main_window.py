@@ -2805,8 +2805,9 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         # Set all keyboard shortcuts from the settings file
         self.initKeyboardShortcuts()
 
-        # Init UI
         ui_util.init_ui(self)
+
+        self.initModels()
 
         # Setup toolbars that aren't on main window, set initial state of items, etc
         self.setup_toolbars()
@@ -2841,8 +2842,6 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
         self.setCorner(Qt.TopRightCorner, Qt.RightDockWidgetArea)
         self.setCorner(Qt.BottomRightCorner, Qt.RightDockWidgetArea)
-
-        self.initModels()
 
         # Add Docks submenu to View menu
         self.addViewDocksMenu()
