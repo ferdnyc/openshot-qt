@@ -2823,14 +2823,17 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
             self.RecoverBackup.connect(self.recover_backup)
 
         # Initialize and start the thumbnail HTTP server
-        self.http_server_thread = httpThumbnailServerThread()
+        self.http_server_thread = httpThumbnailServerThread(self)
+        self.http_server_thread.setObjectName("main_window.http_server_thread")
         self.http_server_thread.start()
 
         # Create the timeline sync object (used for previewing timeline)
         self.timeline_sync = TimelineSync(self)
+        self.timeline_sync.setObjectName("main_window.timeline_sync")
 
         # Setup timeline
         self.timeline = TimelineWebView(self)
+        self.timeline.setObjectName("main_window.timeline")
         self.frameWeb.layout().addWidget(self.timeline)
 
         # Configure the side docks to full-height
