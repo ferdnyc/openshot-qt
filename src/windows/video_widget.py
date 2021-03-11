@@ -26,10 +26,10 @@
  """
 
 from PyQt5.QtCore import (
-    Qt, QCoreApplication, QPointF, QRect, QRectF, QSize, QMutex, QTimer
+    Qt, QCoreApplication, QPointF, QPoint, QRect, QRectF, QSize, QMutex, QTimer
 )
 from PyQt5.QtGui import (
-    QTransform, QPainter, QPixmap, QColor, QPen, QBrush, QCursor,
+    QTransform, QPainter, QPixmap, QColor, QPen, QBrush, QCursor, QImage, QRegion
 )
 from PyQt5.QtWidgets import QSizePolicy, QWidget, QPushButton
 
@@ -344,6 +344,45 @@ class VideoWidget(QWidget, updates.UpdateInterface):
             # Remove transform
             painter.resetTransform()
 
+        if self.region_enabled:
+            # Paint region selector onto video preview
+            self.region_transform = QTransform()
+
+            # Init X/Y
+            x = viewport_rect.x()
+            y = viewport_rect.y()
+
+            # Apply translate/move
+            if x or y:
+                self.region_transform.translate(x, y)
+
+            # Apply scale (if any)
+            if self.zoom:
+                self.region_transform.scale(self.zoom, self.zoom)
+
+            # Apply transform
+            self.region_transform_inverted = self.region_transform.inverted()[0]
+            painter.setTransform(self.region_transform)
+
+            # Draw transform corners and center origin circle
+            # Corner size
+            cs = 14.0
+
+            if self.regionTopLeftHandle and self.regionBottomRightHandle:
+                # Draw 2 corners and bounding box
+                pen = QPen(QBrush(QColor("#53a0ed")), 1.5)
+                pen.setCosmetic(True)
+                painter.setPen(pen)
+                painter.drawRect(self.regionTopLeftHandle.x() - (cs/2.0/self.zoom), self.regionTopLeftHandle.y() - (cs/2.0/self.zoom), self.regionTopLeftHandle.width() / self.zoom, self.regionTopLeftHandle.height() / self.zoom)
+                painter.drawRect(self.regionBottomRightHandle.x() - (cs/2.0/self.zoom), self.regionBottomRightHandle.y() - (cs/2.0/self.zoom), self.regionBottomRightHandle.width() / self.zoom, self.regionBottomRightHandle.height() / self.zoom)
+                region_rect = QRectF(self.regionTopLeftHandle.x(), self.regionTopLeftHandle.y(),
+                                        self.regionBottomRightHandle.x() - self.regionTopLeftHandle.x(),
+                                        self.regionBottomRightHandle.y() - self.regionTopLeftHandle.y())
+                painter.drawRect(region_rect)
+
+            # Remove transform
+            painter.resetTransform()
+
         # End painter
         painter.end()
 
@@ -400,6 +439,34 @@ class VideoWidget(QWidget, updates.UpdateInterface):
         self.mouse_pressed = False
         self.mouse_dragging = False
         self.transform_mode = None
+        self.region_mode = None
+
+        # Save region image data (as QImage)
+        # This can be used other widgets to display the selected region
+        if self.region_enabled:
+            # Get region coordinates
+            region_rect = QRectF(self.regionTopLeftHandle.x(), self.regionTopLeftHandle.y(),
+                                 self.regionBottomRightHandle.x() - self.regionTopLeftHandle.x(),
+                                 self.regionBottomRightHandle.y() - self.regionTopLeftHandle.y()).normalized()
+
+            # Map region (due to zooming)
+            mapped_region_rect = self.region_transform.mapToPolygon(region_rect.toRect()).boundingRect()
+
+            # Render a scaled version of the region (as a QImage)
+            # TODO: Grab higher quality pixmap from the QWidget, as this method seems to be 1/2 resolution
+            # of the original QWidget video element.
+            scale = 3.0
+
+            # Map rect to transform (for scaling video elements)
+            mapped_region_rect = QRect(mapped_region_rect.x(), mapped_region_rect.y(), mapped_region_rect.width() * scale, mapped_region_rect.height() * scale)
+
+            # Render QWidget onto scaled QImage
+            self.region_qimage = QImage(mapped_region_rect.width(), mapped_region_rect.height(), QImage.Format_RGBA8888)
+            region_painter = QPainter(self.region_qimage)
+            region_painter.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform | QPainter.TextAntialiasing, True)
+            region_painter.scale(scale, scale)
+            self.render(region_painter, QPoint(0,0), QRegion(mapped_region_rect, QRegion.Rectangle))
+            region_painter.end()
 
         # Inform UpdateManager to accept updates, and only store our final update
         get_app().updates.ignore_history = False
@@ -426,6 +493,7 @@ class VideoWidget(QWidget, updates.UpdateInterface):
             self.mouse_dragging = True
 
         if self.transforming_clip:
+            # Modify clip transform properties (x, y, height, width, rotation, shear)
             # Get framerate
             fps = get_app().project.get("fps")
             fps_float = float(fps["num"]) / float(fps["den"])
@@ -788,6 +856,48 @@ class VideoWidget(QWidget, updates.UpdateInterface):
             # Force re-paint
             self.update()
 
+        if self.region_enabled:
+            # Modify region selection (x, y, width, height)
+            # Corner size
+            cs = 14.0
+
+            # Adjust existing region coordinates (if any)
+            if not self.mouse_dragging and self.resize_button.isVisible() and self.resize_button.rect().contains(event.pos()):
+                # Mouse over resize button (and not currently dragging)
+                self.setCursor(Qt.ArrowCursor)
+            elif self.region_transform and self.regionTopLeftHandle and self.region_transform.mapToPolygon(self.regionTopLeftHandle.toRect()).containsPoint(event.pos(), Qt.OddEvenFill):
+                if not self.region_mode or self.region_mode == 'scale_top_left':
+                    self.setCursor(self.rotateCursor(self.cursors.get('resize_fdiag'), 0, 0, 0))
+                # Set the region mode
+                if self.mouse_dragging and not self.region_mode:
+                    self.region_mode = 'scale_top_left'
+            elif self.region_transform and self.regionBottomRightHandle and self.region_transform.mapToPolygon(self.regionBottomRightHandle.toRect()).containsPoint(event.pos(), Qt.OddEvenFill):
+                if not self.region_mode or self.region_mode == 'scale_bottom_right':
+                    self.setCursor(self.rotateCursor(self.cursors.get('resize_fdiag'), 0, 0, 0))
+                # Set the region mode
+                if self.mouse_dragging and not self.region_mode:
+                    self.region_mode = 'scale_bottom_right'
+            else:
+                self.setCursor(Qt.ArrowCursor)
+
+            # Initialize new region coordinates at current event.pos()
+            if self.mouse_dragging and not self.region_mode:
+                self.region_mode = 'scale_bottom_right'
+                self.regionTopLeftHandle = QRectF(self.region_transform_inverted.map(event.pos()).x(), self.region_transform_inverted.map(event.pos()).y(), cs, cs)
+                self.regionBottomRightHandle = QRectF(self.region_transform_inverted.map(event.pos()).x(), self.region_transform_inverted.map(event.pos()).y(), cs, cs)
+
+            # Move existing region coordinates
+            if self.mouse_dragging:
+                diff_x = self.region_transform_inverted.map(event.pos()).x() - self.region_transform_inverted.map(self.mouse_position).x()
+                diff_y = self.region_transform_inverted.map(event.pos()).y() - self.region_transform_inverted.map(self.mouse_position).y()
+                if self.region_mode == 'scale_top_left':
+                    self.regionTopLeftHandle.adjust(diff_x, diff_y, diff_x, diff_y)
+                elif self.region_mode == 'scale_bottom_right':
+                    self.regionBottomRightHandle.adjust(diff_x, diff_y, diff_x, diff_y)
+
+            # Repaint widget on zoom
+            self.update()
+
         # Update mouse position
         self.mouse_position = event.pos()
 
@@ -860,6 +970,16 @@ class VideoWidget(QWidget, updates.UpdateInterface):
             win.refreshFrameSignal.emit()
             win.propertyTableView.select_frame(win.preview_thread.player.Position())
 
+    def regionTriggered(self, clip_id):
+        """Handle the 'select region' signal when it's emitted"""
+        if self and not clip_id:
+            # Clear transform
+            self.region_enabled = False
+        else:
+            self.region_enabled = True
+
+        get_app().window.refreshFrameSignal.emit()
+
     def resizeEvent(self, event):
         """Widget resize event"""
         event.accept()
@@ -875,16 +995,18 @@ class VideoWidget(QWidget, updates.UpdateInterface):
         # Trying to find the closest even number to the requested aspect ratio
         # so that both width and height are divisible by 2. This is to prevent some
         # strange phantom scaling lines on the edges of the preview window.
-        ratio = float(get_app().project.get("width")) / float(get_app().project.get("height"))
-        width = round(self.delayed_size.width() / 2.0) * 2
+
+        # Scale project size (with aspect ratio) to the delayed widget size
+        project_size = QSize(get_app().project.get("width"), get_app().project.get("height"))
+        project_size.scale(self.delayed_size, Qt.KeepAspectRatio)
+
+        # Calculate height/width divisible by 2
+        ratio = float(project_size.width()) / float(project_size.height())
+        width = round(project_size.width() / 2.0) * 2
         height = (round(width / ratio) / 2.0) * 2
 
-        # Override requested size
-        self.delayed_size.setWidth(width)
-        self.delayed_size.setHeight(height)
-
         # Emit signal that video widget changed size
-        self.win.MaxSizeChanged.emit(self.delayed_size)
+        self.win.MaxSizeChanged.emit(project_size)
 
     # Capture wheel event to alter zoom/scale of widget
     def wheelEvent(self, event):
@@ -943,7 +1065,13 @@ class VideoWidget(QWidget, updates.UpdateInterface):
         self.transform_mode = None
         self.gravity_point = None
         self.original_clip_data = None
-        self.zoom = 1.0  # Zoom of widget (does not affect video, only workspace)
+        self.region_qimage = None
+        self.region_transform = None
+        self.region_enabled = False
+        self.region_mode = None
+        self.regionTopLeftHandle = None
+        self.regionBottomRightHandle = None
+        self.zoom = 1.0 # Zoom of widget (does not affect video, only workspace)
         self.resize_button = QPushButton(_('Reset Zoom'), self)
         self.resize_button.hide()
         self.resize_button.setStyleSheet('QPushButton { margin: 10px; padding: 2px; }')
@@ -992,4 +1120,5 @@ class VideoWidget(QWidget, updates.UpdateInterface):
 
         # Connect to signals
         self.win.TransformSignal.connect(self.transformTriggered)
+        self.win.SelectRegionSignal.connect(self.regionTriggered)
         self.win.refreshFrameSignal.connect(self.refreshTriggered)
