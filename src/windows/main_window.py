@@ -2653,7 +2653,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
             self.show_property_id,
             self.show_property_type)
 
-    def InitKeyboardShortcuts(self):
+    def initKeyboardShortcuts(self):
         """Initialize all keyboard shortcuts from the settings file"""
 
         # Translate object
@@ -2803,7 +2803,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         ui_util.load_ui(self, self.ui_path)
 
         # Set all keyboard shortcuts from the settings file
-        self.InitKeyboardShortcuts()
+        self.initKeyboardShortcuts()
 
         # Init UI
         ui_util.init_ui(self)
