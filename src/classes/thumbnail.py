@@ -43,10 +43,11 @@ from socketserver import ThreadingMixIn
 #  http://127.0.0.1:33723/thumbnails/9ATJTBQ71V/1/path
 #  http://127.0.0.1:33723/thumbnails/9ATJTBQ71V/1/
 #  http://127.0.0.1:33723/thumbnails/9ATJTBQ71V/1
-REGEX_THUMBNAIL_URL = re.compile(r"/thumbnails/(?P<file_id>.+?)/(?P<file_frame>\d+)/*(?P<only_path>path)?/*(?P<no_cache>no-cache)?")
+REGEX_THUMBNAIL_URL = re.compile(
+    r"/thumbnails/(?P<file_id>.+?)/(?P<file_frame>\d+)/*(?P<only_path>path)?/*(?P<no_cache>no-cache)?")
 
 
-def GenerateThumbnail(file_path, thumb_path, thumbnail_frame, width, height, mask, overlay):
+def GenerateThumbnail(file_path, thumbnail_path, thumbnail_frame, width, height, mask, overlay):
     """Create thumbnail image, and check for rotate metadata (if any)"""
 
     # Create a clip object and get the reader
@@ -68,12 +69,18 @@ def GenerateThumbnail(file_path, thumb_path, thumbnail_frame, width, height, mas
         log.warning("Error reading rotation metadata from {}".format(file_path), exc_info=1)
 
     # Create thumbnail folder (if needed)
-    parent_path = os.path.dirname(thumb_path)
+    parent_path = os.path.dirname(thumbnail_path)
     if not os.path.exists(parent_path):
         os.mkdir(parent_path)
 
     # Save thumbnail image and close readers
-    reader.GetFrame(thumbnail_frame).Thumbnail(thumb_path, width, height, mask, overlay, "#000", False, "png", 85, rotate)
+    reader.GetFrame(thumbnail_frame).Thumbnail(
+        thumbnail_path,
+        width, height,
+        mask, overlay,
+        "#000", False,
+        "png", 85,
+        rotate)
     reader.Close()
     clip.Close()
 
@@ -112,8 +119,8 @@ class httpThumbnailServerThread(Thread):
             self.server_address[1])
         self.thumbServer.serve_forever(0.5)
 
-    def __init__(self):
-        Thread.__init__(self)
+    def __init__(self, *args, **kwargs):
+        self().__init__(*args, **kwargs)
         self.daemon = True
         self.server_address = None
 
@@ -194,12 +201,12 @@ class httpThumbnailHandler(BaseHTTPRequestHandler):
 
             # Create thumbnail image
             GenerateThumbnail(
-                file_path,
-                thumb_path,
-                file_frame,
-                98, 64,
-                mask_path,
-                overlay_path)
+                file_path=file_path,
+                thumbnail_path=thumb_path,
+                thumbnail_frame=file_frame,
+                width=98, height=64,
+                mask=mask_path,
+                overlay=overlay_path)
 
         # Send message back to client
         if os.path.exists(thumb_path):
@@ -212,4 +219,3 @@ class httpThumbnailHandler(BaseHTTPRequestHandler):
         # the threads to be processed without choking the CPU as much
         # TODO: Make HTTPServer work with a limited thread pool and remove this sleep() hack.
         time.sleep(0.01)
-
