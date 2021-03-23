@@ -604,19 +604,20 @@ class Preferences(QDialog):
             if reader.GetFrame(0).CheckPixel(0, 0, 2, 133, 255, 255, 5):
                 is_supported = True
                 self.hardware_tests_cards[decoder_card].append(int(decoder))
-                log.debug("Successful hardware decoder! %s (%s-%s)" % (decoder_name, decoder, decoder_card))
+                log.debug(
+                    "Successful hardware decoder! %s (%s-%s)",
+                    decoder_name, decoder, decoder_card)
             else:
                 log.debug(
-                    "CheckPixel failed testing hardware decoding (i.e. wrong color found): %s (%s-%s)",
-                    (decoder_name, decoder, decoder_card))
-
+                    "CheckPixel failed testing hardware decoding: %s (%s-%s)",
+                    decoder_name, decoder, decoder_card)
             reader.Close()
             clip.Close()
 
         except Exception:
             log.debug(
-                "Exception trying to test hardware decoding (this is expected): %s (%s-%s)",
-                (decoder_name, decoder, decoder_card))
+                "Exception trying to test hardware decoding (skipped): %s (%s-%s)",
+                decoder_name, decoder, decoder_card)
 
         # Resume current settings
         openshot.Settings.Instance().HARDWARE_DECODER = current_decoder
