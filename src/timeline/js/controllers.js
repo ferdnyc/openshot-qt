@@ -30,7 +30,6 @@
 // Initialize the main controller module
 /*global App, timeline, bounding_box, setBoundingBox, moveBoundingBox, findElement*/
 App.controller("TimelineCtrl", function ($scope) {
-
   // DEMO DATA (used when debugging outside of Qt using Chrome)
   $scope.project = {
     fps: {
@@ -118,9 +117,7 @@ App.controller("TimelineCtrl", function ($scope) {
     var frame = Math.round(position_seconds * frames_per_second) + 1;
 
     // Update GUI with position (so the preview can be updated)
-    if ($scope.Qt) {
-      timeline.PlayheadMoved(frame);
-    }
+    timeline.PlayheadMoved(frame);
   };
 
   // Move the playhead to a specific time
@@ -133,9 +130,7 @@ App.controller("TimelineCtrl", function ($scope) {
     var frame = Math.round(position_seconds_rounded * frames_per_second) + 1;
 
     // Update GUI with position (so the preview can be updated)
-    if ($scope.Qt) {
-      timeline.PreviewClipFrame(clip_id, frame);
-    }
+    timeline.PreviewClipFrame(clip_id, frame);
   };
 
   // Get an array of keyframe points for the selected clips
@@ -537,10 +532,8 @@ App.controller("TimelineCtrl", function ($scope) {
     }
     // Call slice method and exit (don't actually select the clip)
     if (id !== "" && $scope.enable_razor) {
-      if ($scope.Qt) {
-        var cursor_seconds = $scope.getJavaScriptPosition(event.clientX, null).position;
-        timeline.RazorSliceAtCursor(id, "", cursor_seconds);
-      }
+      var cursor_seconds = $scope.getJavaScriptPosition(event.clientX, null).position;
+      timeline.RazorSliceAtCursor(id, "", cursor_seconds);
       // Don't actually select clip
       return;
     }
@@ -551,28 +544,22 @@ App.controller("TimelineCtrl", function ($scope) {
         // Invert selection if CTRL is pressed and not forced add and already selected
         if (is_ctrl && clear_selections && ($scope.project.clips[clip_index].selected === true)) {
           $scope.project.clips[clip_index].selected = false;
-          if ($scope.Qt) {
-            timeline.removeSelection($scope.project.clips[clip_index].id, "clip");
-          }
+          timeline.removeSelection($scope.project.clips[clip_index].id, "clip");
         }
         else {
           $scope.project.clips[clip_index].selected = true;
-          if ($scope.Qt) {
-            // Do not clear selection if CTRL is pressed
-            if (is_ctrl) {
-              timeline.addSelection(id, "clip", false);
-            }
-            else {
-              timeline.addSelection(id, "clip", clear_selections);
-            }
+          // Do not clear selection if CTRL is pressed
+          if (is_ctrl) {
+            timeline.addSelection(id, "clip", false);
+          }
+          else {
+            timeline.addSelection(id, "clip", clear_selections);
           }
         }
       }
       else if (clear_selections && !is_ctrl) {
         $scope.project.clips[clip_index].selected = false;
-        if ($scope.Qt) {
-          timeline.removeSelection($scope.project.clips[clip_index].id, "clip");
-        }
+        timeline.removeSelection($scope.project.clips[clip_index].id, "clip");
       }
     }
   };
@@ -591,10 +578,8 @@ App.controller("TimelineCtrl", function ($scope) {
     }
     // Call slice method and exit (don't actually select the transition)
     if (id !== "" && $scope.enable_razor) {
-      if ($scope.Qt) {
-        var cursor_seconds = $scope.getJavaScriptPosition(event.clientX, null).position;
-        timeline.RazorSliceAtCursor("", id, cursor_seconds);
-      }
+      var cursor_seconds = $scope.getJavaScriptPosition(event.clientX, null).position;
+      timeline.RazorSliceAtCursor("", id, cursor_seconds);
       // Don't actually select transition
       return;
     }
@@ -605,28 +590,22 @@ App.controller("TimelineCtrl", function ($scope) {
         // Invert selection if CTRL is pressed and not forced add and already selected
         if (is_ctrl && clear_selections && ($scope.project.effects[tran_index].selected === true)) {
           $scope.project.effects[tran_index].selected = false;
-          if ($scope.Qt) {
-            timeline.removeSelection($scope.project.effects[tran_index].id, "transition");
-          }
+          timeline.removeSelection($scope.project.effects[tran_index].id, "transition");
         }
         else {
           $scope.project.effects[tran_index].selected = true;
-          if ($scope.Qt) {
-            // Do not clear selection if CTRL is pressed
-            if (is_ctrl) {
-              timeline.addSelection(id, "transition", false);
-            }
-            else {
-              timeline.addSelection(id, "transition", clear_selections);
-            }
+          // Do not clear selection if CTRL is pressed
+          if (is_ctrl) {
+            timeline.addSelection(id, "transition", false);
+          }
+          else {
+            timeline.addSelection(id, "transition", clear_selections);
           }
         }
       }
       else if (clear_selections && !is_ctrl) {
         $scope.project.effects[tran_index].selected = false;
-        if ($scope.Qt) {
-          timeline.removeSelection($scope.project.effects[tran_index].id, "transition");
-        }
+        timeline.removeSelection($scope.project.effects[tran_index].id, "transition");
       }
     }
   };
@@ -648,9 +627,7 @@ App.controller("TimelineCtrl", function ($scope) {
 
   // Select transition in scope
   $scope.selectEffect = function (effect_id) {
-    if ($scope.Qt) {
-      timeline.addSelection(effect_id, "effect", true);
-    }
+    timeline.addSelection(effect_id, "effect", true);
   };
 
   // Constrain canvas width values to under 32Kpixels
@@ -671,16 +648,14 @@ App.controller("TimelineCtrl", function ($scope) {
     }
     // Resize timeline
     if (furthest_right_edge > $scope.project.duration) {
-      if ($scope.Qt) {
-        timeline.resizeTimeline(furthest_right_edge + 10);
-        $scope.project.duration = furthest_right_edge + 10;
-      }
+      $scope.project.duration = furthest_right_edge + 10;
+      timeline.resizeTimeline(furthest_right_edge + 10);
     }
   };
 
 // Show clip context menu
   $scope.showClipMenu = function (clip_id, event) {
-    if ($scope.Qt && !$scope.enable_razor) {
+    if (!$scope.enable_razor) {
       timeline.qt_log("DEBUG", "$scope.showClipMenu");
       $scope.selectClip(clip_id, false, event);
       timeline.ShowClipMenu(clip_id);
@@ -689,7 +664,7 @@ App.controller("TimelineCtrl", function ($scope) {
 
 // Show clip context menu
   $scope.showEffectMenu = function (effect_id) {
-    if ($scope.Qt && !$scope.enable_razor) {
+    if (!$scope.enable_razor) {
       timeline.qt_log("DEBUG", "$scope.showEffectMenu");
       timeline.ShowEffectMenu(effect_id);
     }
@@ -697,7 +672,7 @@ App.controller("TimelineCtrl", function ($scope) {
 
 // Show transition context menu
   $scope.showTransitionMenu = function (tran_id, event) {
-    if ($scope.Qt && !$scope.enable_razor) {
+    if (!$scope.enable_razor) {
       timeline.qt_log("DEBUG", "$scope.showTransitionMenu");
       $scope.selectTransition(tran_id, false, event);
       timeline.ShowTransitionMenu(tran_id);
@@ -706,7 +681,7 @@ App.controller("TimelineCtrl", function ($scope) {
 
 // Show track context menu
   $scope.showTrackMenu = function (layer_id) {
-    if ($scope.Qt && !$scope.enable_razor) {
+    if (!$scope.enable_razor) {
       timeline.qt_log("DEBUG", "$scope.showTrackMenu");
       timeline.ShowTrackMenu(layer_id);
     }
@@ -714,7 +689,7 @@ App.controller("TimelineCtrl", function ($scope) {
 
 // Show marker context menu
   $scope.showMarkerMenu = function (marker_id) {
-    if ($scope.Qt && !$scope.enable_razor) {
+    if (!$scope.enable_razor) {
       timeline.qt_log("DEBUG", "$scope.showMarkerMenu");
       timeline.ShowMarkerMenu(marker_id);
     }
@@ -722,7 +697,7 @@ App.controller("TimelineCtrl", function ($scope) {
 
   // Show playhead context menu
   $scope.showPlayheadMenu = function (position) {
-    if ($scope.Qt && !$scope.enable_razor) {
+    if (!$scope.enable_razor) {
       timeline.qt_log("DEBUG", "$scope.showPlayheadMenu");
       timeline.ShowPlayheadMenu(position);
     }
@@ -730,7 +705,7 @@ App.controller("TimelineCtrl", function ($scope) {
 
   // Show timeline context menu
   $scope.showTimelineMenu = function (e, layer_number) {
-    if ($scope.Qt && !$scope.enable_razor) {
+    if (!$scope.enable_razor) {
       timeline.ShowTimelineMenu($scope.getJavaScriptPosition(e.pageX, null).position, layer_number);
     }
   };
@@ -844,7 +819,7 @@ App.controller("TimelineCtrl", function ($scope) {
 
     // Check again for missing transitions
     var missing_transition_details = $scope.getMissingTransitions(item_object);
-    if ($scope.Qt && missing_transition_details !== null) {
+    if (missing_transition_details !== null) {
       timeline.add_missing_transition(JSON.stringify(missing_transition_details));
     }
     // Remove manual move stylesheet
@@ -945,9 +920,7 @@ App.controller("TimelineCtrl", function ($scope) {
   // Update X,Y indexes of tracks / layers (anytime the project.layers scope changes)
   $scope.updateLayerIndex = function () {
 
-    if ($scope.Qt) {
-      timeline.qt_log("DEBUG", "updateLayerIndex");
-    }
+    timeline.qt_log("DEBUG", "updateLayerIndex");
 
     var scrolling_tracks = $("#scrolling_tracks");
     var vert_scroll_offset = scrolling_tracks.scrollTop();
@@ -975,42 +948,40 @@ App.controller("TimelineCtrl", function ($scope) {
       return;
     }
 
-    if ($scope.Qt) {
-      timeline.qt_log("DEBUG", "sortItems");
+    timeline.qt_log("DEBUG", "sortItems");
 
-      $scope.$evalAsync(function () {
-        // Sort by position second
-        $scope.project.clips = $scope.project.clips.sort(function (a, b) {
-          if (a.position < b.position) {
-            return -1;
-          }
-          if (a.position > b.position) {
-            return 1;
-          }
-          return 0;
-        });
-        // Sort transitions by position second
-        $scope.project.effects = $scope.project.effects.sort(function (a, b) {
-          if (a.position < b.position) {
-            return -1;
-          }
-          if (a.position > b.position) {
-            return 1;
-          }
-          return 0;
-        });
-        // Sort tracks by position second
-        $scope.project.layers = $scope.project.layers.sort(function (a, b) {
-          if (a.number < b.number) {
-            return -1;
-          }
-          if (a.number > b.number) {
-            return 1;
-          }
-          return 0;
-        });
+    $scope.$evalAsync(function () {
+      // Sort by position second
+      $scope.project.clips = $scope.project.clips.sort(function (a, b) {
+        if (a.position < b.position) {
+          return -1;
+        }
+        if (a.position > b.position) {
+          return 1;
+        }
+        return 0;
       });
-    }
+      // Sort transitions by position second
+      $scope.project.effects = $scope.project.effects.sort(function (a, b) {
+        if (a.position < b.position) {
+          return -1;
+        }
+        if (a.position > b.position) {
+          return 1;
+        }
+        return 0;
+      });
+      // Sort tracks by position second
+      $scope.project.layers = $scope.project.layers.sort(function (a, b) {
+        if (a.number < b.number) {
+          return -1;
+        }
+        if (a.number > b.number) {
+          return 1;
+        }
+        return 0;
+      });
+    });
   };
 
   // Find overlapping clips
