@@ -35,6 +35,7 @@ from PyQt5.QtCore import (
     QMimeData, Qt, QObject, pyqtSlot,
     QSortFilterProxyModel, QItemSelectionModel,
     QModelIndex, QAbstractTableModel, QUrl, QSize,
+    QByteArray,
 )
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction
@@ -55,6 +56,15 @@ class FileRoles:
     Path = Qt.UserRole + 12
     MediaType = Qt.UserRole + 13
     DataKey = Qt.UserRole + 14
+
+
+class FileRoleNames:
+    custom = {
+        FileRoles.Id: QByteArray(b"id"),
+        FileRoles.Path: QByteArray(b"path"),
+        FileRoles.MediaType: QByteArray(b"mediatype"),
+        FileRoles.DataKey: QByteArray(b"datakey"),
+    }
 
 
 class FileModelColumns:
@@ -303,6 +313,12 @@ class FilesModel(QAbstractTableModel):
             return r.text
         else:
             return ''
+
+    def roleNames(self):
+        """Provide the names of all defined roles in the model"""
+        names = super().roleNames()
+        names.update(FileRoleNames.custom)
+        return names
 
     def mimeData(self, indexes):
         """Return MIME representation of selected files"""
