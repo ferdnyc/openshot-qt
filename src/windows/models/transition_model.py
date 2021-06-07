@@ -28,7 +28,7 @@
 import os
 
 from PyQt5.QtCore import (
-    QObject, QMimeData, Qt, pyqtSignal,
+    QObject, QMimeData, Qt, pyqtSignal, pyqtSlot,
     QSortFilterProxyModel, QPersistentModelIndex, QItemSelectionModel,
 )
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
@@ -45,23 +45,34 @@ import json
 class TransitionFilterProxyModel(QSortFilterProxyModel):
     """Proxy class used for sorting and filtering model data"""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.show_common = False
+
     def filterAcceptsRow(self, sourceRow, sourceParent):
         """Filter for common transitions and text filter"""
 
-        if get_app().window.actionTransitionsShowCommon.isChecked():
-            # Fetch the group name
-            index = self.sourceModel().index(sourceRow, 2, sourceParent)  # group name column
-            group_name = self.sourceModel().data(index)  # group name (i.e. common)
+        if not self.show_common and self.filterRegExp().isEmpty():
+            # Just run built-in parent filter logic
+            return super().filterAcceptsRow(sourceRow, sourceParent)
 
-            # Fetch the transitions name
-            index = self.sourceModel().index(sourceRow, 0, sourceParent)  # transition name column
-            trans_name = self.sourceModel().data(index)  # transition name (i.e. Fade In)
+        if self.show_common:
+            # Fetch the group name from group column
+            index = self.sourceModel().index(sourceRow, 2, sourceParent)
+            group_name = self.sourceModel().data(index)
 
-            # Return, if regExp match in displayed format.
-            return group_name == "common" and self.filterRegExp().indexIn(trans_name) >= 0
+            # Fetch the transitions name from name column
+            index = self.sourceModel().index(sourceRow, 0, sourceParent)
+            trans_name = self.sourceModel().data(index)
 
-        # Continue running built-in parent filter logic
-        return super(TransitionFilterProxyModel, self).filterAcceptsRow(sourceRow, sourceParent)
+            return bool(
+                group_name == "common"
+                and self.filterRegExp().indexIn(trans_name) >= 0)
+
+    @pyqtSlot(bool)
+    def show_common_checked(self, checked: bool):
+        """Record state of Common transitions filter button"""
+        self.show_common = checked
 
     def lessThan(self, left, right):
         """Sort with both group name and transition name"""
@@ -246,6 +257,10 @@ class TransitionsModel(QObject):
 
         # Create selection model to share between views
         self.selection_model = QItemSelectionModel(self.proxy_model)
+
+        # Publish slots for filter and group changes
+        self.show_common_changed = self.proxy_model.show_common_checked
+        self.filter_text_changed = self.proxy_model.setFilterFixedString
 
         # Attempt to load model testing interface, if requested
         # (will only succeed with Qt 5.11+)

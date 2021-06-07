@@ -73,16 +73,6 @@ class TransitionsListView(QListView):
         drag.setHotSpot(QPoint(self.drag_item_size / 2, self.drag_item_size / 2))
         drag.exec_()
 
-    def filter_changed(self):
-        self.refresh_view()
-
-    def refresh_view(self):
-        """Filter transitions with proxy class"""
-        filter_text = self.win.transitionsFilter.text()
-        self.model().setFilterRegExp(QRegExp(filter_text.replace(' ', '.*')))
-        self.model().setFilterCaseSensitivity(Qt.CaseInsensitive)
-        self.model().sort(Qt.AscendingOrder)
-
     def __init__(self, model):
         # Invoke parent init
         QListView.__init__(self)
@@ -115,8 +105,3 @@ class TransitionsListView(QListView):
         self.setWordWrap(False)
         self.setTextElideMode(Qt.ElideRight)
         self.setStyleSheet('QListView::item { padding-top: 2px; }')
-
-        # setup filter events
-        app = get_app()
-        app.window.transitionsFilter.textChanged.connect(self.filter_changed)
-        app.window.refreshTransitionsSignal.connect(self.refresh_view)
