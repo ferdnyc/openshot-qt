@@ -119,8 +119,8 @@ class httpThumbnailServerThread(Thread):
             self.server_address[1])
         self.thumbServer.serve_forever(0.5)
 
-    def __init__(self, *args, **kwargs):
-        self().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.daemon = True
         self.server_address = None
 
