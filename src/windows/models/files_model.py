@@ -37,6 +37,7 @@ from PyQt5.QtCore import (
     QModelIndex, QAbstractTableModel, QUrl, QSize,
 )
 from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QAction
 
 from classes import updates
 from classes import info
@@ -77,34 +78,41 @@ class FileFilterProxyModel(QSortFilterProxyModel):
 
         # Retrieve primary information from data column
         index = self.sourceModel().index(sourceRow, FileModelColumns.Data, sourceParent)
-        file_title = self.sourceModel().data(index)
+        file_title = self.sourceModel().data(index, Qt.DisplayRole)
         media_type = self.sourceModel().data(index, FileRoles.MediaType)
+        row_id = self.sourceModel().data(index, FileRoles.Id)
 
         # Filter by media type, if enabled
         if len(self.filter_group) > 0 and media_type not in self.filter_group:
+            log.debug(
+                "Rejecting %s row %s, not in %s",
+                media_type, row_id, self.filter_group)
             return False
 
         # Retrieve tags list from tags column
         index = self.sourceModel().index(sourceRow, FileModelColumns.Data, sourceParent)
-        tags = self.sourceModel().data(index)
+        tags = self.sourceModel().data(index, Qt.DisplayRole)
 
         # Match against regex pattern and/or media type grouping
-        return any(
+        return any([
             self.filterRegExp().indexIn(file_title) >= 0,
             self.filterRegExp().indexIn(tags) >= 0
-            )
+            ])
 
-    @pyqtSlot(str)
-    def update_filter_group(self, media_type: str, clear=True):
-        """ Update the list of media types accepted by the filter """
-        if clear or media_type == "":
-            self.filter_group = {}
-        if media_type.lower() in ["video", "audio", "image"]:
-            self.filter_group.append(media_type.lower())
+    @pyqtSlot(QAction)
+    def update_filter_group(self, selected: QAction):
+        """ Update the media type accepted by the filter """
+        log.debug("Setting filter group to %s", selected.data() or "all")
+        if selected.data():
+            self.filter_group = {selected.data()}
+        else:
+            self.filter_group = {"audio", "image", "video"}
+        self.invalidateFilter()
 
     def __init__(self, *args, **kwargs):
         # Call base class implementation
         super().__init__(*args, **kwargs)
+        self.filter_group = {"audio", "image", "video"}
 
 
 class FilesModel(QAbstractTableModel):

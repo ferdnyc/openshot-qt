@@ -2503,6 +2503,11 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         self.transitionsToolbar.addWidget(self.transitionsFilter)
         self.tabTransitions.layout().addWidget(self.transitionsToolbar)
 
+        self.transitionsFilter.textChanged.connect(
+            self.transition_model.filter_text_changed)
+        self.actionTransitionsShowCommon.triggered.connect(
+            self.transition_model.show_common_changed)
+
         # Add effects toolbar
         self.effectsToolbar = QToolBar("Effects Toolbar")
         self.effectsFilter = QLineEdit()

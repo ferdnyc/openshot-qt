@@ -967,6 +967,9 @@
    <property name="toolTip">
     <string>Show All</string>
    </property>
+   <property name="data">
+    <string></string>
+   </property>
   </action>
   <action name="actionFilesShowVideo">
    <property name="checkable">
@@ -977,6 +980,9 @@
    </property>
    <property name="toolTip">
     <string>Video</string>
+   </property>
+   <property name="data">
+    <string>video</string>
    </property>
   </action>
   <action name="actionFilesShowAudio">
@@ -989,6 +995,9 @@
    <property name="toolTip">
     <string>Audio</string>
    </property>
+   <property name="data">
+    <string>audio</string>
+   </property>
   </action>
   <action name="actionFilesShowImage">
    <property name="checkable">
@@ -999,6 +1008,9 @@
    </property>
    <property name="toolTip">
     <string>Image</string>
+   </property>
+   <property name="data">
+    <string>image</string>
    </property>
   </action>
   <action name="actionFilesClear">
@@ -1023,6 +1035,9 @@
    <property name="toolTip">
     <string>Show All</string>
    </property>
+   <property name="data">
+    <string>all</string>
+   </property>
   </action>
   <action name="actionTransitionsShowCommon">
    <property name="checkable">
@@ -1033,6 +1048,9 @@
    </property>
    <property name="toolTip">
     <string>Common</string>
+   </property>
+   <property name="data">
+    <string>common</string>
    </property>
   </action>
   <action name="actionTransitionsClear">
