@@ -29,7 +29,6 @@
 
 import os
 import shutil
-import sys
 import webbrowser
 from copy import deepcopy
 from time import sleep
@@ -2436,7 +2435,10 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
         # Add files toolbar
         self.filesToolbar = QToolBar("Files Toolbar")
+        self.filesToolbar.setObjectName("main_window.filesToolbar")
+
         self.filesActionGroup = QActionGroup(self)
+        self.filesActionGroup.setObjectName("main_window.filesActionGroup")
         self.filesActionGroup.setExclusive(True)
         self.filesActionGroup.addAction(self.actionFilesShowAll)
         self.filesActionGroup.addAction(self.actionFilesShowVideo)
@@ -2447,12 +2449,19 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         self.filesToolbar.addAction(self.actionFilesShowVideo)
         self.filesToolbar.addAction(self.actionFilesShowAudio)
         self.filesToolbar.addAction(self.actionFilesShowImage)
+
         self.filesFilter = QLineEdit()
         self.filesFilter.setObjectName("filesFilter")
         self.filesFilter.setPlaceholderText(_("Filter"))
         self.filesFilter.setClearButtonEnabled(True)
         self.filesToolbar.addWidget(self.filesFilter)
         self.tabFiles.layout().insertWidget(0, self.filesToolbar)
+
+        # Connect files toolbar filter signals
+        self.filesFilter.textChanged.connect(
+            self.files_manager.filter_text_changed)
+        self.filesActionGroup.triggered.connect(
+            self.files_manager.filter_group_changed)
 
         # Add transitions toolbar
         self.transitionsToolbar = QToolBar("Transitions Toolbar")

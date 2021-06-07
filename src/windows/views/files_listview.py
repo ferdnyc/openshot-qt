@@ -193,7 +193,3 @@ class FilesListView(QListView):
         self.setTextElideMode(Qt.ElideRight)
 
         self.model().modelReset.connect(self.refresh_view)
-
-        # setup filter events
-        app = get_app()
-        app.window.filesFilter.textChanged.connect(self.filter_changed)

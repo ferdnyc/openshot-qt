@@ -32,7 +32,8 @@ import re
 import glob
 
 from PyQt5.QtCore import (
-    QMimeData, Qt, QObject, QSortFilterProxyModel, QItemSelectionModel,
+    QMimeData, Qt, QObject, pyqtSlot,
+    QSortFilterProxyModel, QItemSelectionModel,
     QModelIndex, QAbstractTableModel, QUrl, QSize,
 )
 from PyQt5.QtGui import QIcon
@@ -48,59 +49,62 @@ from requests import get
 import openshot
 
 
-class FileFilterProxyModel(QSortFilterProxyModel):
-    """Proxy class used for sorting and filtering model data"""
-
-    def filterAcceptsRow(self, sourceRow, sourceParent):
-        """Filter for text"""
-        app = get_app()
-        win = app.window
-        if any([
-            win.actionFilesShowVideo.isChecked(),
-            win.actionFilesShowAudio.isChecked(),
-            win.actionFilesShowImage.isChecked(),
-            win.filesFilter.text(),
-        ]):
-            # Fetch the file name
-            index = self.sourceModel().index(sourceRow, 0, sourceParent)
-            file_name = self.sourceModel().data(index, FilesModel)  # file name (i.e. MyVideo.mp4)
-
-            # Fetch the media_type
-            media_type = self.sourceModel().data(index, FileRoles.MediaType)
-
-            index = self.sourceModel().index(sourceRow, 2, sourceParent)
-            tags = self.sourceModel().data(index)  # tags (i.e. intro, custom, etc...)
-
-            if any([
-                win.actionFilesShowVideo.isChecked() and media_type != "video",
-                win.actionFilesShowAudio.isChecked() and media_type != "audio",
-                win.actionFilesShowImage.isChecked() and media_type != "image",
-            ]):
-                return False
-
-            # Match against regex pattern
-            return bool(
-                self.filterRegExp().indexIn(file_name) >= 0
-                or self.filterRegExp().indexIn(tags) >= 0
-                )
-
-        # Continue running built-in parent filter logic
-        return super().filterAcceptsRow(sourceRow, sourceParent)
-
-    def __init__(self, **kwargs):
-        if "parent" in kwargs:
-            self.parent = kwargs["parent"]
-            kwargs.pop("parent")
-
-        # Call base class implementation
-        super().__init__(**kwargs)
-
-
 class FileRoles:
     Id = Qt.UserRole + 11
     Path = Qt.UserRole + 12
     MediaType = Qt.UserRole + 13
     DataKey = Qt.UserRole + 14
+
+
+class FileModelColumns:
+    Data = 0
+    Id = 0
+    Icon = 0
+    Title = 0
+    Tags = 2
+    Path = 0
+    MediaType = 0
+
+
+class FileFilterProxyModel(QSortFilterProxyModel):
+    """Proxy class used for sorting and filtering model data"""
+
+    def filterAcceptsRow(self, sourceRow, sourceParent):
+        """Apply filtering parameters to data for requested row"""
+        if not self.filter_group and self.filterRegexp().isEmpty():
+            # Just run built-in parent filter logic
+            return super().filterAcceptsRow(sourceRow, sourceParent)
+
+        # Retrieve primary information from data column
+        index = self.sourceModel().index(sourceRow, FileModelColumns.Data, sourceParent)
+        file_title = self.sourceModel().data(index)
+        media_type = self.sourceModel().data(index, FileRoles.MediaType)
+
+        # Filter by media type, if enabled
+        if len(self.filter_group) > 0 and media_type not in self.filter_group:
+            return False
+
+        # Retrieve tags list from tags column
+        index = self.sourceModel().index(sourceRow, FileModelColumns.Data, sourceParent)
+        tags = self.sourceModel().data(index)
+
+        # Match against regex pattern and/or media type grouping
+        return any(
+            self.filterRegExp().indexIn(file_title) >= 0,
+            self.filterRegExp().indexIn(tags) >= 0
+            )
+
+    @pyqtSlot(str)
+    def update_filter_group(self, media_type: str, clear=True):
+        """ Update the list of media types accepted by the filter """
+        if clear or media_type == "":
+            self.filter_group = {}
+        if media_type.lower() in ["video", "audio", "image"]:
+            self.filter_group.append(media_type.lower())
+
+    def __init__(self, *args, **kwargs):
+        # Call base class implementation
+        super().__init__(*args, **kwargs)
 
 
 class FilesModel(QAbstractTableModel):
@@ -132,15 +136,18 @@ class FilesModel(QAbstractTableModel):
         self.endResetModel()
 
     def rowCount(self, parent=QModelIndex()):
+        """ Standard Qt model method for retrieving model length """
         if parent and parent.isValid():
             # Our indexes don't have children
             return 0
         return len(self._data)
 
     def columnCount(self, parent=QModelIndex()):
+        """ Standard Qt model method for retrieving model width """
         return 6
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+        """ Standard Qt model method providing metadata on model contents """
         _flags = (
             Qt.ItemIsSelectable | Qt.ItemIsEnabled
             | Qt.ItemNeverHasChildren
@@ -156,6 +163,7 @@ class FilesModel(QAbstractTableModel):
         return _flags
 
     def headerData(self, section: int, orientation: Qt.Orientation, role: int):
+        """ Standard Qt method for 2-dimensional models """
         if orientation is Qt.Vertical:
             return f"Row {section}"
         if role == Qt.DisplayRole:
@@ -167,48 +175,53 @@ class FilesModel(QAbstractTableModel):
             return Qt.AlignLeft
 
     def data(self, index: QModelIndex, role: int):
+        """ Standard Qt method for retrieving model data """
         text_roles = [Qt.DisplayRole, Qt.ToolTipRole, Qt.EditRole]
         if not index.isValid():
             return
-        col = index.column()
+
         file_data = self._data[index.row()]
         file_id = file_data.get("id")
         file_path = file_data.get("path")
+        file_title = file_data.get("title", os.path.basename(file_path))
 
-        if col == 5 and role in text_roles:
-            return file_id
+        # Currently we support the old 6-column model as a legacy
+        # comptibility feature. Eventually this will be phased out,
+        # and only the visible 3-column model will be supported, with
+        # additional data being stored at column 0 in custom UserRoles
+        # enumerated by the FileRoles object.
+        col = index.column()
         if col in [0, 1] and role in text_roles:
-            return file_data.get("name", os.path.basename(file_path))
+            return file_title
         if col == 2 and role in text_roles:
             return file_data.get("tags", None)
         if col == 3 and role in text_roles:
             return file_data.get("media_type", None)
         if col == 4 and role in text_roles:
             return file_path
+        if col == 5 and role in text_roles:
+            return file_id
+
+        # Support lookup by custom role
         if role == FileRoles.Id:
             return file_id
         if role == FileRoles.Path:
             return file_path
         if role == FileRoles.MediaType:
             return file_data.get("media_type", None)
-        if col < 3 and role == FileRoles.DataKey:
-            if role == FileRoles.DataKey:
+
+        # Retrieve the underlying dict key corresponding to a visible column
+        # (which is labeled using a localized heading string)
+        # XXX: Should this be in headerData()? (as well?)
+        if role == FileRoles.DataKey:
+            if col < 3:
                 return self.data_labels[col][1]
-        if col == 0 and role == Qt.DecorationRole:
-            if file_id not in self._thumb_paths:
-                thumb_frame = 1
-                if 'start' in file_data:
-                    # We need to offset the frame being thumbnailed
-                    fps = file_data["fps"]
-                    fps_float = float(fps["num"]) / float(fps["den"])
-                    thumb_frame = round(float(file_data['start']) * fps_float) + 1
-                # Get thumb path
-                thumb_path = self.get_thumb_path(
-                    file_id, thumb_frame, clear_cache=True)
-                self._thumb_paths.update({
-                    file_id: thumb_path,
-                    })
-            return QIcon(self._thumb_paths.get(file_id, None))
+            else:
+                return ''
+
+        # Support icon lookup on the first or second column
+        if col in [0, 1] and role == Qt.DecorationRole:
+            return self.lookup_thumb(file_data)
 
     def setData(self, index: QModelIndex, value, role: int) -> bool:
         # Skip calls that don't provide any changes we can store
@@ -240,6 +253,23 @@ class FilesModel(QAbstractTableModel):
             r_bottom = index.sibling(index.row(), self.columnCount() - 1)
         self.dataChanged.emit(l_top, r_bottom)
         return True
+
+    def lookup_thumb(self, file_data: dict):
+        file_id = file_data.get("id")
+        if file_id not in self._thumb_paths:
+            thumb_frame = 1
+            if 'start' in file_data:
+                # We need to offset the frame being thumbnailed
+                fps = file_data["fps"]
+                fps_float = float(fps["num"]) / float(fps["den"])
+                thumb_frame = round(float(file_data['start']) * fps_float) + 1
+            # Get path from thumbnail service
+            thumb_path = self.get_thumb_path(
+                file_id, thumb_frame, clear_cache=True)
+            self._thumb_paths.update({
+                file_id: thumb_path,
+                })
+        return QIcon(self._thumb_paths.get(file_id, None))
 
     @staticmethod
     def get_thumb_path(
@@ -592,7 +622,7 @@ class FilesManager(updates.UpdateInterface, QObject):
         self.ignore_image_sequence_paths = []
 
         # Create proxy model (for sorting and filtering)
-        self.proxy_model = FileFilterProxyModel(parent=self.base_model)
+        self.proxy_model = FileFilterProxyModel(self)
         self.proxy_model.setObjectName("files.sortfilterproxy")
         self.proxy_model.setDynamicSortFilter(True)
         self.proxy_model.setFilterCaseSensitivity(Qt.CaseInsensitive)
@@ -606,6 +636,10 @@ class FilesManager(updates.UpdateInterface, QObject):
 
         # "Alias" the model that faces the rest of the code
         self.model = self.proxy_model
+
+        # Make the filtering slots visible to MainWindow
+        self.filter_text_changed = self.proxy_model.setFilterFixedString
+        self.filter_group_changed = self.proxy_model.update_filter_group
 
         # Attempt to load model testing interface, if requested
         # (will only succeed with Qt 5.11+)
