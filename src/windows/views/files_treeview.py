@@ -27,12 +27,10 @@
  along with OpenShot Library.  If not, see <http://www.gnu.org/licenses/>.
  """
 
-from PyQt5.QtCore import QSize, Qt, QPoint
-from PyQt5.QtGui import QDrag, QCursor
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QTreeView, QAbstractItemView, QMenu, QSizePolicy, QHeaderView
 
 from classes.app import get_app
-from classes.logger import log
 from classes.query import File
 
 
@@ -145,26 +143,19 @@ class FilesTreeView(QTreeView):
     # def filter_changed(self):
     #     self.refresh_view()
 
-    def refresh_view(self):
-        """Resize and hide certain columns"""
-        self.hideColumn(3)
-        self.hideColumn(4)
-        self.hideColumn(5)
-        self.resize_contents()
+    # def refresh_view(self):
+    #     """Resize and hide certain columns"""
+    #     self.resize_contents()
+    #
+    # def resize_contents(self):
+    #     # Get size of widget
+    #     thumbnail_width = 78
+    #     tags_width = 75
+    #
+    #     # Resize thumbnail and tags column
+    #     #self.header().resizeSection(0, thumbnail_width)
+    #     self.header().resizeSection(2, tags_width)
 
-    def resize_contents(self):
-        # Get size of widget
-        thumbnail_width = 78
-        tags_width = 75
-
-        # Resize thumbnail and tags column
-        self.header().resizeSection(0, thumbnail_width)
-        self.header().resizeSection(2, tags_width)
-
-        # Set stretch mode on certain columns
-        self.header().setStretchLastSection(False)
-        self.header().setSectionResizeMode(1, QHeaderView.Stretch)
-        self.header().setSectionResizeMode(2, QHeaderView.Interactive)
 
     # def value_updated(self, item):
     #     """ Name or tags updated """
@@ -228,7 +219,18 @@ class FilesTreeView(QTreeView):
         self.setWordWrap(False)
         self.setTextElideMode(Qt.ElideRight)
 
-        self.model().modelReset.connect(self.refresh_view)
+        self.hideColumn(1)
+        self.hideColumn(3)
+        self.hideColumn(4)
+        self.hideColumn(5)
+
+        # Set stretch mode on certain columns
+        self.header().setStretchLastSection(False)
+        self.header().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.header().setSectionResizeMode(2, QHeaderView.Interactive)
+
+
+        # self.model().modelReset.connect(self.refresh_view)
 
         # setup filter events
         # self.files_manager.model.itemChanged.connect(self.value_updated)

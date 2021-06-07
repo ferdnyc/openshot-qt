@@ -26,12 +26,10 @@
  along with OpenShot Library.  If not, see <http://www.gnu.org/licenses/>.
  """
 
-from PyQt5.QtCore import QSize, Qt, QPoint, QRegExp
-from PyQt5.QtGui import QDrag, QCursor
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QListView, QAbstractItemView, QMenu
 
 from classes.app import get_app
-from classes.logger import log
 from classes.query import File
 
 
@@ -143,20 +141,17 @@ class FilesListView(QListView):
     def add_file(self, filepath):
         self.manager.add_files(filepath)
 
-    def filter_changed(self):
-        self.refresh_view()
+    # def refresh_view(self):
+    #     """Filter files with proxy class"""
+    #     model = self.model()
+    #     filter_text = self.win.filesFilter.text()
+    #     model.setFilterRegExp(QRegExp(filter_text.replace(' ', '.*'), Qt.CaseInsensitive))
+    #
+    #     col = model.sortColumn()
+    #     model.sort(col)
 
-    def refresh_view(self):
-        """Filter files with proxy class"""
-        model = self.model()
-        filter_text = self.win.filesFilter.text()
-        model.setFilterRegExp(QRegExp(filter_text.replace(' ', '.*'), Qt.CaseInsensitive))
-
-        col = model.sortColumn()
-        model.sort(col)
-
-    def resize_contents(self):
-        pass
+    # def resize_contents(self):
+    #     pass
 
     def __init__(self, manager, *args):
         # Invoke parent init
@@ -192,4 +187,4 @@ class FilesListView(QListView):
         self.setWordWrap(False)
         self.setTextElideMode(Qt.ElideRight)
 
-        self.model().modelReset.connect(self.refresh_view)
+        #self.model().modelReset.connect(self.refresh_view)
