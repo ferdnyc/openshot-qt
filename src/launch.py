@@ -44,6 +44,31 @@ import sys
 import os.path
 import argparse
 
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication
+
+try:
+    # This apparently has to be done before loading QtQuick
+    # (via QtWebEgine) AND before creating the QApplication instance
+    QApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
+    from OpenGL import GL  # noqa
+except (ImportError, AttributeError):
+    pass
+
+try:
+    # QtWebEngineWidgets must be loaded prior to creating a QApplication
+    # But on systems with only WebKit, this will fail (and we ignore the failure)
+    from PyQt5 import QtWebEngineWidgets
+    WebEngineView = QtWebEngineWidgets.QWebEngineView
+except ImportError:
+    pass
+
+try:
+    # Enable High-DPI resolutions
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+except AttributeError:
+    pass  # Quietly fail for older Qt5 versions
+
 try:
     from classes import info
 except ImportError:
@@ -51,11 +76,17 @@ except ImportError:
     sys.path.append(openshot_qt.OPENSHOT_PATH)
     from classes import info
 
+# Global holder for QApplication instance
+app = None
+
 
 def main():
     """"Initialize settings (not implemented) and create main window/application."""
 
-    parser = argparse.ArgumentParser(description = 'OpenShot version ' + info.SETUP['version'])
+    global app
+
+    # Configure argument handling for commandline launches
+    parser = argparse.ArgumentParser(description='OpenShot version ' + info.SETUP['version'])
     parser.add_argument(
         '-l', '--lang', action='store',
         help='language code for interface (overrides '
@@ -88,10 +119,9 @@ def main():
         help='Debugging output (console only)')
     parser.add_argument('-V', '--version', action='store_true')
     parser.add_argument(
-        'remain', nargs=argparse.REMAINDER,
-        help=argparse.SUPPRESS)
+        'remain', nargs=argparse.REMAINDER, help=argparse.SUPPRESS)
 
-    args = parser.parse_args()
+    args, extra_args = parser.parse_known_args()
 
     # Display version and exit (if requested)
     if args.version:
@@ -100,15 +130,15 @@ def main():
 
     # Set up debugging log level to requested streams
     if args.debug or args.debug_file:
-            info.LOG_LEVEL_FILE = 'DEBUG'
+        info.LOG_LEVEL_FILE = 'DEBUG'
     if args.debug or args.debug_console:
-            info.LOG_LEVEL_CONSOLE = 'DEBUG'
+        info.LOG_LEVEL_CONSOLE = 'DEBUG'
 
     if args.list_languages:
         from classes.language import get_all_languages
         print("Supported Languages:")
-        for lang in get_all_languages():
-            print("  {:>12}  {}".format(lang[0],lang[1]))
+        for code, lang in get_all_languages():
+            print("  {:>12}  {}".format(code, lang))
         sys.exit()
 
     if args.py_path:
@@ -120,11 +150,14 @@ def main():
                 else:
                     print("{} does not exist".format(os.path.realpath(p)))
             except TypeError as ex:
-                    print("Bad path {}: {}".format(p, ex))
-                    continue
+                print("Bad path {}: {}".format(p, ex))
+                continue
 
     if args.modeltest:
-        info.MODEL_TEST = [m.lower() or 'all' for m in args.modeltest]
+        info.MODEL_TEST = [
+            m.lower() or 'all'
+            for m in args.modeltest
+        ]
         # Set default logging rules, if the user didn't
         if os.getenv('QT_LOGGING_RULES') is None:
             os.putenv('QT_LOGGING_RULES', 'qt.modeltest.debug=true')
@@ -144,12 +177,25 @@ def main():
     from classes.app import OpenShotApp
 
     argv = [sys.argv[0]]
-    for arg in args.remain:
-        argv.append(arg)
-    app = OpenShotApp(argv)
+    argv.extend(extra_args)
+    argv.extend(args.remain)
+    try:
+        app = OpenShotApp(argv)
+    except Exception:
+        app.show_errors()
 
-    # Run and return result
-    sys.exit(app.run())
+    # Setup Qt application details
+    app.setApplicationName('openshot')
+    app.setApplicationVersion(info.SETUP['version'])
+    try:
+        # Qt 5.7+ only
+        app.setDesktopFile("org.openshot.OpenShot")
+    except AttributeError:
+        pass
+
+    # Launch GUI and start event loop
+    app.gui()
+    sys.exit(app.exec_())
 
 
 if __name__ == "__main__":

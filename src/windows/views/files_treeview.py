@@ -142,8 +142,8 @@ class FilesTreeView(QTreeView):
     def add_file(self, filepath):
         self.manager.add_files(filepath)
 
-    def filter_changed(self):
-        self.refresh_view()
+    # def filter_changed(self):
+    #     self.refresh_view()
 
     def refresh_view(self):
         """Resize and hide certain columns"""

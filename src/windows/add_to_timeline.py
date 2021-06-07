@@ -33,7 +33,6 @@ from random import shuffle, randint, uniform
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtGui import QIcon
 
-from classes import settings
 from classes import info, ui_util, time_parts
 from classes.logger import log
 from classes.query import Clip, Transition
@@ -216,10 +215,10 @@ class AddToTimeline(QDialog):
             start_time = 0
             end_time = new_clip["reader"]["duration"]
 
-            if 'start' in file.data.keys():
+            if 'start' in file.data:
                 start_time = file.data['start']
                 new_clip["start"] = start_time
-            if 'end' in file.data.keys():
+            if 'end' in file.data:
                 end_time = file.data['end']
                 new_clip["end"] = end_time
 
@@ -437,12 +436,12 @@ class AddToTimeline(QDialog):
         # Init UI
         ui_util.init_ui(self)
 
-        # Get settings
-        self.settings = settings.get_settings()
-
         # Get translation object
         self.app = get_app()
         _ = self.app._tr
+
+        # Get settings
+        self.settings = self.app.get_settings()
 
         # Track metrics
         track_metric_screen("add-to-timeline-screen")

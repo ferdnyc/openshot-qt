@@ -33,7 +33,8 @@ import os
 import random
 import shutil
 
-from classes import info, settings
+from classes import info
+from classes.app import get_app
 from classes.image_types import is_image
 from classes.json_data import JsonDataStore
 from classes.logger import log
@@ -98,7 +99,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
                     # True until something disqualifies this as a match
                     match = True
                     # Check each key in key_part dictionary and if not found to be equal as a property in item, move on to next item in list
-                    for subkey in key_part.keys():
+                    for subkey in key_part:
                         # Get each key in dictionary (i.e. "id", "layer", etc...)
                         subkey = subkey.lower()
                         # If object is missing the key or the values differ, then it doesn't match.
@@ -276,7 +277,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
         info.BLENDER_PATH = os.path.join(info.USER_PATH, "blender")
 
         # Get default profile
-        s = settings.get_settings()
+        s = get_app().get_settings()
         default_profile = s.get("default-profile")
 
         # Loop through profiles
@@ -512,7 +513,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
                     for track in reversed(sequence.tracks):
                         for clip in track.clips:
                             # Get associated file for this clip
-                            if clip.file_object.unique_id in file_lookup.keys():
+                            if clip.file_object.unique_id in file_lookup:
                                 file = file_lookup[clip.file_object.unique_id]
                             else:
                                 # Skip missing file
@@ -840,7 +841,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
                 log.info("Checking clip {} path for file {}".format(clip["id"], file_id))
                 # Update paths to files stored in our working space or old path structure
                 # (should have already been copied during previous File stage)
-                if file_id and file_id in reader_paths.keys():
+                if file_id and file_id in reader_paths:
                     clip["reader"]["path"] = reader_paths[file_id]
                     log.info("Updated clip {} path for file {}".format(clip["id"], file_id))
 
@@ -853,7 +854,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
             # Ignore backup recovery project
             return
 
-        s = settings.get_settings()
+        s = get_app().get_settings()
         recent_projects = s.get("recent_projects")
 
         # Make sure file_path is absolute
