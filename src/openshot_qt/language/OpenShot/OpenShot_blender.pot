@@ -1,0 +1,489 @@
+# OpenShot Video Editor POT Template File.
+# Copyright (C) 2008-2018 OpenShot Studios, LLC
+# This file is distributed under the same license as OpenShot.
+# Jonathan Thomas <Jonathan.Oomph@gmail.com>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenShot Video Editor (version: 2.5.1-dev2)\n"
+"Report-Msgid-Bugs-To: Jonathan Thomas <Jonathan.Oomph@gmail.com>\n"
+"POT-Creation-Date: 2020-11-21 08:42:14.561169\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Jonathan Thomas <Jonathan.Oomph@gmail.com>\n"
+"Language-Team: https://translations.launchpad.net/+groups/launchpad-translators\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: Translator credits to be translated by LaunchPad
+msgid "translator-credits"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/glare.xml
+msgid "Glare"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_two_titles.xml
+msgid "File Name"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_two_titles.xml
+msgid "Title"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_two_titles.xml
+msgid "Extrude"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_two_titles.xml
+msgid "Bevel Depth"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_two_titles.xml
+msgid "Font Name"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_two_titles.xml
+msgid "Text Alignment"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_two_titles.xml
+msgid "Text Size"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_two_titles.xml
+msgid "Text Width"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_two_titles.xml
+msgid "Diffuse Color"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/neon_curves.xml
+msgid "Glare Type"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/zoom_clapboard.xml
+msgid "Use Alpha"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_two_titles.xml
+msgid "Start Frame"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_two_titles.xml
+msgid "End Frame"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_two_titles.xml
+msgid "Animation Length"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/lens_flare.xml
+msgid "Lens Flare"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/magic_wand.xml
+msgid "Start: X"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/magic_wand.xml
+msgid "Start: Y"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/magic_wand.xml
+msgid "Start: Z"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/magic_wand.xml
+msgid "End: X"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/magic_wand.xml
+msgid "End: Y"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/magic_wand.xml
+msgid "End: Z"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/lens_flare.xml
+msgid "Alpha"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/lens_flare.xml
+msgid "Glare 1: Type of Glare"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/lens_flare.xml
+msgid "Glare 1: Number of Streaks"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/lens_flare.xml
+msgid "Glare 1: Color Threshold"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/lens_flare.xml
+msgid "Glare 1: Angle Offset"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/lens_flare.xml
+msgid "Glare 2: Type of Glare"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/lens_flare.xml
+msgid "Glare 2: Number of Streaks"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/lens_flare.xml
+msgid "Glare 2: Color Threshold"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/lens_flare.xml
+msgid "Glare 2: Angle Offset"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/wireframe_text.xml
+msgid "Wireframe Text"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/wireframe_text.xml
+msgid "Wireframe Size"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_two_titles.xml
+msgid "Specular Color"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_two_titles.xml
+msgid "Specular Intensity"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/glass_slider.xml
+msgid "Glass Slider"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/glass_slider.xml
+msgid "X Coordinate"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/glass_slider.xml
+msgid "Z Coordinate"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/glass_slider.xml
+msgid "Background: Diffuse Color"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/colors.xml
+msgid "Background: Specular Color"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/colors.xml
+msgid "Background: Specular Intensity"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/glass_slider.xml
+msgid "Background: Alpha"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/magic_wand.xml
+msgid "Magic Wand"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/magic_wand.xml
+msgid "Particles: Amount"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/neon_curves.xml
+msgid "Strength"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/magic_wand.xml
+msgid "Particle Scale"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/magic_wand.xml
+msgid "Particles: Lifetime"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/magic_wand.xml
+msgid "Particles: Gravity"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/magic_wand.xml
+msgid "Velocity: X"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/magic_wand.xml
+msgid "Velocity: Y"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/magic_wand.xml
+msgid "Velocity: Z"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/rotate_360.xml
+msgid "Rotate 360 Degrees"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/spacemovie_intro.xml
+msgid "Space Movie Intro"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/spacemovie_intro.xml
+msgid "First Title"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/spacemovie_intro.xml
+msgid "Flying Title"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/spacemovie_intro.xml
+msgid "Episode"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/spacemovie_intro.xml
+msgid "Episode Title"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/spacemovie_intro.xml
+msgid "Main Text"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/blinds.xml
+msgid "Blinds (Two Titles)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_two_titles.xml
+msgid "Sub Title"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/explode.xml
+msgid "Exploding Text"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/explode.xml
+msgid "Particle Number"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/explode.xml
+msgid "Display Ground"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/neon_curves.xml
+msgid "Neon Curves"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/neon_curves.xml
+msgid "Title Diffuse Color"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/neon_curves.xml
+msgid "Line 1 Color"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/neon_curves.xml
+msgid "Line 2 Color"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/neon_curves.xml
+msgid "Line 3 Color"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/neon_curves.xml
+msgid "Line 4 Color"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/slide_left_to_right.xml
+msgid "Slide Left to Right"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/snow.xml
+msgid "Snow"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/snow.xml
+msgid "Number of Snow Flakes"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/snow.xml
+msgid "Size"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/snow.xml
+msgid "Gravity: X"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/snow.xml
+msgid "Gravity: Y"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/snow.xml
+msgid "Gravity: Z"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/colors.xml
+msgid "Color Tiles"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/colors.xml
+msgid "Title 1"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/colors.xml
+msgid "Title 2"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/colors.xml
+msgid "Title 3"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/colors.xml
+msgid "Background: Shadeless"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/colors.xml
+msgid "Tile 1: Diffuse Color"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/colors.xml
+msgid "Tile 2: Diffuse Color"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/colors.xml
+msgid "Tile 3: Diffuse Color"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/colors.xml
+msgid "Tile 4: Diffuse Color"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/dissolve.xml
+msgid "Dissolving Text"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "World Map"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Depart Title"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Depart Latitude (Equator)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Depart Latitude (degrees)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Depart Latitude (minutes)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Depart Latitude (seconds)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Depart Longitude (Prime Meridian)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Depart Longitude (degrees)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Depart Longitude (minutes)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Depart Longitude (seconds)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Arrival Title"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Arrival Latitude (Equator)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Arrival Latitude (degrees)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Arrival Latitude (minutes)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Arrival Latitude (seconds)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Arrival Longitude (Prime Meridian)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Arrival Longitude (degrees)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Arrival Longitude (minutes)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Arrival Longitude (seconds)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/earth.xml
+msgid "Custom Texture (Equirectangular)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/blur.xml
+msgid "Blur"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/blur.xml
+msgid "Blur X"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/blur.xml
+msgid "Blur Y"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_1.xml
+msgid "Fly Towards Camera"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/picture_frames_4.xml
+msgid "Picture Frames (4 pictures)"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/picture_frames_4.xml
+msgid "Picture 1"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/picture_frames_4.xml
+msgid "Picture 2"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/picture_frames_4.xml
+msgid "Picture 3"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/picture_frames_4.xml
+msgid "Picture 4"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/zoom_clapboard.xml
+msgid "Zoom to Clapboard"
+msgstr ""
+
+#: /home/ferd/rpmbuild/REPOS/openshot-qt/src/blender/fly_by_two_titles.xml
+msgid "Fly Towards Camera (Two Titles)"
+msgstr ""

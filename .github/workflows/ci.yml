@@ -1,0 +1,102 @@
+name: 'ci-build-and-release'
+on:
+  push:
+    branches:
+      - ci-artifacts
+  pull_request:
+    branches:
+      - develop
+      - ci-artifacts
+
+jobs:
+  build:
+    runs-on: ${{ matrix.sys.os }}
+    strategy:
+      matrix:
+        sys:
+          - { os: ubuntu-18.04,   shell: bash        }
+          - { os: ubuntu-20.04,   shell: bash        }
+          - { os: macos-latest,   shell: bash        }
+        python-version: [3.6, 3.7, 3.8]
+        include:
+            # Only one Python available to us in MSYS2
+          - sys: { os: windows-latest, shell: 'msys2 {0}' }
+            python-version: 3.8
+    defaults:
+      run:
+        shell: ${{ matrix.sys.shell }}
+
+    steps:
+    - name: Check out source branch
+      uses: actions/checkout@v2
+      
+      # This won't actually do anything for us on Windows, but we pretend
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Get latest OpenShot libraries (gcc build)
+      uses: robinraju/release-downloader@v1
+      with:
+        repository: ferdnyc/libopenshot
+        tag: 'ci_latest'
+        fileName: 'OpenShotLib-${{ matrix.sys.os }}-gcc.zip'
+        out-file-path: '${{ github.workspace }}'
+
+    - name: Get latest OpenShot libraries (clang build)
+      if: ${{ runner.os != 'Windows' }}
+      uses: robinraju/release-downloader@v1
+      with:
+        repository: ferdnyc/libopenshot
+        tag: 'ci_latest'
+        fileName: 'OpenShotLib-${{ matrix.sys.os }}-clang.zip'
+        out-file-path: '${{ github.workspace }}'
+
+    - name: Windows libraries
+      if: ${{ runner.os == 'Windows' }}
+      uses: msys2/setup-msys2@v2
+      with:
+        release: false
+        update: false
+        install: |
+          mingw-w64-x86_64-qt5
+          mingw-w64-x86_64-ffmpeg
+          mingw-w64-x86_64-zeromq
+          mingw-w64-x86_64-python3
+        
+    - name: macOS libraries
+      if: ${{ runner.os == 'macOS' }}
+      run: >-
+        brew install qt5 ffmpeg zeromq libomp
+
+    - name: Linux libraries
+      if: ${{ runner.os == 'Linux' }}
+      run: >-
+        sudo apt update;
+        sudo apt install qttranslations5-l10n libssl-dev xvfb
+        libavcodec-dev libavformat-dev libavutil-dev libswscale-dev
+        libswresample-dev libmagick++-dev libfdk-aac-dev libzmq3-dev
+        qtbase5-dev qtbase5-dev-tools libasound2-dev;
+
+    - name: Extract OpenShot libs
+      run: |
+        unzip 'OpenShotLib-${{ matrix.sys.os }}-gcc.zip' -d libopenshot_gcc
+        if [ -f 'OpenShotLib-${{ matrix.sys.os }}-clang.zip' ]; then
+          unzip 'OpenShotLib-${{ matrix.sys.os }}-clang.zip' -d libopenshot_clang;
+        fi
+
+    - name: Python deps
+      run: |
+        python3 -m pip install setuptools wheel
+        python3 -m pip install -r requirements.txt
+
+    - name: Build Python package
+      # Use a bash shell so we can use the same syntax for environment variable
+      # access regardless of the host operating system
+      shell: bash
+      run: python3 freeze.py build
+
+    - name: Test
+      shell: bash
+      run: xvfb-run --auto-servernum --server-num=1 --server-args "-screen 0 1920x1080x24" python3 ./src/tests/query_tests.py

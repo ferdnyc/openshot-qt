@@ -1,0 +1,13 @@
+wheel
+cx_Freeze
+pyqt5
+pyqtwebengine
+distro
+pyzmq
+certifi
+chardet
+idna
+requests
+urllib3
+defusedxml
+libopenshot >= 0.2.5
