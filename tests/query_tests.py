@@ -25,20 +25,27 @@
  along with OpenShot Library.  If not, see <http://www.gnu.org/licenses/>.
  """
 
-import sys, os
-# Import parent folder (so it can find other imports)
-PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-if PATH not in sys.path:
-    sys.path.append(PATH)
+import sys
+import os
+import json
 
-import random
 import unittest
-import uuid
-from PyQt5.QtGui import QGuiApplication
+
+try:
+    import openshot_qt
+except ModuleNotFound:
+    sys.path.append(
+        os.path.join(
+            os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+            "src"))
+
 from openshot_qt.classes.app import OpenShotApp
 from openshot_qt.classes import info
-from libopenshot import openshot  # Python module for libopenshot (required video editing module installed separately)
-import json
+
+from libopenshot import openshot
+
+from PyQt5.QtGui import QGuiApplication
+
 
 class TestQueryClass(unittest.TestCase):
     """ Unit test class for Query class """
