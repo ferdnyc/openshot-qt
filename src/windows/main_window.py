@@ -48,7 +48,7 @@ from PyQt5.QtWidgets import (
     QLineEdit, QComboBox, QTextEdit
 )
 
-from classes import exceptions, info, qt_types, ui_util, updates
+from classes import exceptions, info, qt_types, sentry, ui_util, updates
 from classes.app import get_app
 from classes.exporters.edl import export_edl
 from classes.exporters.final_cut_pro import export_xml
@@ -56,7 +56,7 @@ from classes.importers.edl import import_edl
 from classes.importers.final_cut_pro import import_xml
 from classes.logger import log
 from classes.metrics import track_metric_session, track_metric_screen
-from classes.query import Clip, Transition, Marker, Track
+from classes.query import Clip, Transition, Marker, Track, Effect
 from classes.thumbnail import httpThumbnailServerThread
 from classes.time_parts import secondsToTimecode
 from classes.timeline import TimelineSync
@@ -99,6 +99,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
     FoundVersionSignal = pyqtSignal(str)
     WaveformReady = pyqtSignal(str, list)
     TransformSignal = pyqtSignal(str)
+    KeyFrameTransformSignal = pyqtSignal(str, str)
     SelectRegionSignal = pyqtSignal(str)
     MaxSizeChanged = pyqtSignal(object)
     InsertKeyframe = pyqtSignal(object)
@@ -174,8 +175,9 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         self.preview_parent.background.wait(5000)
 
         # Close Timeline
-        self.timeline_sync.timeline.Close()
-        self.timeline_sync.timeline = None
+        if self.timeline_sync and self.timeline_sync.timeline:
+            self.timeline_sync.timeline.Close()
+            self.timeline_sync.timeline = None
 
         # Destroy lock file
         self.destroy_lock_file()
@@ -218,12 +220,16 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         lock_path = os.path.join(info.USER_PATH, ".lock")
         # Check if it already exists
         if os.path.exists(lock_path):
-            exceptions.libopenshot_crash_recovery()
-            log.error("Unhandled crash detected. Preserving cache.")
+            last_log_line = exceptions.libopenshot_crash_recovery() or "No Log Detected"
+            log.error(f"Unhandled crash detected: {last_log_line}")
             self.destroy_lock_file()
         else:
             # Normal startup, clear thumbnails
             self.clear_all_thumbnails()
+
+        # Reset Sentry component (it can be temporarily changed to libopenshot during
+        # the call to libopenshot_crash_recovery above)
+        sentry.set_tag("component", "openshot-qt")
 
         # Write lock file (try a few times if failure)
         lock_value = str(uuid4())
@@ -2287,6 +2293,14 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
             elif item_type == "effect" and item_id not in self.selected_effects:
                 self.selected_effects.append(item_id)
 
+                effect = Effect.get(id=item_id)
+                if effect:
+                    if effect.data.get("has_tracked_object"):
+                        # Show bounding boxes transform on preview
+                        clip_id = effect.parent['id']
+                        self.KeyFrameTransformSignal.emit(item_id, clip_id)
+
+
             # Change selected item in properties view
             self.show_property_id = item_id
             self.show_property_type = item_type
@@ -2794,6 +2808,9 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
             # Track 1st launch metric
             track_metric_screen("initial-launch-screen")
+
+        # Set unique id for Sentry
+        sentry.set_user({"id": s.get("unique_install_id")})
 
         # Track main screen
         track_metric_screen("main-screen")

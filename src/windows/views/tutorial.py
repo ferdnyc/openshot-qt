@@ -38,6 +38,7 @@ from PyQt5.QtWidgets import (
 from classes.logger import log
 from classes.app import get_app
 from classes.metrics import track_metric_screen
+from classes import sentry
 
 
 class TutorialDialog(QWidget):
@@ -70,12 +71,14 @@ class TutorialDialog(QWidget):
         if state == Qt.Checked:
             # Enabling metrics sending
             s.set("send_metrics", True)
+            sentry.init_tracing()
 
             # Opt-in for metrics tracking
             track_metric_screen("metrics-opt-in")
         else:
             # Opt-out for metrics tracking
             track_metric_screen("metrics-opt-out")
+            sentry.disable_tracing()
 
             # Disable metric sending
             s.set("send_metrics", False)

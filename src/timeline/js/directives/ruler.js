@@ -54,10 +54,32 @@ App.directive("tlScrollableTracks", function () {
         $("#scrolling_ruler").scrollLeft(element.scrollLeft());
         $("#progress_container").scrollLeft(element.scrollLeft());
 
-        // Calculate scrollbar positions (left and right edge of scrollbar)
-        var timeline_length = Math.min(32767, scope.getTimelineWidth(0));
-        var left_scrollbar_edge = scroll_left_pixels / timeline_length;
-        var right_scrollbar_edge = (scroll_left_pixels + element.width()) / timeline_length;
+        if (scope.ignore_scroll == true) {
+          // Reset flag and ignore scroll propagation
+          scope.$apply( () => {
+            scope.ignore_scroll = false;
+            scope.scrollLeft = element[0].scrollLeft;
+          })
+          // exit at this point
+          return;
+
+        } else {
+          // Only update scroll position
+          scope.$apply( () => {
+            scope.scrollLeft = element[0].scrollLeft;
+          })
+        }
+
+        // Send scrollbar position to Qt
+        if (scope.Qt) {
+           // Calculate scrollbar positions (left and right edge of scrollbar)
+           var timeline_length = Math.min(32767, scope.getTimelineWidth(0));
+           var left_scrollbar_edge = scroll_left_pixels / timeline_length;
+           var right_scrollbar_edge = (scroll_left_pixels + element.width()) / timeline_length;
+
+           // Send normalized scrollbar positions to Qt
+           timeline.ScrollbarChanged([left_scrollbar_edge, right_scrollbar_edge, timeline_length, element.width()]);
+        }
 
         // Send normalized scrollbar positions to Qt
         timeline.ScrollbarChanged([left_scrollbar_edge, right_scrollbar_edge, timeline_length, element.width()]);

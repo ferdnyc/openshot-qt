@@ -137,7 +137,7 @@ def main():
     if args.list_languages:
         from classes.language import get_all_languages
         print("Supported Languages:")
-        for code, lang in get_all_languages():
+        for code, lang, country in get_all_languages():
             print("  {:>12}  {}".format(code, lang))
         sys.exit()
 
@@ -169,6 +169,10 @@ def main():
 
     # Normal startup, print module path and lauch application
     print("Loaded modules from: %s" % info.PATH)
+
+    # Initialize sentry exception tracing
+    from classes import sentry
+    sentry.init_tracing()
 
     # Create Qt application, pass any unprocessed arguments
     from classes.app import OpenShotApp

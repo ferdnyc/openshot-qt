@@ -83,7 +83,7 @@ class OpenShotApp(QApplication):
 
         try:
             # Import modules
-            from classes import info
+            from classes import info, sentry
             from classes.logger import log, reroute_output
 
             # Log the session's start
@@ -136,6 +136,10 @@ class OpenShotApp(QApplication):
         # Set location of OpenShot program (for libopenshot)
         openshot.Settings.Instance().PATH_OPENSHOT_INSTALL = info.PATH
 
+        # Check to disable sentry
+        if not self.settings.get('send_metrics'):
+            sentry.disable_tracing()
+
     def show_environment(self, info, openshot):
         log = self.log
         try:
@@ -163,10 +167,6 @@ class OpenShotApp(QApplication):
         except Exception:
             log.debug("Error displaying dependency/system details", exc_info=1)
 
-        # Init and attach exception handler
-        from classes import exceptions
-        sys.excepthook = exceptions.ExceptionHandler
-
     def check_libopenshot_version(self, info, openshot):
         """Detect minimum libopenshot version"""
         _ = self._tr
@@ -189,7 +189,7 @@ class OpenShotApp(QApplication):
             "libopenshot version {} found, minimum is {}".format(ver, min_ver))
 
     def gui(self):
-        from classes import language, ui_util, logger_libopenshot
+        from classes import language, sentry, ui_util, logger_libopenshot
         from PyQt5.QtGui import QFont, QFontDatabase as QFD
 
         _ = self._tr
@@ -198,6 +198,7 @@ class OpenShotApp(QApplication):
 
         # Init translation system
         language.init_language()
+        sentry.set_tag("locale", info.CURRENT_LANGUAGE)
 
         # Load ui theme if not set by OS
         ui_util.load_theme()
