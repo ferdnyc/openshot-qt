@@ -28,9 +28,7 @@
  """
 
 import os
-import platform
 import shutil
-import sys
 import webbrowser
 from copy import deepcopy
 from time import sleep
@@ -47,22 +45,18 @@ from PyQt5.QtWidgets import (
     QMessageBox, QDialog, QFileDialog, QInputDialog,
     QAction, QActionGroup, QSizePolicy,
     QStatusBar, QToolBar, QToolButton,
-    QLineEdit, QSlider, QLabel, QComboBox, QTextEdit
+    QLineEdit, QComboBox, QTextEdit
 )
 
-from classes import info, ui_util, settings, qt_types, updates
+from classes import exceptions, info, qt_types, sentry, ui_util, updates
 from classes.app import get_app
-from classes.conversion import zoomToSeconds, secondsToZoom
 from classes.exporters.edl import export_edl
 from classes.exporters.final_cut_pro import export_xml
 from classes.importers.edl import import_edl
 from classes.importers.final_cut_pro import import_xml
 from classes.logger import log
-from classes.metrics import (
-    track_metric_session, track_metric_screen,
-    track_metric_error, track_exception_stacktrace,
-    )
-from classes.query import Clip, Transition, Marker, Track
+from classes.metrics import track_metric_session, track_metric_screen
+from classes.query import Clip, Transition, Marker, Track, Effect
 from classes.thumbnail import httpThumbnailServerThread
 from classes.time_parts import secondsToTimecode
 from classes.timeline import TimelineSync
@@ -105,9 +99,8 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
     FoundVersionSignal = pyqtSignal(str)
     WaveformReady = pyqtSignal(str, list)
     TransformSignal = pyqtSignal(str)
-    ExportStarted = pyqtSignal(str, int, int)
-    ExportFrame = pyqtSignal(str, int, int, int, str)
-    ExportEnded = pyqtSignal(str)
+    KeyFrameTransformSignal = pyqtSignal(str, str)
+    SelectRegionSignal = pyqtSignal(str)
     MaxSizeChanged = pyqtSignal(object)
     InsertKeyframe = pyqtSignal(object)
     OpenProjectSignal = pyqtSignal(str)
@@ -115,6 +108,13 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
     FileUpdated = pyqtSignal(str)
     CaptionTextUpdated = pyqtSignal(str, object)
     CaptionTextLoaded = pyqtSignal(str, object)
+    TimelineZoom = pyqtSignal(float)     # Signal to zoom into timeline from zoom slider
+    TimelineScrolled = pyqtSignal(list)  # Scrollbar changed signal from timeline
+    TimelineScroll = pyqtSignal(float)   # Signal to force scroll timeline to specific point
+    TimelineCenter = pyqtSignal()        # Signal to force center scroll on playhead
+    SelectionAdded = pyqtSignal(str, str, bool)  # Signal to add a selection
+    SelectionRemoved = pyqtSignal(str, str)      # Signal to remove a selection
+    SelectionChanged = pyqtSignal()      # Signal after selections have been changed (added/removed)
 
     # Docks are closable, movable and floatable
     docks_frozen = False
@@ -175,8 +175,9 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         self.preview_parent.background.wait(5000)
 
         # Close Timeline
-        self.timeline_sync.timeline.Close()
-        self.timeline_sync.timeline = None
+        if self.timeline_sync and self.timeline_sync.timeline:
+            self.timeline_sync.timeline.Close()
+            self.timeline_sync.timeline = None
 
         # Destroy lock file
         self.destroy_lock_file()
@@ -217,101 +218,30 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
     def create_lock_file(self):
         """Create a lock file"""
         lock_path = os.path.join(info.USER_PATH, ".lock")
-        lock_value = str(uuid4())
-
         # Check if it already exists
         if os.path.exists(lock_path):
-            # Walk the libopenshot log (if found), and try and find last line before this launch
-            log_path = os.path.join(info.USER_PATH, "libopenshot.log")
-            last_log_line = ""
-            last_stack_trace = ""
-            found_stack = False
-            log_start_counter = 0
-            if os.path.exists(log_path):
-                with open(log_path, "rb") as f:
-                    # Read from bottom up
-                    for raw_line in reversed(self.tail_file(f, 500)):
-                        line = str(raw_line, 'utf-8')
-                        # Detect stack trace
-                        if "End of Stack Trace" in line:
-                            found_stack = True
-                            continue
-                        if "Unhandled Exception: Stack Trace" in line:
-                            found_stack = False
-                            continue
-                        if "libopenshot logging:" in line:
-                            log_start_counter += 1
-                            if log_start_counter > 1:
-                                # Found the previous log start, too old now
-                                break
-
-                        if found_stack:
-                            # Append line to beginning of stacktrace
-                            last_stack_trace = line + last_stack_trace
-
-                        # Ignore certain useless lines
-                        line.strip()
-                        if all(["---" not in line,
-                                "libopenshot logging:" not in line,
-                                not last_log_line,
-                                ]):
-                            last_log_line = line
-
-            # Split last stack trace (if any)
-            if last_stack_trace:
-                # Get top line of stack trace (for metrics)
-                last_log_line = last_stack_trace.split("\n")[0].strip()
-
-                # Send stacktrace for debugging (if send metrics is enabled)
-                track_exception_stacktrace(last_stack_trace, "libopenshot")
-
-            # Clear / normalize log line (so we can roll them up in the analytics)
-            if last_log_line:
-                # Format last log line based on OS (since each OS can be formatted differently)
-                if platform.system() == "Darwin":
-                    last_log_line = "mac-%s" % last_log_line[58:].strip()
-                elif platform.system() == "Windows":
-                    last_log_line = "windows-%s" % last_log_line
-                elif platform.system() == "Linux":
-                    last_log_line = "linux-%s" % last_log_line.replace("/usr/local/lib/", "")
-
-                # Remove '()' from line, and split. Trying to grab the beginning of the log line.
-                last_log_line = last_log_line.replace("()", "")
-                log_parts = last_log_line.split("(")
-                if len(log_parts) == 2:
-                    last_log_line = "-%s" % log_parts[0].replace(
-                        "logger_libopenshot:INFO ", "").strip()[:64]
-                elif len(log_parts) >= 3:
-                    last_log_line = "-%s (%s" % (log_parts[0].replace(
-                        "logger_libopenshot:INFO ", "").strip()[:64], log_parts[1])
-            else:
-                last_log_line = ""
-
-            # Throw exception (with last libopenshot line... if found)
-            log.error(
-                "Unhandled crash detected... will attempt to recover backup project: %s"
-                % info.BACKUP_FILE)
-            track_metric_error("unhandled-crash%s" % last_log_line, True)
-
-            # Remove file
+            last_log_line = exceptions.libopenshot_crash_recovery() or "No Log Detected"
+            log.error(f"Unhandled crash detected: {last_log_line}")
             self.destroy_lock_file()
-
         else:
             # Normal startup, clear thumbnails
             self.clear_all_thumbnails()
 
+        # Reset Sentry component (it can be temporarily changed to libopenshot during
+        # the call to libopenshot_crash_recovery above)
+        sentry.set_tag("component", "openshot-qt")
+
         # Write lock file (try a few times if failure)
+        lock_value = str(uuid4())
         for attempt in range(5):
             try:
                 # Create lock file
                 with open(lock_path, 'w') as f:
                     f.write(lock_value)
-                log.debug("Wrote value {} to lock file {}".format(
-                    lock_value, lock_path))
+                log.debug("Wrote value %s to lock file %s", lock_value, lock_path)
                 break
             except OSError:
-                log.debug('Failed to write lock file (attempt: {})'.format(
-                    attempt), exc_info=1)
+                log.debug("Failed to write lock file (attempt: %d)", attempt, exc_info=1)
                 sleep(0.25)
 
     def destroy_lock_file(self):
@@ -329,25 +259,6 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
             except OSError:
                 log.debug('Failed to destroy lock file (attempt: %s)' % attempt, exc_info=1)
                 sleep(0.25)
-
-    def tail_file(self, f, n, offset=None):
-        """Read the end of a file (n number of lines)"""
-        avg_line_length = 90
-        to_read = n + (offset or 0)
-
-        while True:
-            try:
-                # Seek to byte position
-                f.seek(-(avg_line_length * to_read), 2)
-            except IOError:
-                # Byte position not found
-                f.seek(0)
-            pos = f.tell()
-            lines = f.read().splitlines()
-            if len(lines) >= to_read or pos == 0:
-                # Return the lines
-                return lines[-to_read:offset and -offset or None]
-            avg_line_length *= 2
 
     def actionNew_trigger(self):
 
@@ -416,14 +327,9 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         from windows.title_editor import TitleEditor
         win = TitleEditor()
         # Run the dialog event loop - blocking interaction on this window during that time
-        result = win.exec_()
-        if result == QDialog.Accepted:
-            log.info('title editor add confirmed')
-        else:
-            log.info('title editor add cancelled')
+        win.exec_()
 
     def actionEditTitle_trigger(self):
-
         # Loop through selected files (set 1 selected file if more than 1)
         for f in self.selected_files():
             if f.data.get("path").endswith(".svg"):
@@ -436,7 +342,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
         # show dialog for editing title
         from windows.title_editor import TitleEditor
-        win = TitleEditor(file_path)
+        win = TitleEditor(edit_file_path=file_path)
         # Run the dialog event loop - blocking interaction on this window during that time
         win.exec_()
 
@@ -470,7 +376,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
         # show dialog for editing title
         from windows.title_editor import TitleEditor
-        win = TitleEditor(file_path, duplicate=True)
+        win = TitleEditor(edit_file_path=file_path, duplicate=True)
         # Run the dialog event loop - blocking interaction on this window during that time
         return win.exec_()
 
@@ -488,7 +394,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
         try:
             # Update history in project data
-            s = settings.get_settings()
+            s = app.get_settings()
             app.updates.save_history(app.project, s.get("history-limit"))
 
             # Save project to file
@@ -675,7 +581,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         import time
 
         app = get_app()
-        s = settings.get_settings()
+        s = app.get_settings()
 
         # Get current filepath (if any)
         file_path = app.project.current_filepath
@@ -904,7 +810,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
             log.info('Preferences add cancelled')
 
         # Save settings
-        s = settings.get_settings()
+        s = get_app().get_settings()
         s.save()
 
         # Restore normal cursor
@@ -1112,7 +1018,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
         # Save current cache object and create a new CacheMemory object (ignore quality and scale prefs)
         old_cache_object = self.cache_object
-        new_cache_object = openshot.CacheMemory(settings.get_settings().get("cache-limit-mb") * 1024 * 1024)
+        new_cache_object = openshot.CacheMemory(app.get_settings().get("cache-limit-mb") * 1024 * 1024)
         self.timeline_sync.timeline.SetCache(new_cache_object)
 
         # Set MaxSize to full project resolution and clear preview cache so we get a full resolution frame
@@ -1322,7 +1228,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
             # New track number (pick mid point in track number gap)
             new_track_num = selected_layer_num - int(round(delta / 2.0))
 
-            log.info("New track num %s (delta %s)",new_track_num, delta)
+            log.info("New track num %s (delta %s)", new_track_num, delta)
 
             # Create new track and insert
             track = Track()
@@ -1514,14 +1420,14 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
     def getShortcutByName(self, setting_name):
         """ Get a key sequence back from the setting name """
-        s = settings.get_settings()
+        s = get_app().get_settings()
         shortcut = QKeySequence(s.get(setting_name))
         return shortcut
 
     def getAllKeyboardShortcuts(self):
         """ Get a key sequence back from the setting name """
         keyboard_shortcuts = []
-        all_settings = settings.get_settings()._data
+        all_settings = get_app().get_settings()._data
         for setting in all_settings:
             if setting.get('category') == 'Keyboard':
                 keyboard_shortcuts.append(setting)
@@ -1756,7 +1662,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         log.debug("Showing preferences dialog")
         win = Profile()
         # Run the dialog event loop - blocking interaction on this window during this time
-        result = win.exec_()
+        win.exec_()
         log.debug("Preferences dialog closed")
 
     def actionSplitClip_trigger(self):
@@ -1974,10 +1880,10 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
                 m.delete()
 
     def actionTimelineZoomIn_trigger(self):
-        self.sliderZoom.setValue(self.sliderZoom.value() - self.sliderZoom.singleStep())
+        self.sliderZoomWidget.zoomIn()
 
     def actionTimelineZoomOut_trigger(self):
-        self.sliderZoom.setValue(self.sliderZoom.value() + self.sliderZoom.singleStep())
+        self.sliderZoomWidget.zoomOut()
 
     def actionFullscreen_trigger(self):
         # Toggle fullscreen state (current state mask XOR WindowFullScreen)
@@ -2015,7 +1921,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
         # Get settings
         app = get_app()
-        s = settings.get_settings()
+        s = app.get_settings()
 
         # Files
         if app.context_menu_object == "files":
@@ -2043,7 +1949,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
         # Get settings
         app = get_app()
-        s = settings.get_settings()
+        s = app.get_settings()
 
         # Files
         if app.context_menu_object == "files":
@@ -2242,7 +2148,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
     def actionTutorial_trigger(self):
         """ Show tutorial again """
-        s = settings.get_settings()
+        s = get_app().get_settings()
 
         # Clear tutorial settings
         s.set("tutorial_enabled", True)
@@ -2361,7 +2267,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
             log.info('addSelection: item_id: {}, item_type: {}, clear_existing: {}'.format(
                 item_id, item_type, clear_existing))
 
-        s = settings.get_settings()
+        s = get_app().get_settings()
 
         # Clear existing selection (if needed)
         if clear_existing:
@@ -2387,10 +2293,21 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
             elif item_type == "effect" and item_id not in self.selected_effects:
                 self.selected_effects.append(item_id)
 
+                effect = Effect.get(id=item_id)
+                if effect:
+                    if effect.data.get("has_tracked_object"):
+                        # Show bounding boxes transform on preview
+                        clip_id = effect.parent['id']
+                        self.KeyFrameTransformSignal.emit(item_id, clip_id)
+
+
             # Change selected item in properties view
             self.show_property_id = item_id
             self.show_property_type = item_type
             self.show_property_timer.start()
+
+        # Notify UI that selection has been potentially changed
+        self.selection_timer.start()
 
     # Remove from the selected items
     def removeSelection(self, item_id, item_type):
@@ -2423,8 +2340,14 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
             self.show_property_id = self.selected_effects[0]
             self.show_property_type = item_type
 
-        # Change selected item in properties view
+        # Change selected item
         self.show_property_timer.start()
+        self.selection_timer.start()
+
+    def emit_selection_signal(self):
+        """Emit a signal for selection changed. Callback for selection timer."""
+        # Notify UI that selection has been potentially changed
+        self.SelectionChanged.emit()
 
     def selected_files(self):
         """ Return a list of File objects for the Project Files dock's selection """
@@ -2444,7 +2367,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
     # Update window settings in setting store
     def save_settings(self):
-        s = settings.get_settings()
+        s = get_app().get_settings()
 
         # Save window state and geometry (saves toolbar and dock locations)
         s.set('window_state_v2', qt_types.bytes_to_str(self.saveState()))
@@ -2453,7 +2376,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
     # Get window settings from setting store
     def load_settings(self):
-        s = settings.get_settings()
+        s = get_app().get_settings()
 
         # Window state and geometry (also toolbar, dock locations and frozen UI state)
         if s.get('window_state_v2'):
@@ -2476,7 +2399,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
     def load_recent_menu(self):
         """ Clear and load the list of recent menu items """
-        s = settings.get_settings()
+        s = get_app().get_settings()
         _ = get_app()._tr  # Get translation function
 
         # Get list of recent projects
@@ -2512,7 +2435,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
     def remove_recent_project(self, file_path):
         """Remove a project from the Recent menu if OpenShot can't find it"""
-        s = settings.get_settings()
+        s = get_app().get_settings()
         recent_projects = s.get("recent_projects")
         if file_path in recent_projects:
             recent_projects.remove(file_path)
@@ -2525,7 +2448,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
     def clear_recents_clicked(self):
         """Clear all recent projects"""
-        s = settings.get_settings()
+        s = get_app().get_settings()
         s.set("recent_projects", [])
 
         # Reload recent project list
@@ -2655,7 +2578,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
         # Hook up caption editor signal
         self.captionTextEdit.textChanged.connect(self.captionTextEdit_TextChanged)
-        self.caption_save_timer = QTimer()
+        self.caption_save_timer = QTimer(self)
         self.caption_save_timer.setInterval(100)
         self.caption_save_timer.setSingleShot(True)
         self.caption_save_timer.timeout.connect(self.caption_editor_save)
@@ -2663,27 +2586,16 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         self.caption_model_row = None
 
         # Get project's initial zoom value
-        initial_scale = get_app().project.get("scale") or 15
-        # Round non-exponential scale down to next lowest power of 2
-        initial_zoom = secondsToZoom(initial_scale)
+        initial_scale = get_app().project.get("scale") or 15.0
 
-        # Setup Zoom slider
-        self.sliderZoom = QSlider(Qt.Horizontal, self)
-        self.sliderZoom.setPageStep(1)
-        self.sliderZoom.setRange(0, 30)
-        self.sliderZoom.setValue(initial_zoom)
-        self.sliderZoom.setInvertedControls(True)
-        self.sliderZoom.resize(100, 16)
-
-        self.zoomScaleLabel = QLabel(
-            _("{} seconds").format(zoomToSeconds(self.sliderZoom.value()))
-        )
+        # Setup Zoom Slider widget
+        from windows.views.zoom_slider import ZoomSlider
+        self.sliderZoomWidget = ZoomSlider(self)
+        self.sliderZoomWidget.setMinimumSize(200, 20)
+        self.sliderZoomWidget.setZoomFactor(initial_scale)
 
         # add zoom widgets
-        self.timelineToolbar.addAction(self.actionTimelineZoomIn)
-        self.timelineToolbar.addWidget(self.sliderZoom)
-        self.timelineToolbar.addAction(self.actionTimelineZoomOut)
-        self.timelineToolbar.addWidget(self.zoomScaleLabel)
+        self.timelineToolbar.addWidget(self.sliderZoomWidget)
 
         # Add timeline toolbar to web frame
         self.frameWeb.addWidget(self.timelineToolbar)
@@ -2772,7 +2684,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
     def InitCacheSettings(self):
         """Set the correct cache settings for the timeline"""
         # Load user settings
-        s = settings.get_settings()
+        s = get_app().get_settings()
         log.info("InitCacheSettings")
         log.info("cache-mode: %s" % s.get("cache-mode"))
         log.info("cache-limit-mb: %s" % s.get("cache-limit-mb"))
@@ -2810,95 +2722,9 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         # Update cache reference, so it doesn't go out of scope
         self.cache_object = new_cache_object
 
-    def FrameExported(self, title_message, start_frame, end_frame, current_frame):
-        """Update progress in Unity Launcher (if connected)"""
-        try:
-            # Set progress and show progress bar
-            self.unity_launcher.set_property("progress", current_frame / (end_frame - start_frame))
-            self.unity_launcher.set_property("progress_visible", True)
-        except Exception:
-            log.debug('Failed to notify unity launcher of export progress. Frame: %s' % current_frame)
-
-    def ExportFinished(self, path):
-        """Show completion in Unity Launcher (if connected)"""
-        try:
-            # Set progress on Unity launcher and hide progress bar
-            self.unity_launcher.set_property("progress", 0.0)
-            self.unity_launcher.set_property("progress_visible", False)
-        except Exception:
-            log.debug('Failed to notify unity launcher of export progress. Completed.')
-
-    def __init__(self, *args, mode=None):
-
-        # Create main window base class
-        super().__init__(*args)
-        self.mode = mode    # None or unittest (None is normal usage)
-        self.initialized = False
-
-        # set window on app for reference during initialization of children
-        app = get_app()
-        app.window = self
-        _ = app._tr
-
-        # Load user settings for window
-        s = settings.get_settings()
-        self.recent_menu = None
-
-        # Track metrics
-        track_metric_session()  # start session
-
-        # Set unique install id (if blank)
-        if not s.get("unique_install_id"):
-            s.set("unique_install_id", str(uuid4()))
-
-            # Track 1st launch metric
-            track_metric_screen("initial-launch-screen")
-
-        # Track main screen
-        track_metric_screen("main-screen")
-
-        # Create blank tutorial manager
-        self.tutorial_manager = None
-
-        # Load UI from designer
-        ui_util.load_ui(self, self.ui_path)
-
-        # Set all keyboard shortcuts from the settings file
-        self.InitKeyboardShortcuts()
-
-        # Init UI
-        ui_util.init_ui(self)
-
-        # Setup toolbars that aren't on main window, set initial state of items, etc
-        self.setup_toolbars()
-
-        # Add window as watcher to receive undo/redo status updates
-        app.updates.add_watcher(self)
-
-        # Get current version of OpenShot via HTTP
-        self.FoundVersionSignal.connect(self.foundCurrentVersion)
-        get_current_Version()
-
-        # Connect signals
-        if self.mode != "unittest":
-            self.RecoverBackup.connect(self.recover_backup)
-
-        # Initialize and start the thumbnail HTTP server
-        self.http_server_thread = httpThumbnailServerThread()
-        self.http_server_thread.start()
-
-        # Create the timeline sync object (used for previewing timeline)
-        self.timeline_sync = TimelineSync(self)
-
-        # Setup timeline
-        self.timeline = TimelineWebView(self)
-        self.frameWeb.layout().addWidget(self.timeline)
-
-        # Configure the side docks to full-height
-        self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
-        self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
-        self.setCorner(Qt.TopRightCorner, Qt.RightDockWidgetArea)
-        self.setCorner(Qt.BottomRightCorner, Qt.RightDockWidgetArea)
+    def initModels(self):
+        """Set up model/view classes for MainWindow"""
+        s = get_app().get_settings()
 
         # Setup files tree and list view (both share a model)
         self.files_model = FilesModel()
@@ -2957,6 +2783,83 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         self.emojiListView = EmojisListView(self.emojis_model)
         self.tabEmojis.layout().addWidget(self.emojiListView)
 
+    def __init__(self, *args, mode=None):
+
+        # Create main window base class
+        super().__init__(*args)
+        self.mode = mode    # None or unittest (None is normal usage)
+        self.initialized = False
+
+        # set window on app for reference during initialization of children
+        app = get_app()
+        app.window = self
+        _ = app._tr
+
+        # Load user settings for window
+        s = app.get_settings()
+        self.recent_menu = None
+
+        # Track metrics
+        track_metric_session()  # start session
+
+        # Set unique install id (if blank)
+        if not s.get("unique_install_id"):
+            s.set("unique_install_id", str(uuid4()))
+
+            # Track 1st launch metric
+            track_metric_screen("initial-launch-screen")
+
+        # Set unique id for Sentry
+        sentry.set_user({"id": s.get("unique_install_id")})
+
+        # Track main screen
+        track_metric_screen("main-screen")
+
+        # Create blank tutorial manager
+        self.tutorial_manager = None
+
+        # Load UI from designer
+        ui_util.load_ui(self, self.ui_path)
+
+        # Set all keyboard shortcuts from the settings file
+        self.InitKeyboardShortcuts()
+
+        # Init UI
+        ui_util.init_ui(self)
+
+        # Setup toolbars that aren't on main window, set initial state of items, etc
+        self.setup_toolbars()
+
+        # Add window as watcher to receive undo/redo status updates
+        app.updates.add_watcher(self)
+
+        # Get current version of OpenShot via HTTP
+        self.FoundVersionSignal.connect(self.foundCurrentVersion)
+        get_current_Version()
+
+        # Connect signals
+        if self.mode != "unittest":
+            self.RecoverBackup.connect(self.recover_backup)
+
+        # Initialize and start the thumbnail HTTP server
+        self.http_server_thread = httpThumbnailServerThread()
+        self.http_server_thread.start()
+
+        # Create the timeline sync object (used for previewing timeline)
+        self.timeline_sync = TimelineSync(self)
+
+        # Setup timeline
+        self.timeline = TimelineWebView(self)
+        self.frameWeb.layout().addWidget(self.timeline)
+
+        # Configure the side docks to full-height
+        self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
+        self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
+        self.setCorner(Qt.TopRightCorner, Qt.RightDockWidgetArea)
+        self.setCorner(Qt.BottomRightCorner, Qt.RightDockWidgetArea)
+
+        self.initModels()
+
         # Add Docks submenu to View menu
         self.addViewDocksMenu()
 
@@ -2983,10 +2886,18 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         # to update the property model hundreds of times)
         self.show_property_id = None
         self.show_property_type = None
-        self.show_property_timer = QTimer()
+        self.show_property_timer = QTimer(self)
         self.show_property_timer.setInterval(100)
         self.show_property_timer.setSingleShot(True)
         self.show_property_timer.timeout.connect(self.show_property_timeout)
+
+        # Selection timer
+        # Timer to use a delay before emitting selection signal (to prevent a mass selection from trying
+        # to update the zoom slider widget hundreds of times)
+        self.selection_timer = QTimer(self)
+        self.selection_timer.setInterval(100)
+        self.selection_timer.setSingleShot(True)
+        self.selection_timer.timeout.connect(self.emit_selection_signal)
 
         # Setup video preview QWidget
         self.videoPreview = VideoWidget()
@@ -3003,6 +2914,7 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         self.preview_parent = PreviewParent()
         self.preview_parent.Init(self, self.timeline_sync.timeline, self.videoPreview)
         self.preview_thread = self.preview_parent.worker
+        self.sliderZoomWidget.connect_playback()
 
         # Set pause callback
         self.PauseSignal.connect(self.handlePausedVideo)
@@ -3044,12 +2956,6 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         else:
             openshot.Settings.Instance().PLAYBACK_AUDIO_DEVICE_NAME = ""
 
-        # Set OMP thread enabled flag (for stability)
-        if s.get("omp_threads_enabled"):
-            openshot.Settings.Instance().WAIT_FOR_VIDEO_PROCESSING_TASK = False
-        else:
-            openshot.Settings.Instance().WAIT_FOR_VIDEO_PROCESSING_TASK = True
-
         # Set scaling mode to lower quality scaling (for faster previews)
         openshot.Settings.Instance().HIGH_QUALITY_SCALING = False
 
@@ -3079,6 +2985,10 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
         # Connect OpenProject Signal
         self.OpenProjectSignal.connect(self.open_project)
 
+        # Connect Selection signals
+        self.SelectionAdded.connect(self.addSelection)
+        self.SelectionRemoved.connect(self.removeSelection)
+
         # Show window
         if self.mode != "unittest":
             self.show()
@@ -3087,21 +2997,6 @@ class MainWindow(updates.UpdateWatcher, QMainWindow):
 
         # Create tutorial manager
         self.tutorial_manager = TutorialManager(self)
-
-        # Connect to Unity DBus signal (if linux)
-        self.unity_launcher = None
-        if "linux" in sys.platform:
-            try:
-                # Get connection to Unity Launcher
-                import gi
-                gi.require_version('Unity', '7.0')
-                from gi.repository import Unity
-                self.unity_launcher = Unity.LauncherEntry.get_for_desktop_id(info.DESKTOP_ID)
-            except Exception:
-                log.debug('Failed to connect to Unity launcher (Linux only) for updating export progress.')
-            else:
-                self.ExportFrame.connect(self.FrameExported)
-                self.ExportEnded.connect(self.ExportFinished)
 
         # Save settings
         s.save()

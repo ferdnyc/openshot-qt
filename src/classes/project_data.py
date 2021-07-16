@@ -33,13 +33,16 @@ import os
 import random
 import shutil
 
-from classes import info, settings
+from classes import info
+from classes.app import get_app
 from classes.image_types import is_image
 from classes.json_data import JsonDataStore
 from classes.logger import log
 from classes.updates import UpdateInterface
 from classes.assets import get_assets_path
 from windows.views.find_file import find_missing_file
+
+from .keyframe_scaler import KeyframeScaler
 
 
 class ProjectDataStore(JsonDataStore, UpdateInterface):
@@ -96,7 +99,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
                     # True until something disqualifies this as a match
                     match = True
                     # Check each key in key_part dictionary and if not found to be equal as a property in item, move on to next item in list
-                    for subkey in key_part.keys():
+                    for subkey in key_part:
                         # Get each key in dictionary (i.e. "id", "layer", etc...)
                         subkey = subkey.lower()
                         # If object is missing the key or the values differ, then it doesn't match.
@@ -274,7 +277,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
         info.BLENDER_PATH = os.path.join(info.USER_PATH, "blender")
 
         # Get default profile
-        s = settings.get_settings()
+        s = get_app().get_settings()
         default_profile = s.get("default-profile")
 
         # Loop through profiles
@@ -394,65 +397,16 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
         from classes.app import get_app
         get_app().updates.load(self._data)
 
-    def scale_keyframe_value(self, original_value, scale_factor):
-        """Scale keyframe X coordinate by some factor, except for 1 (leave that alone)"""
-        if original_value == 1.0:
-            # This represents the first frame of a clip (so we want to maintain that)
-            return original_value
-        else:
-            # Round to nearest INT
-            return round(original_value * scale_factor)
-
     def rescale_keyframes(self, scale_factor):
         """Adjust all keyframe coordinates from previous FPS to new FPS (using a scale factor)
            and return scaled project data without modifing the current project."""
-        log.info('Scale all keyframes by a factor of %s' % scale_factor)
-
-        # Create copy of active project data
-        data = copy.deepcopy(self._data)
-
-        # Rescale the the copied project data
-        # Loop through all clips (and look for Keyframe objects)
-        # Scale the X coordinate by factor (which represents the frame #)
-        for clip in data.get('clips', []):
-            for attribute in clip:
-                if type(clip.get(attribute)) == dict and "Points" in clip.get(attribute):
-                    for point in clip.get(attribute).get("Points"):
-                        if "co" in point:
-                            point["co"]["X"] = self.scale_keyframe_value(point["co"].get("X", 0.0), scale_factor)
-                if type(clip.get(attribute)) == dict and "red" in clip.get(attribute):
-                    for color in clip.get(attribute):
-                        for point in clip.get(attribute).get(color).get("Points"):
-                            if "co" in point:
-                                point["co"]["X"] = self.scale_keyframe_value(point["co"].get("X", 0.0), scale_factor)
-            for effect in clip.get("effects", []):
-                for attribute in effect:
-                    if type(effect.get(attribute)) == dict and "Points" in effect.get(attribute):
-                        for point in effect.get(attribute).get("Points"):
-                            if "co" in point:
-                                point["co"]["X"] = self.scale_keyframe_value(point["co"].get("X", 0.0), scale_factor)
-                    if type(effect.get(attribute)) == dict and "red" in effect.get(attribute):
-                        for color in effect.get(attribute):
-                            for point in effect.get(attribute).get(color).get("Points"):
-                                if "co" in point:
-                                    point["co"]["X"] = self.scale_keyframe_value(point["co"].get("X", 0.0), scale_factor)
-
-        # Loop through all effects/transitions (and look for Keyframe objects)
-        # Scale the X coordinate by factor (which represents the frame #)
-        for effect in data.get('effects', []):
-            for attribute in effect:
-                if type(effect.get(attribute)) == dict and "Points" in effect.get(attribute):
-                    for point in effect.get(attribute).get("Points"):
-                        if "co" in point:
-                            point["co"]["X"] = self.scale_keyframe_value(point["co"].get("X", 0.0), scale_factor)
-                if type(effect.get(attribute)) == dict and "red" in effect.get(attribute):
-                    for color in effect.get(attribute):
-                        for point in effect.get(attribute).get(color).get("Points"):
-                            if "co" in point:
-                                point["co"]["X"] = self.scale_keyframe_value(point["co"].get("X", 0.0), scale_factor)
-
-        # return the copied and scaled project data
-        return data
+        #
+        log.info('Scale all keyframes by a factor of %s', scale_factor)
+        # Create a scaler instance
+        scaler = KeyframeScaler(factor=scale_factor)
+        # Create copy of active project data and scale
+        scaled = scaler(copy.deepcopy(self._data))
+        return scaled
 
     def read_legacy_project_file(self, file_path):
         """Attempt to read a legacy version 1.x openshot project file"""
@@ -559,7 +513,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
                     for track in reversed(sequence.tracks):
                         for clip in track.clips:
                             # Get associated file for this clip
-                            if clip.file_object.unique_id in file_lookup.keys():
+                            if clip.file_object.unique_id in file_lookup:
                                 file = file_lookup[clip.file_object.unique_id]
                             else:
                                 # Skip missing file
@@ -887,7 +841,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
                 log.info("Checking clip {} path for file {}".format(clip["id"], file_id))
                 # Update paths to files stored in our working space or old path structure
                 # (should have already been copied during previous File stage)
-                if file_id and file_id in reader_paths.keys():
+                if file_id and file_id in reader_paths:
                     clip["reader"]["path"] = reader_paths[file_id]
                     log.info("Updated clip {} path for file {}".format(clip["id"], file_id))
 
@@ -900,7 +854,7 @@ class ProjectDataStore(JsonDataStore, UpdateInterface):
             # Ignore backup recovery project
             return
 
-        s = settings.get_settings()
+        s = get_app().get_settings()
         recent_projects = s.get("recent_projects")
 
         # Make sure file_path is absolute

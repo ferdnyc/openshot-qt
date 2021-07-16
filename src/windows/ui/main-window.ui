@@ -372,6 +372,9 @@
    <attribute name="dockWidgetArea">
     <number>4</number>
    </attribute>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
    <widget class="QWidget" name="dockWidgetContentsCaption">
     <layout class="QGridLayout" name="gridLayoutCaption">
      <property name="leftMargin">
@@ -880,6 +883,9 @@
    </property>
    <property name="toolTip">
     <string>Razor Tool</string>
+   </property>
+   <property name="shortcut">
+    <string>R</string>
    </property>
   </action>
   <action name="actionSnappingTool">

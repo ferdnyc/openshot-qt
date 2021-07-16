@@ -423,14 +423,6 @@
     "restart": true
   },
   {
-    "value": true,
-    "title": "Process Video Frames in Parallel (Experimental)",
-    "type": "bool",
-    "restart": false,
-    "category": "Performance",
-    "setting": "omp_threads_enabled"
-  },
-  {
     "min": 0,
     "max": 128,
     "value": 12,
@@ -524,6 +516,14 @@
     "restart": true,
     "setting": "actionAddMarker",
     "value": "Ctrl+M",
+    "type": "text"
+  },
+  {
+    "category": "Keyboard",
+    "title": "Toggle Razor",
+    "restart": true,
+    "setting": "actionRazorTool",
+    "value": "R",
     "type": "text"
   },
   {
